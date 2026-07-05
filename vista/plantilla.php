@@ -1,0 +1,87 @@
+<?php
+// Evitamos que PHP arroje warnings si la sesión ya fue iniciada en el index
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyPOS - Sistema de Gestión</title>
+
+    <link rel="stylesheet" href="vista/css/bootstrap.min.css">
+    
+    <link rel="stylesheet" href="vista/css/sweetalert2.min.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Estilos base mínimos para que no se vea roto mientras construimos */
+        body { background-color: #f4f6f9; }
+        .wrapper { display: flex; width: 100%; align-items: stretch; }
+        .main-content { width: 100%; padding: 20px; }
+    </style>
+</head>
+<body>
+
+    <?php
+    // Si la variable de sesión existe y es "ok", el usuario está logueado
+    if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
+        
+        echo '<div class="wrapper">';
+
+        // 1. INCLUIMOS EL MENÚ LATERAL
+        include "vista/plantilla/menu.php";
+
+        echo '<div class="main-content">';
+
+        // 2. INCLUIMOS EL HEADER (Barra superior)
+        include "vista/plantilla/header.php";
+
+        // 3. CONTENIDO DINÁMICO (El "Body")
+        // Verificamos qué ruta solicita el usuario mediante la URL (Front Controller)
+        if (isset($_GET["ruta"])) {
+            
+            // Lista blanca de rutas permitidas (Iremos agregando más conforme programemos)
+            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar"];
+
+            if (in_array($_GET["ruta"], $rutasPermitidas)) {
+                include "vista/modulos/" . $_GET["ruta"] . ".php";
+            } else {
+                include "vista/modulos/404.php"; // Página de error si la ruta no existe
+            }
+        } else {
+            // Si no hay ruta en la URL, por defecto cargamos el Dashboard
+            include "vista/modulos/dashboard.php";
+        }
+
+        // 4. INCLUIMOS EL FOOTER
+        include "vista/plantilla/footer.php";
+
+        echo '</div>'; // Fin main-content
+        echo '</div>'; // Fin wrapper
+
+    } else {
+        // Si no está logueado, inyectamos EXCLUSIVAMENTE la pantalla de Login
+        include "vista/modulos/login.php";
+    }
+    ?>
+
+    <script src="vista/js/jquery.js"></script>
+    
+    <script src="vista/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="vista/js/sweetalert2.all.min.js"></script>
+    <script src="vista/js/login.js"></script>
+    <script src="vista/js/login.js"></script>
+    <script src="vista/js/tasas.js"></script> 
+    <script src="vista/js/dashboard.js"></script>
+    <script src="vista/js/plantilla.js"></script>
+    <script src="vista/js/roles.js"></script>
+    <script src="vista/js/usuarios.js"></script>
+    <script src="vista/js/categorias.js"></script>
+    <script src="vista/js/lineas.js"></script>
+    </body>
+</html>
