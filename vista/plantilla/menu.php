@@ -73,6 +73,18 @@ $modoDios = ($_SESSION["rol_id"] == 1) || in_array("all", $permisos);
             </li>
         <?php endif; ?>
 
+        <?php if ($modoDios || in_array("ver_gastos", $permisos)): ?>
+            <li class="nav-item mb-1 mt-2">
+                <a class="nav-link text-white" href="#submenuGastos" data-bs-toggle="collapse" aria-expanded="false">
+                     <i class="fas fa-wallet me-2 text-warning"></i> Gastos / Egresos <i class="fas fa-caret-down ms-auto float-end mt-1"></i>
+                </a>
+                <ul class="collapse nav flex-column ms-3 bg-dark rounded" id="submenuGastos">
+                    <li class="nav-item"><a class="nav-link text-light small py-1" href="index.php?ruta=gastos"><i class="fas fa-file-invoice-dollar me-2"></i> Control de Gastos</a></li>
+                    <li class="nav-item"><a class="nav-link text-light small py-1" href="index.php?ruta=gastos-crear"><i class="fas fa-plus me-2"></i> Registrar Gasto</a></li>
+                </ul>
+            </li>
+<?php endif; ?>
+
         <?php if ($modoDios || in_array("ver_reportes", $permisos)): ?>
             <li class="nav-item mb-1 mt-2">
                 <a class="nav-link text-white" href="#submenuReportes" data-bs-toggle="collapse" aria-expanded="false">

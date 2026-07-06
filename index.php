@@ -9,6 +9,10 @@ require_once "controlador/RolesControlador.php";
 require_once "controlador/TasasControlador.php"; // NUEVO
 require_once "controlador/CategoriasControlador.php";
 require_once "controlador/LineasControlador.php";
+require_once "controlador/ProveedoresControlador.php";
+require_once "controlador/SubcategoriasControlador.php";
+require_once "controlador/ClientesControlador.php";
+require_once "controlador/GastosControlador.php";
 
 // 3. Requerimos los Modelos
 require_once "modelo/Usuarios.php";
@@ -43,6 +47,26 @@ LineasControlador::ctrCrearLinea();
 LineasControlador::ctrActualizarLinea();
 LineasControlador::ctrEliminarLinea();
 LineasControlador::ctrActivarLinea();
+// Interceptores del CRUD de Proveedores
+ProveedoresControlador::ctrCrearProveedor();
+ProveedoresControlador::ctrActualizarProveedor();
+ProveedoresControlador::ctrEliminarProveedor();
+ProveedoresControlador::ctrActivarProveedor();
+// Interceptores del CRUD de Subcategorías
+SubcategoriasControlador::ctrCrearSubcategoria();
+SubcategoriasControlador::ctrActualizarSubcategoria();
+SubcategoriasControlador::ctrEliminarSubcategoria();
+SubcategoriasControlador::ctrActivarSubcategoria();
+// Interceptores del CRUD de Clientes
+ClientesControlador::ctrCrearCliente();
+ClientesControlador::ctrActualizarCliente();
+ClientesControlador::ctrEliminarCliente();
+ClientesControlador::ctrActivarCliente();
+// Interceptores AJAX del CRUD de Gastos
+GastosControlador::ctrCrearGasto();
+GastosControlador::ctrActualizarGasto();
+GastosControlador::ctrAnularGasto();
+GastosControlador::ctrReactivarGasto();
 // 4. Instanciamos la plantilla para que se muestre en pantalla
 $plantilla = new PlantillaControlador();
 $plantilla->ctrPlantilla();

@@ -94,6 +94,10 @@ if (!is_array($permisos)) { $permisos = []; }
                                     <input class="form-check-input" type="checkbox" name="permisosActivos[]" value="ver_reportes" id="chk_reportes" <?php echo in_array("ver_reportes", $permisos) ? 'checked' : ''; ?>>
                                     <label class="form-check-label" for="chk_reportes">Reportes Financieros</label>
                                 </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" name="permisosActivos[]" value="ver_gastos" id="chk_gastos" <?php echo in_array("ver_gastos", $permisos) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="chk_gastos">Gastos Operativos (Egresos)</label>
+                                </div>    
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input" type="checkbox" name="permisosActivos[]" value="ver_procesos" id="chk_procesos" <?php echo in_array("ver_procesos", $permisos) ? 'checked' : ''; ?>>
                                     <label class="form-check-label" for="chk_procesos">Procesos de Ventas / Caja</label>
