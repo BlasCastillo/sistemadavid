@@ -23,6 +23,7 @@ class CategoriasControlador {
                 }
 
                 $categoria = new Categorias();
+                $categoria->setLineaId(intval($_POST["idLineaPadre"]));
                 $categoria->setNombre($_POST["nombreCategoria"]);
 
                 if ($categoria->crear()) {
@@ -49,6 +50,7 @@ class CategoriasControlador {
 
                 $categoria = new Categorias();
                 $categoria->setId($_POST["idCategoriaEditar"]);
+                $categoria->setLineaId(intval($_POST["idLineaPadreEditar"]));
                 $categoria->setNombre($_POST["nombreCategoriaEditar"]);
 
                 if ($categoria->actualizar()) {
@@ -78,16 +80,28 @@ class CategoriasControlador {
     }
 
     public static function ctrActivarCategoria() {
-        if (isset($_POST["idCategoriaActivar"])) {
-            $categoria = new Categorias();
-            $categoria->setId($_POST["idCategoriaActivar"]);
+            if (isset($_POST["idCategoriaActivar"])) {
+                $categoria = new Categorias();
+                $categoria->setId($_POST["idCategoriaActivar"]);
 
-            if ($categoria->activar()) {
-                echo json_encode(["status" => "success", "mensaje" => "Categoría reactivada correctamente."]);
-            } else {
-                echo json_encode(["status" => "error", "mensaje" => "Error al reactivar."]);
+                if ($categoria->activar()) {
+                    echo json_encode(["status" => "success", "mensaje" => "Categoría reactivada correctamente."]);
+                } else {
+                    echo json_encode(["status" => "error", "mensaje" => "Error al reactivar."]);
+                }
+                exit();
             }
-            exit();
+        
         }
-    }
+        // Método para Select Dinámico en Cascada
+            public static function ctrTraerCategoriasPorLineaAjax() {
+                if(isset($_POST["idLineaAjax"])) {
+                    $idLinea = $_POST["idLineaAjax"];
+                    $stmt = Conexion::conectar()->prepare("SELECT id, nombre FROM categorias WHERE linea_id = :linea_id AND estado = 1 ORDER BY nombre ASC");
+                    $stmt->bindParam(":linea_id", $idLinea, PDO::PARAM_INT);
+                    $stmt->execute();
+                    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+                    exit();
+                }
+        }
 }

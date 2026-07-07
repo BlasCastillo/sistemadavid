@@ -13,6 +13,7 @@ require_once "controlador/ProveedoresControlador.php";
 require_once "controlador/SubcategoriasControlador.php";
 require_once "controlador/ClientesControlador.php";
 require_once "controlador/GastosControlador.php";
+require_once "controlador/ProductosControlador.php";
 
 // 3. Requerimos los Modelos
 require_once "modelo/Usuarios.php";
@@ -42,6 +43,7 @@ CategoriasControlador::ctrCrearCategoria();
 CategoriasControlador::ctrActualizarCategoria();
 CategoriasControlador::ctrEliminarCategoria();
 CategoriasControlador::ctrActivarCategoria();
+CategoriasControlador::ctrTraerCategoriasPorLineaAjax();
 // Interceptores del CRUD de Líneas
 LineasControlador::ctrCrearLinea();
 LineasControlador::ctrActualizarLinea();
@@ -57,6 +59,7 @@ SubcategoriasControlador::ctrCrearSubcategoria();
 SubcategoriasControlador::ctrActualizarSubcategoria();
 SubcategoriasControlador::ctrEliminarSubcategoria();
 SubcategoriasControlador::ctrActivarSubcategoria();
+SubcategoriasControlador::ctrTraerSubcategoriasPorCategoriaAjax();
 // Interceptores del CRUD de Clientes
 ClientesControlador::ctrCrearCliente();
 ClientesControlador::ctrActualizarCliente();
@@ -67,6 +70,11 @@ GastosControlador::ctrCrearGasto();
 GastosControlador::ctrActualizarGasto();
 GastosControlador::ctrAnularGasto();
 GastosControlador::ctrReactivarGasto();
+// Interceptores AJAX del CRUD de Productos
+ProductosControlador::ctrCrearProducto();
+ProductosControlador::ctrActualizarProducto();
+ProductosControlador::ctrEliminarProducto();
+ProductosControlador::ctrActivarProducto();
 // 4. Instanciamos la plantilla para que se muestre en pantalla
 $plantilla = new PlantillaControlador();
 $plantilla->ctrPlantilla();

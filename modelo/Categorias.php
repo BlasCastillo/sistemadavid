@@ -2,13 +2,16 @@
 require_once "config/conexion.php";
 
 class Categorias {
+    private int $linea_id;
+    public string $linea_nombre = "";
     private ?int $id;
     private string $nombre;
     private int $estado;
     private ?string $creado_en;
 
-    public function __construct(?int $id = null, string $nombre = "", int $estado = 1, ?string $creado_en = null) {
+    public function __construct(?int $id = null, int $linea_id = 0, string $nombre = "", int $estado = 1, ?string $creado_en = null) {
         $this->id = $id;
+        $this->linea_id = $linea_id;
         $this->nombre = $nombre;
         $this->estado = $estado;
         $this->creado_en = $creado_en;
@@ -22,27 +25,49 @@ class Categorias {
     public function getEstado(): int { return $this->estado; }
     public function setEstado(int $estado): void { $this->estado = $estado; }
     public function getCreadoEn(): ?string { return $this->creado_en; }
+    public function getLineaId(): int { return $this->linea_id; }
+    public function setLineaId(int $linea_id): void { $this->linea_id = $linea_id; }
+
 
     // OPERACIONES DE BASE DE DATOS
-    public static function leerTodas(int $filtroEstado = 1): array {
-        $stmt = Conexion::conectar()->prepare("SELECT * FROM categorias WHERE estado = :estado ORDER BY id DESC");
+        public static function leerTodas(int $filtroEstado = 1): array {
+        $stmt = Conexion::conectar()->prepare("
+            SELECT c.*, l.nombre as linea_nombre 
+            FROM categorias c 
+            LEFT JOIN lineas l ON c.linea_id = l.id 
+            WHERE c.estado = :estado 
+            ORDER BY c.id DESC
+        ");
         $stmt->bindParam(":estado", $filtroEstado, PDO::PARAM_INT);
         $stmt->execute();
-        $registros = $stmt->fetchAll();
+        $registros = $stmt->fetchAll(PDO::FETCH_OBJ);
         
         $categorias = [];
         foreach ($registros as $reg) {
-            $categorias[] = self::mapearObjeto($reg);
+            $obj = self::mapearObjeto($reg);
+            $obj->linea_nombre = isset($reg->linea_nombre) ? $reg->linea_nombre : "Sin Línea";
+            $categorias[] = $obj;
         }
         return $categorias;
     }
 
     public static function buscarPorId(int $id) {
-        $stmt = Conexion::conectar()->prepare("SELECT * FROM categorias WHERE id = :id");
+        $stmt = Conexion::conectar()->prepare("
+            SELECT c.*, l.nombre as linea_nombre 
+            FROM categorias c 
+            LEFT JOIN lineas l ON c.linea_id = l.id 
+            WHERE c.id = :id
+        ");
         $stmt->bindParam(":id", $id, PDO::PARAM_INT);
         $stmt->execute();
-        $reg = $stmt->fetch();
-        return $reg ? self::mapearObjeto($reg) : null;
+        $reg = $stmt->fetch(PDO::FETCH_OBJ);
+        
+        if ($reg) {
+            $obj = self::mapearObjeto($reg);
+            $obj->linea_nombre = isset($reg->linea_nombre) ? $reg->linea_nombre : "Sin Línea";
+            return $obj;
+        }
+        return null;
     }
 
     public static function verificarDuplicado(string $nombre) {
@@ -53,15 +78,16 @@ class Categorias {
     }
 
     public function crear(): bool {
-        $stmt = Conexion::conectar()->prepare("INSERT INTO categorias (nombre, estado) VALUES (:nombre, 1)");
-        $stmt->bindParam(":nombre", $this->nombre, PDO::PARAM_STR);
+        $stmt = Conexion::conectar()->prepare("INSERT INTO categorias (linea_id, nombre, estado) VALUES (:linea_id, :nombre, 1)");
+        $stmt->bindParam(":linea_id", $this->linea_id, PDO::PARAM_INT);
+        $stmt->bindParam(":nombre", $this->nombre, PDO::PARAM_STR); 
         return $stmt->execute();
     }
 
     public function actualizar(): bool {
-        $stmt = Conexion::conectar()->prepare("UPDATE categorias SET nombre = :nombre WHERE id = :id");
+        $stmt = Conexion::conectar()->prepare("UPDATE categorias SET linea_id = :linea_id, nombre = :nombre WHERE id = :id");
+        $stmt->bindParam(":linea_id", $this->linea_id, PDO::PARAM_INT);
         $stmt->bindParam(":nombre", $this->nombre, PDO::PARAM_STR);
-        $stmt->bindParam(":id", $this->id, PDO::PARAM_INT);
         return $stmt->execute();
     }
 
@@ -78,6 +104,8 @@ class Categorias {
     }
 
     private static function mapearObjeto($reg): Categorias {
-        return new self($reg->id, $reg->nombre, $reg->estado, $reg->creado_en);
+        $lineaId = isset($reg->linea_id) ? (int)$reg->linea_id : 0;
+        return new self($reg->id, $lineaId, $reg->nombre, $reg->estado, $reg->creado_en);
     }
+    
 }

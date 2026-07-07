@@ -92,4 +92,15 @@ class SubcategoriasControlador {
             exit();
         }
     }
+    // Método para Select Dinámico en Cascada
+    public static function ctrTraerSubcategoriasPorCategoriaAjax() {
+        if(isset($_POST["idCategoriaAjax"])) {
+            $idCategoria = $_POST["idCategoriaAjax"];
+            $stmt = Conexion::conectar()->prepare("SELECT id, nombre FROM subcategorias WHERE categoria_id = :categoria_id AND estado = 1 ORDER BY nombre ASC");
+            $stmt->bindParam(":categoria_id", $idCategoria, PDO::PARAM_INT);
+            $stmt->execute();
+            echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+            exit();
+        }
+    }
 }

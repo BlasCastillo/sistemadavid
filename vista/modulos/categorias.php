@@ -22,8 +22,8 @@ $categorias = CategoriasControlador::ctrMostrarCategorias(null, $estadoFiltro);
                     <thead class="table-dark">
                         <tr>
                             <th style="width: 50px;">ID</th>
-                            <th>Nombre de la Categoría</th>
-                            <th>Fecha de Registro</th>
+                            <th>Nombre de Categoría</th>
+                            <th>Línea Principal</th>
                             <th class="text-center" style="width: 150px;">Acciones</th>
                         </tr>
                     </thead>
@@ -32,7 +32,7 @@ $categorias = CategoriasControlador::ctrMostrarCategorias(null, $estadoFiltro);
                             <tr>
                                 <td><?php echo $cat->getId(); ?></td>
                                 <td class="fw-bold text-dark"><?php echo $cat->getNombre(); ?></td>
-                                <td><?php echo date('d/m/Y', strtotime($cat->getCreadoEn())); ?></td>
+                                <td><span class="badge bg-info text-dark"><?php echo $cat->linea_nombre; ?></span></td>
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <?php if($estadoFiltro == 1): ?>
