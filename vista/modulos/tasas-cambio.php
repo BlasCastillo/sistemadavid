@@ -33,7 +33,7 @@ $tasaActual = Tasas::obtenerTasaActiva();
                         <div class="mb-3">
                             <label class="form-label fw-bold small text-danger">Forzar Brecha % (Opcional)</label>
                             <input type="number" step="0.01" class="form-control border-danger" id="brechaForzadaManual" name="brechaForzadaManual" placeholder="Dejar en blanco para calcular automáticamente">
-                            <small class="text-muted">Si lo deja vacío, el sistema calculará: ((USDT - BCV) / BCV) * 100</small>
+                            <small class="text-muted d-block mt-1">Si lo deja vacío, el sistema calculará: ((USDT - BCV) / BCV) * 100</small>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 fw-bold" id="btnGuardarTasa">

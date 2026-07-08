@@ -2,44 +2,48 @@
 $estadoFiltro = isset($_GET["estado"]) ? intval($_GET["estado"]) : 1;
 $Lineas = LineasControlador::ctrMostrarLineas(null, $estadoFiltro);
 ?>
+
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 text-gray-800"><i class="fas fa-list text-primary me-2"></i> <?php echo $estadoFiltro == 1 ? "Líneas de Productos" : "Líneas Inactivas"; ?></h1>
+    <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
+            <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-tags me-2 text-primary"></i> <?php echo $estadoFiltro == 1 ? "Líneas de Productos" : "Líneas Inactivas"; ?></h4>
+            <small class="text-muted d-block mt-1">Las líneas representan la división comercial más amplia del catálogo.</small>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
             <?php if($estadoFiltro == 1): ?>
-                <a href="index.php?ruta=lineas&estado=0" class="btn btn-outline-secondary fw-bold me-2"><i class="fas fa-eye-slash me-1"></i> Ver Inactivas</a>
+                <a href="index.php?ruta=lineas&estado=0" class="btn btn-outline-secondary"><i class="fas fa-eye-slash me-1"></i> Ver Inactivas</a>
             <?php else: ?>
-                <a href="index.php?ruta=lineas" class="btn btn-outline-success fw-bold me-2"><i class="fas fa-eye me-1"></i> Ver Activas</a>
+                <a href="index.php?ruta=lineas" class="btn btn-outline-secondary"><i class="fas fa-eye me-1"></i> Ver Activas</a>
             <?php endif; ?>
-            <a href="index.php?ruta=lineas-crear" class="btn btn-primary fw-bold shadow-sm"><i class="fas fa-plus me-1"></i> Nueva Categoría</a>
+            <a href="index.php?ruta=lineas-crear" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Nueva Línea</a>
         </div>
     </div>
 
-    <div class="card shadow border-0">
-        <div class="card-body">
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th style="width: 50px;">ID</th>
-                            <th>Nombre de la Categoría</th>
+                            <th>ID</th>
+                            <th>Nombre de la Línea</th>
                             <th>Fecha de Registro</th>
-                            <th class="text-center" style="width: 150px;">Acciones</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($Lineas as $cat): ?>
                             <tr>
-                                <td><?php echo $cat->getId(); ?></td>
-                                <td class="fw-bold text-dark"><?php echo $cat->getNombre(); ?></td>
-                                <td><?php echo date('d/m/Y', strtotime($cat->getCreadoEn())); ?></td>
+                                <td class="text-muted"><?php echo $cat->getId(); ?></td>
+                                <td class="fw-semibold"><?php echo $cat->getNombre(); ?></td>
+                                <td class="text-muted"><?php echo date('d/m/Y', strtotime($cat->getCreadoEn())); ?></td>
                                 <td class="text-center">
-                                    <div class="btn-group">
+                                    <div class="d-flex gap-1 justify-content-center">
                                         <?php if($estadoFiltro == 1): ?>
-                                            <a href="index.php?ruta=lineas-editar&idLinea=<?php echo $cat->getId(); ?>" class="btn btn-sm btn-warning text-dark" title="Editar"><i class="fas fa-edit"></i></a>
-                                            <button class="btn btn-sm btn-danger btnEliminarLinea" idLinea="<?php echo $cat->getId(); ?>" nombreLinea="<?php echo $cat->getNombre(); ?>" title="Desactivar"><i class="fas fa-trash"></i></button>
+                                            <a href="index.php?ruta=lineas-editar&idLinea=<?php echo $cat->getId(); ?>" class="btn-action text-warning" title="Editar"><i class="fas fa-edit"></i></a>
+                                            <button class="btn-action text-danger btnEliminarLinea" idLinea="<?php echo $cat->getId(); ?>" nombreLinea="<?php echo $cat->getNombre(); ?>" title="Desactivar"><i class="fas fa-trash"></i></button>
                                         <?php else: ?>
-                                            <button class="btn btn-sm btn-success btnActivarLinea" idLinea="<?php echo $cat->getId(); ?>" nombreLinea="<?php echo $cat->getNombre(); ?>"><i class="fas fa-undo"></i> Reactivar</button>
+                                            <button class="btn-action text-success btnActivarLinea" idLinea="<?php echo $cat->getId(); ?>" nombreLinea="<?php echo $cat->getNombre(); ?>" title="Reactivar"><i class="fas fa-undo"></i></button>
                                         <?php endif; ?>
                                     </div>
                                 </td>

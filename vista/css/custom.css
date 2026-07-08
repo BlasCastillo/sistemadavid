@@ -1,0 +1,337 @@
+/* ==========================================================================
+   EASYPOS - CORE STYLESHEET (VERSION CORREGIDA CON ICONOS Y BOTONES)
+   ========================================================================== */
+
+:root {
+    /* Paleta Fintech Premium (Única y Elegante) */
+    --primary-color: #0B1121;
+    /* Azul noche/Ónice para la estructura del Sidebar */
+    --primary-hover: #1E293B;
+    /* Hover en el menú */
+    --secondary-color: #10B981;
+    /* Verde Esmeralda (Para dinero, cajas, éxitos) */
+    --accent-color: #6366F1;
+    /* Indigo Tecnológico (Para acciones principales de Crear/Agregar) */
+    --danger-color: #EF4444;
+    /* Rojo alerta estándar */
+    --bg-dashboard: #F8FAFC;
+    /* Fondo gris azulado ultra limpio */
+    --border-color: #E2E8F0;
+    /* Bordes estándar */
+    --text-main: #0F172A;
+    /* Texto principal */
+    --text-muted: #64748B;
+    /* Texto secundario */
+
+    /* Fuentes y Efectos */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --transition-global: all 0.2s ease;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* =========================================================
+   RESET Y MEJORAS GLOBALES
+   ========================================================= */
+body {
+    background-color: var(--bg-dashboard) !important;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text-main);
+    margin: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* =========================================================
+   ESTRUCTURA PRINCIPAL
+   ========================================================= */
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.main-content {
+    flex: 1;
+    width: 100%;
+    padding: 24px;
+    margin-left: 250px;
+    transition: margin-left 0.3s ease;
+    background-color: var(--bg-dashboard);
+}
+
+/* =========================================================
+   SIDEBAR (MENÚ LATERAL) - SOLUCIÓN DE ICONOS
+   ========================================================= */
+#sidebarMenu {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    background-color: var(--primary-color) !important;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+#sidebarMenu::-webkit-scrollbar {
+    width: 5px;
+}
+
+#sidebarMenu::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+/* Estilo de los enlaces del menú */
+#sidebarMenu a,
+#sidebarMenu .nav-link {
+    color: #94A3B8 !important;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    transition: var(--transition-global);
+}
+
+#sidebarMenu a:hover,
+#sidebarMenu .nav-link:hover {
+    color: #FFFFFF !important;
+    background-color: var(--primary-hover) !important;
+}
+
+/* 🔥 SOLUCIÓN AQUÍ: Forzar visibilidad y tamaño de los iconos en el Sidebar */
+#sidebarMenu a i,
+#sidebarMenu a svg,
+#sidebarMenu .nav-link i,
+#sidebarMenu .nav-link svg {
+    width: 1.2rem !important;
+    height: 1.2rem !important;
+    margin-right: 0.8rem !important;
+    /* Espacio entre el icono y el texto */
+    display: inline-block !important;
+    vertical-align: middle !important;
+    flex-shrink: 0;
+}
+
+/* Cabecera del Logo de EASYPOS en el menú */
+.brand-link,
+.sidebar-header {
+    background-color: #070B15 !important;
+    color: #FFFFFF !important;
+    border-bottom: 1px solid #1E293B !important;
+    padding: 1.2rem;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+/* Spacer/Overlay en Móviles */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 1030;
+}
+
+/* Clases de Alternancia (JS) */
+body.sidebar-collapsed .main-content {
+    margin-left: 0;
+}
+
+body.sidebar-collapsed #sidebarMenu {
+    transform: translateX(-100%);
+}
+
+/* Ajuste Móvil (< 700px) */
+@media (max-width: 700px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px;
+    }
+
+    #sidebarMenu {
+        transform: translateX(-100%);
+    }
+
+    body.sidebar-mobile-open #sidebarMenu {
+        transform: translateX(0);
+    }
+
+    body.sidebar-mobile-open .sidebar-overlay {
+        display: block;
+    }
+}
+
+/* =========================================================
+   BOTONES ELEGANTES Y COHESIVOS (No más confusión de negro/verde)
+   ========================================================= */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 0.5rem 1.2rem;
+    transition: var(--transition-global);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* Botón Principal / Crear / Agregar (Ahora es Indigo Tech, súper profesional) */
+.btn-primary {
+    background-color: var(--accent-color) !important;
+    color: #FFFFFF !important;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    background-color: #4F46E5 !important;
+    transform: translateY(-1px);
+}
+
+/* Botón de Dinero / Éxito (Verde Esmeralda para Registros de Compra/Venta) */
+.btn-success {
+    background-color: var(--secondary-color) !important;
+    color: #FFFFFF !important;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-success:hover {
+    background-color: #059669 !important;
+    transform: translateY(-1px);
+}
+
+/* Botones de Información / Ver Detalles (El ojito de la tabla) */
+.btn-info {
+    background-color: #0EA5E9 !important;
+    /* Azul cielo limpio */
+    color: #FFFFFF !important;
+}
+
+.btn-info:hover {
+    background-color: #0284C7 !important;
+}
+
+/* =========================================================
+   ESTANDARIZACIÓN DE TABLAS
+   ========================================================= */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-sm);
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+}
+
+.table {
+    margin-bottom: 0 !important;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead th {
+    background-color: #F8FAFC !important;
+    color: var(--text-muted) !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color) !important;
+    border-top: none !important;
+}
+
+.table tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #F8FAFC;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #F1F5F9 !important;
+}
+
+/* =========================================================
+   BOTONES DE ACCIÓN CIRCULARES
+   ========================================================= */
+.btn-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 50% !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: var(--text-muted);
+    transition: var(--transition-global);
+}
+
+.btn-action:hover {
+    background-color: #F1F5F9;
+    color: var(--accent-color);
+    border-color: var(--border-color);
+}
+
+.btn svg,
+.btn-action svg,
+.btn-icon-start svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    stroke-width: 2;
+    fill: none;
+    stroke: currentColor;
+}
+
+/* =========================================================
+   BADGES (INSIGNIAS)
+   ========================================================= */
+.badge {
+    padding: 6px 12px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    border-radius: 9999px !important;
+    text-transform: capitalize;
+}
+
+.badge-success {
+    background-color: #D1FAE5 !important;
+    color: #065F46 !important;
+}
+
+.badge-danger {
+    background-color: #FEE2E2 !important;
+    color: #991B1B !important;
+}
+
+.badge-warning {
+    background-color: #FEF3C7 !important;
+    color: #92400E !important;
+}
+
+.badge-info {
+    background-color: #E0F2FE !important;
+    color: #075985 !important;
+}

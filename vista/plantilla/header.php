@@ -2,16 +2,16 @@
   <div class="container-fluid d-flex justify-content-between align-items-center">
     
     <div class="d-flex align-items-center">
-        <button class="btn btn-outline-secondary me-3" id="btnToggleMenu" title="Ocultar/Mostrar Menú">
+        <button class="btn btn-outline-secondary" id="btnToggleMenu" title="Ocultar/Mostrar Menú">
             <i class="fas fa-bars"></i>
         </button>
-        <span class="fs-4 fw-bold text-primary">EasyPOS</span>
+        <a href="index.php?ruta=dashboard"><span class="fs-5 fw-bold text-primary me-2">REDITUS</span></a>
     </div>
 
     <div class="d-flex align-items-center">
       <div class="dropdown">
         <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="fas fa-user-circle fa-lg me-1 text-secondary"></i> 
+          <i class="fas fa-user-circle fa-md text-secondary"></i> 
           <span class="fw-semibold">
             <?php echo $_SESSION["nombre_completo"] ?? 'Usuario'; ?>
           </span>

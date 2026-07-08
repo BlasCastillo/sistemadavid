@@ -1,54 +1,47 @@
 <?php
-// Seguridad: Solo el Gerente General (Rol 1) puede gestionar roles
 if ($_SESSION["rol_id"] != 1) {
     echo '<script>window.location = "index.php?ruta=dashboard";</script>';
     exit;
 }
 
-// Obtenemos la lista de roles directamente del controlador
 $roles = RolesControlador::ctrMostrarRoles();
 ?>
 
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 text-gray-800"><i class="fas fa-user-tag text-primary me-2"></i> Gestión de Roles y Permisos</h1>
-        
-        <a href="index.php?ruta=roles-crear" class="btn btn-primary fw-bold shadow-sm">
+    <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-user-tag me-2 text-primary"></i> Gestión de Roles y Permisos</h4>
+            <small class="text-muted d-block mt-1">Define los roles de acceso y sus permisos dentro del sistema.</small>
+        </div>
+        <a href="index.php?ruta=roles-crear" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i> Nuevo Rol
         </a>
     </div>
 
-    <div class="card shadow mb-4 border-0">
-        <div class="card-body">
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th style="width: 50px;">ID</th>
+                            <th>ID</th>
                             <th>Nombre del Rol</th>
                             <th>Fecha de Creación</th>
-                            <th class="text-center" style="width: 150px;">Acciones</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($roles as $rol): ?>
                             <tr>
-                                <td><?php echo $rol->getId(); ?></td>
-                                <td class="fw-bold text-dark"><?php echo $rol->getNombre(); ?></td>
-                                <td><?php echo date('d/m/Y', strtotime($rol->getCreadoEn())); ?></td>
+                                <td class="text-muted"><?php echo $rol->getId(); ?></td>
+                                <td class="fw-semibold"><?php echo $rol->getNombre(); ?></td>
+                                <td class="text-muted"><?php echo date('d/m/Y', strtotime($rol->getCreadoEn())); ?></td>
                                 <td class="text-center">
-                                    <div class="btn-group">
-                                        
-                                        <a href="index.php?ruta=roles-editar&idRol=<?php echo $rol->getId(); ?>" class="btn btn-sm btn-warning text-dark" title="Configurar Rol y Permisos">
-                                            <i class="fas fa-cogs"></i> Configurar
-                                        </a>
-                                        
+                                    <div class="d-flex gap-1 justify-content-center">
+                                        <a href="index.php?ruta=roles-editar&idRol=<?php echo $rol->getId(); ?>" class="btn-action text-warning" title="Configurar Rol y Permisos"><i class="fas fa-cogs"></i></a>
                                         <?php if($rol->getId() != 1 && $rol->getId() != 2): ?>
-                                            <button class="btn btn-sm btn-danger btnEliminarRol" idRol="<?php echo $rol->getId(); ?>" title="Eliminar Rol">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <button class="btn-action text-danger btnEliminarRol" idRol="<?php echo $rol->getId(); ?>" title="Eliminar Rol"><i class="fas fa-trash"></i></button>
                                         <?php endif; ?>
-
                                     </div>
                                 </td>
                             </tr>

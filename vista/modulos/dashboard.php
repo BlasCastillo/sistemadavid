@@ -1,86 +1,86 @@
 <?php
-// Solicitamos la tasa activa al cargar el dashboard
+// Solicitamos la tasa activa
 $tasaActual = Tasas::obtenerTasaActiva();
 ?>
-<div class="container-fluid py-4">
+
+<div class="container-fluid">
     
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-        <h1 class="h3 text-gray-800 mb-2 mb-md-0"><i class="fas fa-chart-line text-primary me-2"></i> Dashboard General</h1>
+    <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div class="module-title">
+            <h4 class="fw-bold mb-0 text-dark">
+                <i class="fas fa-chart-line me-2 text-primary"></i> Dashboard General
+            </h4>
+            <small class="text-muted">Resumen operativo y tasas de cambio al día.</small>
+        </div>
         
-        <div class="d-flex align-items-center bg-white p-2 rounded shadow-sm border">
-            <span class="text-muted small me-3 fw-semibold">
+        <div class="d-flex align-items-center bg-white p-2 px-3 rounded shadow-sm border border-light">
+            <span class="text-muted small me-3">
                 <i class="fas fa-clock text-info me-1"></i> 
-                Última captura: 
-                <?php 
-                    if($tasaActual) {
-                        echo date('d/m/Y - h:i A', strtotime($tasaActual->creado_en));
-                    } else {
-                        echo "Sin datos";
-                    }
-                ?>
+                Actualizado: 
+                <strong class="text-dark">
+                    <?php echo $tasaActual ? date('d/m/Y - h:i A', strtotime($tasaActual->creado_en)) : "Sin datos"; ?>
+                </strong>
             </span>
-            <button class="btn btn-sm btn-outline-primary fw-bold" id="btnForzarSincronizacion">
-                <i class="fas fa-sync-alt me-1"></i> Revisar Tasas
+            <button class="btn btn-sm btn-outline-primary" id="btnForzarSincronizacion">
+                <i class="fas fa-sync-alt me-1"></i> Sincronizar
             </button>
         </div>
     </div>
     
-    <div class="row mb-4">
-        
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-start border-primary border-4 shadow-sm h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs fw-bold text-primary text-uppercase mb-1">Tasa Oficial (BCV)</div>
-                            <div class="h5 mb-0 fw-bold text-dark">Bs. <?php echo $tasaActual ? number_format($tasaActual->tasa_bcv, 4, ',', '.') : '0,0000'; ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-university fa-2x text-black-50 opacity-50"></i>
-                        </div>
+    <div class="row g-4 mb-4">
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-shrink-0 bg-primary bg-opacity-10 p-3 rounded text-primary">
+                        <i class="fas fa-university fa-lg"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-xs fw-bold text-muted text-uppercase mb-1">Tasa Oficial (BCV)</div>
+                        <div class="h5 mb-0 fw-bold text-dark">Bs. <?php echo $tasaActual ? number_format($tasaActual->tasa_bcv, 4, ',', '.') : '0,0000'; ?></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-start border-warning border-4 shadow-sm h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs fw-bold text-warning text-uppercase mb-1">Tasa USDT (Binance)</div>
-                            <div class="h5 mb-0 fw-bold text-dark">Bs. <?php echo $tasaActual ? number_format($tasaActual->tasa_binance, 4, ',', '.') : '0,0000'; ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fab fa-bitcoin fa-2x text-black-50 opacity-50"></i>
-                        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-shrink-0 bg-warning bg-opacity-10 p-3 rounded text-warning">
+                        <i class="fab fa-bitcoin fa-lg"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-xs fw-bold text-muted text-uppercase mb-1">Tasa USDT (Binance)</div>
+                        <div class="h5 mb-0 fw-bold text-dark">Bs. <?php echo $tasaActual ? number_format($tasaActual->tasa_binance, 4, ',', '.') : '0,0000'; ?></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-start border-danger border-4 shadow-sm h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs fw-bold text-danger text-uppercase mb-1">Brecha Cambiaria</div>
-                            <div class="h5 mb-0 fw-bold text-dark"><?php echo $tasaActual ? $tasaActual->brecha_porcentaje : '0'; ?> %</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-percentage fa-2x text-black-50 opacity-50"></i>
-                        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-shrink-0 bg-danger bg-opacity-10 p-3 rounded text-danger">
+                        <i class="fas fa-percentage fa-lg"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-xs fw-bold text-muted text-uppercase mb-1">Brecha Cambiaria</div>
+                        <div class="h5 mb-0 fw-bold text-dark"><?php echo $tasaActual ? $tasaActual->brecha_porcentaje : '0'; ?> %</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-  <div class="alert alert-success border-0 shadow-sm" role="alert">
-        <h5 class="alert-heading fw-bold"><i class="fas fa-check-circle me-2"></i>¡Bienvenido, <?php echo $_SESSION["nombre_completo"] ?? "Usuario"; ?>!</h5>
-        <p class="mb-0 small">El sistema está operando correctamente bajo tu rol de <strong><?php echo $_SESSION["nombre_rol"] ?? "Usuario"; ?></strong>.</p>
+    <div class="card border-0 shadow-sm bg-success bg-opacity-10">
+        <div class="card-body">
+            <h5 class="fw-bold text-success mb-1">
+                <i class="fas fa-check-circle me-2"></i>Bienvenido, <?php echo $_SESSION["nombre_completo"] ?? "Usuario"; ?>
+            </h5>
+            <p class="mb-0 text-muted">
+                Has iniciado sesión con el rol de <strong><?php echo $_SESSION["nombre_rol"] ?? "Usuario"; ?></strong>. Todo está listo para gestionar tus operaciones.
+            </p>
+        </div>
     </div>
-
 </div><?php
 /*
 // =========================================================================

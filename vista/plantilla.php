@@ -16,14 +16,10 @@ if (session_status() == PHP_SESSION_NONE) {
     
     <link rel="stylesheet" href="vista/css/sweetalert2.min.css">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        /* Estilos base mínimos para que no se vea roto mientras construimos */
-        body { background-color: #f4f6f9; }
-        .wrapper { display: flex; width: 100%; align-items: stretch; }
-        .main-content { width: 100%; padding: 20px; }
-    </style>
+    <link rel="stylesheet" href="vista/css/all.min.css">
+
+    <link rel="stylesheet" href="vista/css/custom.css">
 </head>
 <body>
 
@@ -32,6 +28,7 @@ if (session_status() == PHP_SESSION_NONE) {
     if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
         
         echo '<div class="wrapper">';
+        echo '<div class="sidebar-overlay"></div>';
 
         // 1. INCLUIMOS EL MENÚ LATERAL
         include "vista/plantilla/menu.php";
@@ -76,8 +73,8 @@ if (session_status() == PHP_SESSION_NONE) {
     <script src="vista/js/select2.min.js"></script>
     <script src="vista/js/sweetalert2.all.min.js"></script>
     <script src="vista/js/login.js"></script>
-    <script src="vista/js/login.js"></script>
-    <script src="vista/js/tasas.js"></script> 
+    <script src="vista/js/tasas.js"></script>
+
     <script src="vista/js/dashboard.js"></script>
     <script src="vista/js/plantilla.js"></script>
     <script src="vista/js/roles.js"></script>

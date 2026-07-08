@@ -4,58 +4,61 @@ $historialCompras = ComprasControlador::ctrMostrarHistorial();
 ?>
 
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 text-gray-800"><i class="fas fa-shopping-cart text-success me-2"></i> Historial de Compras</h1>
-        <a href="index.php?ruta=compras-crear" class="btn btn-success fw-bold shadow-sm"><i class="fas fa-plus me-1"></i> Registrar Nueva Compra</a>
+    <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-shopping-cart me-2 text-success"></i> Historial de Compras</h4>
+            <small class="text-muted d-block mt-1">Registro de todas las entradas de mercancía y facturas de proveedores.</small>
+        </div>
+        <a href="index.php?ruta=compras-crear" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i> Registrar Nueva Compra
+        </a>
     </div>
 
-    <div class="card shadow border-0 border-top border-success border-3">
-        <div class="card-body">
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle table-striped">
-                    <thead class="table-dark">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th style="width: 50px;">#</th>
+                            <th>#</th>
                             <th>Factura / Fecha</th>
                             <th>Proveedor</th>
-                            <th>Moneda Pago</th>
-                            <th>Tasa BCV</th>
-                            <th>Total Pagado (Nominal)</th>
-                            <th class="text-success">Costo Real (USDT)</th>
+                            <th class="text-center">Moneda Pago</th>
+                            <th class="text-end">Tasa BCV</th>
+                            <th class="text-end">Total Pagado (Nominal)</th>
+                            <th class="text-end">Costo Real (USDT)</th>
                             <th>Cajero/Usuario</th>
-                            <th class="text-center" style="width: 100px;">Acciones</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($historialCompras as $compra): ?>
                             <tr>
-                                <td><?php echo $compra->id; ?></td>
+                                <td class="text-muted"><?php echo $compra->id; ?></td>
                                 <td>
-                                    <div class="fw-bold fs-6 text-primary"><?php echo $compra->numero_factura; ?></div>
+                                    <div class="fw-semibold text-primary"><?php echo $compra->numero_factura; ?></div>
                                     <div class="small text-muted"><?php echo date("d/m/Y", strtotime($compra->fecha_compra)); ?></div>
                                 </td>
-                                <td class="fw-bold"><?php echo $compra->proveedor_nombre; ?></td>
-                                <td>
+                                <td class="fw-semibold"><?php echo $compra->proveedor_nombre; ?></td>
+                                <td class="text-center">
                                     <?php if($compra->moneda == "Bs"): ?>
-                                        <span class="badge bg-primary">Bolívares (Bs)</span>
+                                        <span class="badge badge-info">Bolívares (Bs)</span>
                                     <?php elseif($compra->moneda == "USD_Fisico"): ?>
-                                        <span class="badge bg-secondary text-dark">Dólar Físico</span>
+                                        <span class="badge badge-warning">Dólar Físico</span>
                                     <?php else: ?>
-                                        <span class="badge bg-success">USDT / Digital</span>
+                                        <span class="badge badge-success">USDT / Digital</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo number_format($compra->tasa_bcv, 2); ?> Bs</td>
-                                <td class="fw-bold text-dark">
+                                <td class="text-end"><?php echo number_format($compra->tasa_bcv, 2); ?> Bs</td>
+                                <td class="text-end fw-semibold">
                                     <?php echo ($compra->moneda == "Bs" ? "Bs " : "$ ") . number_format($compra->total_nominal, 2); ?>
                                 </td>
-                                <td class="fw-bold text-success fs-6">
+                                <td class="text-end fw-bold text-success">
                                     $ <?php echo number_format($compra->total_usdt, 4); ?>
                                 </td>
                                 <td><span class="small text-muted"><i class="fas fa-user me-1"></i><?php echo $compra->usuario_nombre; ?></span></td>
                                 <td class="text-center">
-                                    <div class="btn-group">
-                                        <button class="btn btn-sm btn-info text-white btnImprimirCompra" idCompra="<?php echo $compra->id; ?>" title="Ver Detalle"><i class="fas fa-eye"></i></button>
-                                    </div>
+                                    <button class="btn-action text-info btnImprimirCompra" idCompra="<?php echo $compra->id; ?>" title="Ver Detalle"><i class="fas fa-eye"></i></button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
