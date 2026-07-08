@@ -198,4 +198,23 @@ class ProductosControlador {
             exit();
         }
     }
+    /* ==============================================================
+       BUSCADOR DINÁMICO DE PRODUCTOS PARA SELECT2 (AJAX)
+       ============================================================== */
+    public static function ctrBuscarProductosAjax() {
+        if(isset($_POST["buscarProductoSelect"])) {
+            $busqueda = $_POST["buscarProductoSelect"];
+            
+            // Usamos LIKE para buscar tanto por nombre como por código de barras
+            $stmt = Conexion::conectar()->prepare("SELECT id, codigo_barras, nombre, costo_usdt FROM productos WHERE nombre LIKE :busqueda OR codigo_barras LIKE :busqueda LIMIT 20");
+            $stmt->bindValue(":busqueda", "%$busqueda%", PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Devolvemos el resultado en formato JSON para que JavaScript lo lea
+            echo json_encode($productos);
+            exit();
+        }
+    }
 }

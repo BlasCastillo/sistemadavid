@@ -14,6 +14,7 @@ require_once "controlador/SubcategoriasControlador.php";
 require_once "controlador/ClientesControlador.php";
 require_once "controlador/GastosControlador.php";
 require_once "controlador/ProductosControlador.php";
+require_once "controlador/ComprasControlador.php";
 
 // 3. Requerimos los Modelos
 require_once "modelo/Usuarios.php";
@@ -75,6 +76,35 @@ ProductosControlador::ctrCrearProducto();
 ProductosControlador::ctrActualizarProducto();
 ProductosControlador::ctrEliminarProducto();
 ProductosControlador::ctrActivarProducto();
+
+// Interceptores AJAX del Módulo de Compras
+if(isset($_POST["idProductoCompra"]) || isset($_POST["idTemporalEliminar"]) || isset($_POST["procesarCompraFinal"])) {
+    
+    if(isset($_POST["idProductoCompra"])) {
+        ComprasControlador::ctrAgregarTemporalAjax();
+    }
+    
+    if(isset($_POST["idTemporalEliminar"])) {
+        ComprasControlador::ctrEliminarTemporalAjax();
+    }
+
+    if(isset($_POST["procesarCompraFinal"])) {
+        ComprasControlador::ctrProcesarCompraAjax();
+    }
+}
+if(isset($_POST["cargarTemporalesCompra"])) {
+    ComprasControlador::ctrCargarTemporalesAjax();
+}
+// Interceptor para buscar productos dinámicamente en compras
+if(isset($_POST["buscarProductoSelect"])) {
+    require_once "controlador/ProductosControlador.php";
+    ProductosControlador::ctrBuscarProductosAjax();
+}
+if(isset($_POST["idCompraDetalle"])) {
+    require_once "controlador/ComprasControlador.php";
+    ComprasControlador::ctrMostrarDetalleCompraAjax();
+}
+
 // 4. Instanciamos la plantilla para que se muestre en pantalla
 $plantilla = new PlantillaControlador();
 $plantilla->ctrPlantilla();

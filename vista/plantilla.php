@@ -46,7 +46,7 @@ if (session_status() == PHP_SESSION_NONE) {
         if (isset($_GET["ruta"])) {
             
             // Lista blanca de rutas permitidas (Iremos agregando más conforme programemos)
-            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar", "proveedores", "proveedores-crear", "proveedores-editar", "subcategorias", "subcategorias-crear", "subcategorias-editar", "clientes", "clientes-crear", "clientes-editar", "gastos", "gastos-crear", "gastos-editar", "productos", "productos-crear", "productos-editar"];
+            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar", "proveedores", "proveedores-crear", "proveedores-editar", "subcategorias", "subcategorias-crear", "subcategorias-editar", "clientes", "clientes-crear", "clientes-editar", "gastos", "gastos-crear", "gastos-editar", "productos", "productos-crear", "productos-editar", "compras", "compras-crear"];
 
             if (in_array($_GET["ruta"], $rutasPermitidas)) {
                 include "vista/modulos/" . $_GET["ruta"] . ".php";
@@ -89,5 +89,6 @@ if (session_status() == PHP_SESSION_NONE) {
     <script src="vista/js/clientes.js"></script>
     <script src="vista/js/gastos.js"></script>
     <script src="vista/js/productos.js"></script>
+    <script src="vista/js/compras.js"></script>
     </body>
 </html>

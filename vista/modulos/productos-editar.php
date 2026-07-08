@@ -97,7 +97,7 @@ foreach(SubcategoriasControlador::ctrMostrarSubcategorias(null, 1) as $sub) {
                                     <?php else: ?>
                                         <img src="vista/img/productos/default.png" class="img-thumbnail me-2" style="width: 45px; height: 45px; object-fit: cover;">
                                     <?php endif; ?>
-                                    <input type="file" class="form-control" name="fotoProductoEditar" accept="image/jpeg, image/png">
+                                    <input type="file" class="form-control" name="fotoProducto" accept="image/jpeg, image/png" capture="environment">
                                 </div>
                                 <div class="form-text small text-muted ms-5 mt-1">Déjalo vacío para conservar la foto actual.</div>
                             </div>

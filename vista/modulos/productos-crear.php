@@ -54,7 +54,7 @@ $lineasActivas = LineasControlador::ctrMostrarLineas(null, 1);
 
                             <div class="col-md-4 mb-3">
                                 <label class="form-label fw-semibold small">Fotografía (Opcional)</label>
-                                <input type="file" class="form-control" name="fotoProducto" accept="image/jpeg, image/png">
+                                <input type="file" class="form-control" name="fotoProducto" accept="image/jpeg, image/png" capture="environment">
                                 <div class="form-text small text-muted">Formatos: JPG, PNG. Peso máx: 2MB.</div>
                             </div>
                         </div>
