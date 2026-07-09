@@ -44,42 +44,28 @@ class ProductosControlador {
             $directorio = "vista/img/productos/";
             if (!file_exists($directorio)) { mkdir($directorio, 0755, true); }
             
-            $rutaDestino = $directorio . $codigoBarras . ".jpg"; // Normalizamos el guardado a JPG
-            
-            // Usamos getimagesize para leer el ADN real del archivo, ignorando la extensión
-            $infoImagen = getimagesize($archivo["tmp_name"]);
-            
-            if ($infoImagen !== false) {
-                $tipoMime = $infoImagen['mime']; // Obtiene el tipo MIME real (image/jpeg o image/png)
-                
-                if ($tipoMime == "image/jpeg") {
-                    $origen = imagecreatefromjpeg($archivo["tmp_name"]);
-                } elseif ($tipoMime == "image/png") {
-                    $origen = imagecreatefrompng($archivo["tmp_name"]);
-                } else {
-                    return null; // Si intentan subir un GIF, WEBP o PDF, lo ignora
-                }
+            // 1. Verificación SEGURA del tipo MIME (Protección contra Archivos Políglotos)
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $tipoMimeReal = finfo_file($finfo, $archivo["tmp_name"]);
+            finfo_close($finfo);
 
-                if (!$origen) return null; // Seguro extra por si la imagen está corrupta
+            // 2. Lista blanca estricta de formatos permitidos
+            $formatosPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
 
-                $anchoOrigen = imagesx($origen);
-                $altoOrigen = imagesy($origen);
-                $nuevoAncho = 500;
-                $nuevoAlto = floor($altoOrigen * ($nuevoAncho / $anchoOrigen));
-                
-                $destino = imagecreatetruecolor($nuevoAncho, $nuevoAlto);
-                
-                // Truco UX: Rellenar con fondo blanco por si el PNG era transparente
-                $fondoBlanco = imagecolorallocate($destino, 255, 255, 255);
-                imagefill($destino, 0, 0, $fondoBlanco);
-                
-                imagecopyresampled($destino, $origen, 0, 0, 0, 0, $nuevoAncho, $nuevoAlto, $anchoOrigen, $altoOrigen);
-                
-                imagejpeg($destino, $rutaDestino, 80); // Calidad 80%
-                
-                imagedestroy($origen);
-                imagedestroy($destino);
-                
+            if (!in_array($tipoMimeReal, $formatosPermitidos)) {
+                // El archivo es malicioso o no válido. Retornamos null.
+                return null; 
+            }
+
+            // 3. Asignar extensión correcta según el MIME real
+            $extension = "jpg";
+            if($tipoMimeReal == 'image/png') $extension = "png";
+            if($tipoMimeReal == 'image/webp') $extension = "webp";
+
+            $rutaDestino = $directorio . $codigoBarras . "." . $extension;
+
+            // 4. Guardar físicamente el archivo en el servidor
+            if (move_uploaded_file($archivo["tmp_name"], $rutaDestino)) {
                 return $rutaDestino;
             }
         }
@@ -127,7 +113,7 @@ class ProductosControlador {
         }
     }
     
-        public static function ctrActualizarProducto() {
+    public static function ctrActualizarProducto() {
         if (isset($_POST["idProductoEditar"]) && isset($_POST["nombreProductoEditar"])) {
             if (preg_match('/^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ \-\.]+$/', $_POST["nombreProductoEditar"])) {
                 
@@ -198,6 +184,7 @@ class ProductosControlador {
             exit();
         }
     }
+
     /* ==============================================================
        BUSCADOR DINÁMICO DE PRODUCTOS PARA SELECT2 (AJAX)
        ============================================================== */
