@@ -78,9 +78,9 @@ ProductosControlador::ctrEliminarProducto();
 ProductosControlador::ctrActivarProducto();
 
 // Interceptores AJAX del Módulo de Compras
-if(isset($_POST["idProductoCompra"]) || isset($_POST["idTemporalEliminar"]) || isset($_POST["procesarCompraFinal"])) {
+if(isset($_POST["idProductoCompraSegura"]) || isset($_POST["idTemporalEliminar"]) || isset($_POST["procesarCompraFinal"])) {
     
-    if(isset($_POST["idProductoCompra"])) {
+    if(isset($_POST["idProductoCompraSegura"])) {
         ComprasControlador::ctrAgregarTemporalAjax();
     }
     
