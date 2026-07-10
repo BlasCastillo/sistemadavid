@@ -27,7 +27,7 @@ $historialCompras = ComprasControlador::ctrMostrarHistorial();
                             <th class="text-end">Tasa BCV</th>
                             <th class="text-end">Total Pagado (Nominal)</th>
                             <th class="text-end">Costo Real (USDT)</th>
-                            <th>Cajero/Usuario</th>
+                            <th class="text-center">ESTADO</th> <th>Cajero/Usuario</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -49,16 +49,31 @@ $historialCompras = ComprasControlador::ctrMostrarHistorial();
                                         <span class="badge badge-success">USDT / Digital</span>
                                     <?php endif; ?>
                                 </td>
+                                
                                 <td class="text-end"><?php echo number_format($compra->tasa_bcv, 2); ?> Bs</td>
                                 <td class="text-end fw-semibold">
                                     <?php echo ($compra->moneda == "Bs" ? "Bs " : "$ ") . number_format($compra->total_nominal, 2); ?>
                                 </td>
+                                
                                 <td class="text-end fw-bold text-success">
                                     $ <?php echo number_format($compra->total_usdt, 4); ?>
                                 </td>
+                                
+                                <td class="text-center align-middle">
+                                    <?php if($compra->estado_pago == "Pagado"): ?>
+                                        <span class="badge bg-success shadow-sm px-3 py-2">
+                                            <i class="fas fa-check-circle me-1"></i> Contado
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-warning text-dark shadow-sm px-3 py-2">
+                                            <i class="fas fa-clock me-1"></i> Crédito (<?php echo $compra->dias_credito; ?> días)
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                
                                 <td><span class="small text-muted"><i class="fas fa-user me-1"></i><?php echo $compra->usuario_nombre; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn-action text-info btnImprimirCompra" idCompra="<?php echo $compra->id; ?>" title="Ver Detalle"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-action text-info btnImprimirCompra" idCompra="<?php echo $compra->id; ?>" fechaCompra="<?php echo date('d/m/Y', strtotime($compra->fecha_compra)); ?>" title="Ver Detalle"><i class="fas fa-eye"></i></button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

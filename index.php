@@ -15,6 +15,8 @@ require_once "controlador/ClientesControlador.php";
 require_once "controlador/GastosControlador.php";
 require_once "controlador/ProductosControlador.php";
 require_once "controlador/ComprasControlador.php";
+require_once "controlador/ConfiguracionControlador.php";
+require_once "controlador/CuentasPorPagarControlador.php";
 
 // 3. Requerimos los Modelos
 require_once "modelo/Usuarios.php";
@@ -104,7 +106,45 @@ if(isset($_POST["idCompraDetalle"])) {
     require_once "controlador/ComprasControlador.php";
     ComprasControlador::ctrMostrarDetalleCompraAjax();
 }
+// --- INICIO DEL REEMPLAZO / AGREGADO ---
 
+// Interceptores AJAX para el Núcleo y Configuración del Super Admin
+
+if(isset($_POST["pinSuperAdmin"]) || isset($_POST["actualizarConfiguracion"])) {
+
+    require_once "controlador/ConfiguracionControlador.php";
+
+    
+
+    if(isset($_POST["pinSuperAdmin"])) {
+
+        ConfiguracionControlador::ctrDesbloquearSuperAdminAjax();
+
+    }
+
+    
+
+    if(isset($_POST["actualizarConfiguracion"])) {
+
+        ConfiguracionControlador::ctrActualizarConfiguracionAjax();
+
+    }
+
+}
+
+// --- FIN DEL REEMPLAZO / AGREGADO ---
+
+// Interceptores AJAX para Cuentas Por Pagar (CxP)
+if(isset($_POST["idCuentaPorPagar"]) || isset($_POST["idCuentaAbono"])) {
+    require_once "controlador/CuentasPorPagarControlador.php";
+    
+    if(isset($_POST["idCuentaPorPagar"])) {
+        CuentasPorPagarControlador::ctrMostrarPagosAjax();
+    }
+    if(isset($_POST["idCuentaAbono"])) {
+        CuentasPorPagarControlador::ctrRegistrarAbonoAjax();
+    }
+}
 // 4. Instanciamos la plantilla para que se muestre en pantalla
 $plantilla = new PlantillaControlador();
 $plantilla->ctrPlantilla();

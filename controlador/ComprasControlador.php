@@ -105,7 +105,12 @@ class ComprasControlador {
             $tasaBcvSegura = $tasaActual ? floatval($tasaActual->tasa_bcv) : 1;
             $brechaSegura = $tasaActual ? floatval($tasaActual->brecha_porcentaje) : 0;
 
-            // 4. Empaquetar los datos de la Cabecera 100% verificados
+            // 4. Lógica Financiera de Contado/Crédito
+            $condicionPago = $_POST["condicionPagoCompra"];
+            $diasCredito = ($condicionPago === "Credito") ? intval($_POST["diasCreditoCompra"]) : 0;
+            $estadoPago = ($condicionPago === "Credito") ? "Pendiente" : "Pagado";
+
+            // 5. Empaquetar los datos de la Cabecera 100% verificados
             $datosCabecera = array(
                 "proveedor_id" => intval($_POST["idProveedorCompra"]),
                 "usuario_id" => $usuario_id,
@@ -116,10 +121,13 @@ class ComprasControlador {
                 "total_nominal" => round($total_nominal_calculado, 2),
                 "total_usdt" => round($total_usdt_calculado, 4),
                 "observaciones" => $_POST["observacionesCompra"],
-                "fecha_compra" => $_POST["fechaCompra"]
+                "fecha_compra" => $_POST["fechaCompra"],
+                "condicion_pago" => $condicionPago,
+                "dias_credito" => $diasCredito,
+                "estado_pago" => $estadoPago
             );
 
-            // 5. Gatillar la transacción ACID en el Modelo
+            // 6. Gatillar la transacción ACID en el Modelo
             $respuesta = Compras::procesarCompraFinal($datosCabecera, $carrito);
 
             if($respuesta == "ok"){

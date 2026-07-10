@@ -215,3 +215,22 @@ $(".btnImprimirCompra").on("click", function() {
         }
     });
 });
+
+/* ==============================================================
+   6. CONTROL DE CONDICIÓN DE PAGO (CONTADO / CRÉDITO)
+   ============================================================== */
+$("#condicionPagoCompra").on("change", function() {
+    let condicion = $(this).val();
+    let inputDias = $("#diasCreditoCompra");
+
+    if (condicion === "Credito") {
+        inputDias.prop("readonly", false);
+        inputDias.removeClass("bg-light").addClass("bg-white");
+        inputDias.val("15"); // Sugerimos 15 días por defecto
+        inputDias.focus();
+    } else {
+        inputDias.prop("readonly", true);
+        inputDias.removeClass("bg-white").addClass("bg-light");
+        inputDias.val("0");
+    }
+});

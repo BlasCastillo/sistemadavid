@@ -56,6 +56,7 @@ $modoDios = ($_SESSION["rol_id"] == 1) || in_array("all", $permisos);
                 <ul class="collapse nav flex-column" id="submenuCompras">
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=compras"><i class="fas fa-file-invoice-dollar"></i> Entradas / Compras</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=proveedores"><i class="fas fa-building"></i> Proveedores</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php?ruta=cuentas-por-pagar"><i class="fas fa-hand-holding-usd"></i> Cuentas por Pagar</a></li>
                 </ul>
             </li>
         <?php endif; ?>

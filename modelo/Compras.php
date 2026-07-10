@@ -48,7 +48,7 @@ class Compras {
             $conexion->beginTransaction();
 
             // A. Insertar Cabecera de Factura
-            $stmt = $conexion->prepare("INSERT INTO compras (proveedor_id, usuario_id, numero_factura, moneda, tasa_bcv, porcentaje_brecha, total_nominal, total_usdt, observaciones, fecha_compra) VALUES (:proveedor_id, :usuario_id, :numero_factura, :moneda, :tasa_bcv, :porcentaje_brecha, :total_nominal, :total_usdt, :observaciones, :fecha_compra)");
+            $stmt = $conexion->prepare("INSERT INTO compras (proveedor_id, usuario_id, numero_factura, moneda, tasa_bcv, porcentaje_brecha, total_nominal, total_usdt, observaciones, fecha_compra, condicion_pago, dias_credito, estado_pago) VALUES (:proveedor_id, :usuario_id, :numero_factura, :moneda, :tasa_bcv, :porcentaje_brecha, :total_nominal, :total_usdt, :observaciones, :fecha_compra, :condicion_pago, :dias_credito, :estado_pago)");
 
             $stmt->bindParam(":proveedor_id", $datosCabecera["proveedor_id"], PDO::PARAM_INT);
             $stmt->bindParam(":usuario_id", $datosCabecera["usuario_id"], PDO::PARAM_INT);
@@ -60,10 +60,28 @@ class Compras {
             $stmt->bindParam(":total_usdt", $datosCabecera["total_usdt"], PDO::PARAM_STR);
             $stmt->bindParam(":observaciones", $datosCabecera["observaciones"], PDO::PARAM_STR);
             $stmt->bindParam(":fecha_compra", $datosCabecera["fecha_compra"], PDO::PARAM_STR);
+            
+            // Nuevas variables de Crédito
+            $stmt->bindParam(":condicion_pago", $datosCabecera["condicion_pago"], PDO::PARAM_STR);
+            $stmt->bindParam(":dias_credito", $datosCabecera["dias_credito"], PDO::PARAM_INT);
+            $stmt->bindParam(":estado_pago", $datosCabecera["estado_pago"], PDO::PARAM_STR);
             $stmt->execute();
             
             // Capturamos el ID de la cabecera recién creada
             $compra_id = $conexion->lastInsertId();
+
+            // A.1. LÓGICA DE DEUDA: Si es a crédito, nace la Cuenta por Pagar
+            if($datosCabecera["condicion_pago"] === "Crédito") {
+                $stmtCxP = $conexion->prepare("INSERT INTO cuentas_por_pagar (compra_id, proveedor_id, total_deuda_usdt, saldo_restante_usdt, fecha_vencimiento, estado) VALUES (:compra_id, :proveedor_id, :total_deuda, :saldo_restante, DATE_ADD(:fecha_compra, INTERVAL :dias_credito DAY), 'Pendiente')");
+
+                $stmtCxP->bindParam(":compra_id", $compra_id, PDO::PARAM_INT);
+                $stmtCxP->bindParam(":proveedor_id", $datosCabecera["proveedor_id"], PDO::PARAM_INT);
+                $stmtCxP->bindParam(":total_deuda", $datosCabecera["total_usdt"], PDO::PARAM_STR);
+                $stmtCxP->bindParam(":saldo_restante", $datosCabecera["total_usdt"], PDO::PARAM_STR); // El saldo inicial es igual a la deuda total
+                $stmtCxP->bindParam(":fecha_compra", $datosCabecera["fecha_compra"], PDO::PARAM_STR);
+                $stmtCxP->bindParam(":dias_credito", $datosCabecera["dias_credito"], PDO::PARAM_INT);
+                $stmtCxP->execute();
+            }
 
             // B. Recorremos el carrito temporal y procesamos los detalles
             foreach ($datosDetalle as $item) {

@@ -52,10 +52,29 @@ $brechaHoy = $tasaActual ? $tasaActual->brecha_porcentaje : 0;
 
                         <hr class="my-4">
 
+                        
+
                         <h6 class="fw-bold text-dark mb-3"><i class="fas fa-coins me-2"></i>Configuración Financiera</h6>
 
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold small">Condición <span class="text-danger">*</span></label>
+                                <select class="form-select fw-bold text-dark" id="condicionPagoCompra" name="condicionPagoCompra" required>
+                                    <option value="Contado" selected>Contado (Pagado)</option>
+                                    <option value="Credito">A Crédito (Deuda)</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold small">Plazo (Días)</label>
+                                <div class="input-group">
+                                    <input type="number" min="0" class="form-control bg-light" id="diasCreditoCompra" name="diasCreditoCompra" value="0" readonly>
+                                    <span class="input-group-text"><i class="fas fa-calendar-day"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label class="form-label fw-semibold small">Moneda de Pago <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold small">Moneda de Pago / Facturación <span class="text-danger">*</span></label>
                             <select class="form-select fw-bold text-primary" id="monedaCompra" name="monedaCompra" required>
                                 <option value="Bs" selected>Bolívares (Bs)</option>
                                 <option value="USD_Fisico">Dólares Físicos ($)</option>
