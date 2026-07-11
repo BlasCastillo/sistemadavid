@@ -71,7 +71,7 @@ class Compras {
             $compra_id = $conexion->lastInsertId();
 
             // A.1. LÓGICA DE DEUDA: Si es a crédito, nace la Cuenta por Pagar
-            if($datosCabecera["condicion_pago"] === "Crédito") {
+            if($datosCabecera["condicion_pago"] === "Credito") {
                 $stmtCxP = $conexion->prepare("INSERT INTO cuentas_por_pagar (compra_id, proveedor_id, total_deuda_usdt, saldo_restante_usdt, fecha_vencimiento, estado) VALUES (:compra_id, :proveedor_id, :total_deuda, :saldo_restante, DATE_ADD(:fecha_compra, INTERVAL :dias_credito DAY), 'Pendiente')");
 
                 $stmtCxP->bindParam(":compra_id", $compra_id, PDO::PARAM_INT);

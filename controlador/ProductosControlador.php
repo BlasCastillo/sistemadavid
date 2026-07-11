@@ -193,7 +193,7 @@ class ProductosControlador {
             $busqueda = $_POST["buscarProductoSelect"];
             
             // Usamos LIKE para buscar tanto por nombre como por código de barras
-            $stmt = Conexion::conectar()->prepare("SELECT id, codigo_barras, nombre, costo_usdt FROM productos WHERE nombre LIKE :busqueda OR codigo_barras LIKE :busqueda LIMIT 20");
+            $stmt = Conexion::conectar()->prepare("SELECT id, codigo_barras, nombre, costo_usdt, margen_ganancia FROM productos WHERE nombre LIKE :busqueda OR codigo_barras LIKE :busqueda LIMIT 20");
             $stmt->bindValue(":busqueda", "%$busqueda%", PDO::PARAM_STR);
             $stmt->execute();
             

@@ -153,4 +153,32 @@ $(document).ready(function() {
             }
         });
     });
+
+    /* ==============================================================
+       4. DINAMISMO DE MONEDA: Ajustar validación según tasa
+       ============================================================== */
+    $('select[name="monedaAbono"]').on('change', function() {
+        let moneda = $(this).val();
+        let inputMonto = $('#montoAbono');
+        let simbolo = $('#simboloMonedaAbono'); // Para cambiar el $ a Bs visualmente
+        
+        // Leemos los valores que ahora sí están en el HTML
+        let saldoUsd = parseFloat($('#saldoRestanteUsdt').val());
+        let tasa = parseFloat($('#tasaBCV').val());
+
+        if (moneda === 'Bs') {
+            // El máximo permitido es SaldoUSD * Tasa
+            let maxBs = (saldoUsd * tasa).toFixed(2);
+            inputMonto.attr('max', maxBs);
+            inputMonto.attr('step', '0.01');
+            inputMonto.val(maxBs); 
+            simbolo.text('Bs');
+        } else {
+            // Si es USD o USDT, el máximo es el saldo en USD
+            inputMonto.attr('max', saldoUsd.toFixed(4));
+            inputMonto.attr('step', '0.0001');
+            inputMonto.val(saldoUsd.toFixed(4));
+            simbolo.text('$');
+        }
+    });
 });

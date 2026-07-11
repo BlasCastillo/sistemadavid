@@ -42,10 +42,10 @@ class CuentasPorPagarControlador {
                 $referencia = empty($_POST["referenciaAbono"]) ? "N/A" : trim($_POST["referenciaAbono"]);
 
                 // 1. Obtener la tasa BCV oficial del día directamente del servidor (Seguridad)
-                $stmt = Conexion::conectar()->prepare("SELECT tasa_bcv FROM tasas_cambio ORDER BY id DESC LIMIT 1");
-                $stmt->execute();
-                $tasaActual = $stmt->fetch(PDO::FETCH_OBJ);
-                $tasaBcvSegura = $tasaActual ? floatval($tasaActual->tasa_bcv) : 1;
+                    $stmt = Conexion::conectar()->prepare("SELECT tasa_bcv FROM tasas_cambio ORDER BY id DESC LIMIT 1");
+                    $stmt->execute();
+                    $tasaActual = $stmt->fetch(PDO::FETCH_OBJ);
+                    $tasaBcvSegura = $tasaActual ? floatval($tasaActual->tasa_bcv) : 1;
 
                 // 2. Lógica Financiera: Conversión de Divisas
                 $abono_usdt = 0;

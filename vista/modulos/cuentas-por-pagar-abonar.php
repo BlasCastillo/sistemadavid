@@ -5,10 +5,16 @@ if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
     return;
 }
 
-// 2. Buscamos la cuenta usando el controlador que acabamos de crear
+// 2. Buscamos la cuenta
 $cuenta = CuentasPorPagarControlador::ctrMostrarCuentaPorId($_GET["id"]);
 
-// 3. Seguridad: Si la cuenta no existe o ya está pagada, lo devolvemos al catálogo
+// ---> PUENTE 3: Consultamos la Tasa BCV del día directamente a la BD <---
+    $stmtTasa = Conexion::conectar()->prepare("SELECT tasa_bcv FROM tasas_cambio ORDER BY id DESC LIMIT 1");
+    $stmtTasa->execute();
+    $tasaData = $stmtTasa->fetch(PDO::FETCH_OBJ);
+    $tasaBcvHoy = $tasaData ? floatval($tasaData->tasa_bcv) : 1;    
+
+// 4. Seguridad: Si la cuenta no existe o ya está pagada
 if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
     echo '<script>
         Swal.fire({
@@ -36,6 +42,7 @@ if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
     </div>
 
     <div class="row">
+        <!-- PANEL IZQUIERDO -->
         <div class="col-lg-4 mb-4">
             <div class="card shadow border-0 border-top border-info border-3 h-100">
                 <div class="card-header bg-white py-3">
@@ -44,14 +51,15 @@ if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
                 <div class="card-body bg-light">
                     
                     <div class="text-center mb-4 border-bottom pb-3">
-                        <h6 class="text-uppercase text-muted mb-1 small fw-bold">Saldo Pendiente</h6>
-                        <h2 class="text-danger fw-bold mb-0">$ <?php echo number_format($cuenta->saldo_restante_usdt, 4); ?></h2>
+                            <h6 class="text-uppercase text-muted mb-1 small fw-bold">Saldo Pendiente</h6>
+                            <!-- Añadimos coma para decimal, punto para miles -->
+                            <h2 class="text-danger fw-bold mb-0">$ <?php echo number_format($cuenta->saldo_restante_usdt, 4, ',', '.'); ?></h2>
                     </div>
 
                     <ul class="list-group list-group-flush rounded shadow-sm border">
                         <li class="list-group-item d-flex justify-content-between align-items-center bg-white">
-                            <span class="small fw-semibold text-muted">Proveedor:</span>
-                            <span class="fw-bold text-dark text-end"><?php echo $cuenta->proveedor_nombre; ?></span>
+                            <span class="small fw-semibold text-muted">Total Original:</span>
+        <span class="fw-bold text-dark">$ <?php echo number_format($cuenta->total_deuda_usdt, 4, ',', '.'); ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center bg-white">
                             <span class="small fw-semibold text-muted">N° Factura:</span>
@@ -66,11 +74,11 @@ if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
                             <span class="fw-bold text-dark"><?php echo date("d/m/Y", strtotime($cuenta->fecha_vencimiento)); ?></span>
                         </li>
                     </ul>
-
                 </div>
             </div>
         </div>
 
+        <!-- PANEL DERECHO -->
         <div class="col-lg-8 mb-4">
             <div class="card shadow border-0 border-top border-primary border-3 h-100">
                 <div class="card-header bg-white py-3">
@@ -81,12 +89,16 @@ if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
                     <form id="formAbonarCxP" autocomplete="off">
                         
                         <input type="hidden" name="idCuentaAbono" value="<?php echo $cuenta->id; ?>">
+                        
+                        <!-- CAMPOS OCULTOS PARA EL JAVASCRIPT -->
+                        <input type="hidden" id="saldoRestanteUsdt" value="<?php echo $cuenta->saldo_restante_usdt; ?>">
+                        <input type="hidden" id="tasaBCV" value="<?php echo $tasaBcvHoy; ?>">
 
                         <div class="row mb-4">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-semibold small">Monto a Pagar <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-light fw-bold text-dark">$</span>
+                                    <span class="input-group-text bg-light fw-bold text-dark" id="simboloMonedaAbono">$</span>
                                     <input type="number" step="0.0001" min="0.01" max="<?php echo $cuenta->saldo_restante_usdt; ?>" class="form-control fw-bold text-success" name="montoAbono" id="montoAbono" value="<?php echo round($cuenta->saldo_restante_usdt, 4); ?>" required>
                                 </div>
                                 <div class="form-text small text-muted"><i class="fas fa-info-circle me-1"></i> Por defecto sugiere liquidar todo el saldo.</div>
@@ -95,8 +107,8 @@ if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-semibold small">Moneda del Pago <span class="text-danger">*</span></label>
                                 <select class="form-select form-select-lg fw-bold" name="monedaAbono" required>
-                                    <option value="Bs" selected>Bolívares (Bs) - Se calculará a Tasa BCV</option>
-                                    <option value="USDT">USDT / Binance Pay</option>
+                                    <option value="USDT" selected>USDT / Dólar Digital</option>
+                                    <option value="Bs">Bolívares (Bs) - Se calculará a Tasa BCV</option>
                                     <option value="USD_Fisico">Dólar Físico ($)</option>
                                 </select>
                             </div>
@@ -135,9 +147,8 @@ if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
                             </button>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
-</div>
+</div>  

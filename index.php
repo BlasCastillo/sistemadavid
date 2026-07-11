@@ -17,6 +17,9 @@ require_once "controlador/ProductosControlador.php";
 require_once "controlador/ComprasControlador.php";
 require_once "controlador/ConfiguracionControlador.php";
 require_once "controlador/CuentasPorPagarControlador.php";
+require_once "controlador/OfertasControlador.php";
+require_once "controlador/ConsultaPreciosControlador.php";
+require_once "controlador/EtiquetasControlador.php";
 
 // 3. Requerimos los Modelos
 require_once "modelo/Usuarios.php";
@@ -145,6 +148,24 @@ if(isset($_POST["idCuentaPorPagar"]) || isset($_POST["idCuentaAbono"])) {
         CuentasPorPagarControlador::ctrRegistrarAbonoAjax();
     }
 }
+
+// Interceptores AJAX para Ofertas y Promociones
+if(isset($_POST["idProductoOferta"]) || isset($_POST["idOfertaEliminar"])) {
+    require_once "controlador/OfertasControlador.php";
+    
+    if(isset($_POST["idProductoOferta"])) {
+        OfertasControlador::ctrCrearOfertaAjax();
+    }
+    if(isset($_POST["idOfertaEliminar"])) {
+        OfertasControlador::ctrEliminarOfertaAjax();
+    }
+}
+
+// Interceptor AJAX para Verificador de Precios
+if(isset($_POST["codigoBarrasConsulta"])) {
+    ConsultaPreciosControlador::ctrBuscarCodigoAjax();
+}
+
 // 4. Instanciamos la plantilla para que se muestre en pantalla
 $plantilla = new PlantillaControlador();
 $plantilla->ctrPlantilla();

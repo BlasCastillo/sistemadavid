@@ -40,12 +40,17 @@ $modoDios = ($_SESSION["rol_id"] == 1) || in_array("all", $permisos);
                 </a>
                 <ul class="collapse nav flex-column" id="submenuArchivo">
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=productos"><i class="fas fa-box"></i> Productos</a></li>
+                    
+                    <!-- NUEVO BOTÓN DE OFERTAS AÑADIDO AQUÍ -->
+                    <li class="nav-item"><a class="nav-link" href="index.php?ruta=ofertas"><i class="fas fa-tags text-danger"></i> Ofertas / Promo</a></li>
+                    
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=lineas"><i class="fas fa-tags"></i> Líneas</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=categorias"><i class="fas fa-list"></i> Categorías</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=subcategorias"><i class="fas fa-list-alt"></i> Subcategorías</a></li>
                 </ul>
             </li>
         <?php endif; ?>
+        
 
         <?php if ($modoDios || in_array("ver_compras", $permisos)): ?>
             <li class="nav-item">

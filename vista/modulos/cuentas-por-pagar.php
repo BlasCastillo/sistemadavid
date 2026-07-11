@@ -59,11 +59,11 @@ $cuentas = CuentasPorPagarControlador::ctrMostrarCuentas();
                                 </td>
 
                                 <td class="text-end fw-semibold text-muted">
-                                    $ <?php echo number_format($cuenta->total_deuda_usdt, 4); ?>
+                                    $ <?php echo number_format($cuenta->total_deuda_usdt, 4, ',', '.'); ?>
                                 </td>
                                 
                                 <td class="text-end fw-bold <?php echo ($cuenta->saldo_restante_usdt > 0) ? 'text-danger' : 'text-success'; ?> fs-6">
-                                    $ <?php echo number_format($cuenta->saldo_restante_usdt, 4); ?>
+                                    $ <?php echo number_format($cuenta->saldo_restante_usdt, 4, ',', '.'); ?>
                                 </td>
 
                                 <td class="text-center align-middle">
@@ -102,4 +102,4 @@ $cuentas = CuentasPorPagarControlador::ctrMostrarCuentas();
             </div>
         </div>
     </div>
-</div>
+</div>  
