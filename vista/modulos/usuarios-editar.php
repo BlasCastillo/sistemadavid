@@ -1,15 +1,12 @@
 <?php
-// Seguridad: Solo el Gerente General (Rol 1) puede editar usuarios
+// Seguridad
 if ($_SESSION["rol_id"] != 1) {
     echo '<script>window.location = "index.php?ruta=dashboard";</script>';
     exit;
 }
 
-// Validamos que venga un ID por la URL
 if (isset($_GET["idUsuario"])) {
     $usuarioActual = UsuariosControlador::ctrMostrarUsuarios($_GET["idUsuario"]);
-    
-    // Si el usuario no existe en la BD (ej. manipularon la URL), lo devolvemos a la tabla
     if (!$usuarioActual) {
         echo '<script>window.location = "index.php?ruta=usuarios";</script>';
         exit;
@@ -19,7 +16,6 @@ if (isset($_GET["idUsuario"])) {
     exit;
 }
 
-// Traemos los roles para llenar el select dinámicamente
 $roles = RolesControlador::ctrMostrarRoles();
 ?>
 
@@ -39,7 +35,6 @@ $roles = RolesControlador::ctrMostrarRoles();
         <div class="card-body p-4">
             
             <form id="formEditarUsuario" autocomplete="off">
-                
                 <input type="hidden" name="editarIdUsuario" value="<?php echo $usuarioActual->getId(); ?>">
                 
                 <div class="row">
@@ -74,7 +69,18 @@ $roles = RolesControlador::ctrMostrarRoles();
                     </div>
                 </div>
 
-                <hr class="mt-2 mb-4">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label fw-semibold small text-danger">PIN de Autorización (Opcional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-danger text-danger"><i class="fas fa-lock"></i></span>
+                            <input type="password" maxlength="4" class="form-control border-danger" name="editarPin" placeholder="Ej: 1234">
+                        </div>
+                        <small class="text-muted d-block mt-1">Déjelo en blanco si desea conservar el PIN actual del usuario.</small>
+                    </div>
+                </div>
+
+                <hr class="mt-4 mb-4">
 
                 <div class="d-flex justify-content-end">
                     <a href="index.php?ruta=usuarios" class="btn btn-outline-secondary me-2">Cancelar</a>

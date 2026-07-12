@@ -75,10 +75,18 @@ class Usuarios {
         return false;
     }
 
-    // ACTUALIZAR USUARIO (Datos generales, excluyendo la contraseña)
+    // ACTUALIZAR USUARIO (Datos generales y PIN)
     public function actualizar(): bool {
-        // Nota Senior: La actualización de contraseñas siempre debe manejarse en un método/formulario aparte por seguridad.
-        $stmt = Conexion::conectar()->prepare("UPDATE usuarios SET rol_id = :rol_id, usuario = :usuario, nombre_completo = :nombre_completo WHERE id = :id");
+        $conexion = Conexion::conectar();
+        
+        // Si el PIN viene con datos (hasheado), actualizamos todo
+        if ($this->pin_autorizacion != null) {
+            $stmt = $conexion->prepare("UPDATE usuarios SET rol_id = :rol_id, usuario = :usuario, nombre_completo = :nombre_completo, pin_autorizacion = :pin_autorizacion WHERE id = :id");
+            $stmt->bindParam(":pin_autorizacion", $this->pin_autorizacion, PDO::PARAM_STR);
+        } else {
+            // Si viene null, conservamos el PIN que ya tenía en la BD
+            $stmt = $conexion->prepare("UPDATE usuarios SET rol_id = :rol_id, usuario = :usuario, nombre_completo = :nombre_completo WHERE id = :id");
+        }
 
         $stmt->bindParam(":rol_id", $this->rol_id, PDO::PARAM_INT);
         $stmt->bindParam(":usuario", $this->usuario, PDO::PARAM_STR);

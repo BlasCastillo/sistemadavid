@@ -106,7 +106,6 @@ class UsuariosControlador {
     ACTUALIZAR USUARIO (VÍA AJAX)
     =============================================*/
     public static function ctrActualizarUsuario() {
-        // Lógica similar a Crear, pero excluyendo la contraseña
         if (isset($_POST["editarIdUsuario"]) && isset($_POST["editarUsuario"])) {
             
             if (preg_match('/^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ ]+$/', $_POST["editarNombre"]) &&
@@ -117,6 +116,14 @@ class UsuariosControlador {
                 $usuario->setRolId($_POST["editarRol"]);
                 $usuario->setUsuario($_POST["editarUsuario"]);
                 $usuario->setNombreCompleto($_POST["editarNombre"]);
+                
+                // Procesamos el PIN si el usuario escribió uno nuevo
+                if (!empty($_POST["editarPin"])) {
+                    $pinHash = password_hash($_POST["editarPin"], PASSWORD_BCRYPT);
+                    $usuario->setPinAutorizacion($pinHash);
+                } else {
+                    $usuario->setPinAutorizacion(null);
+                }
                 
                 if ($usuario->actualizar()) {
                     echo json_encode(["status" => "success", "mensaje" => "El usuario ha sido actualizado."]);

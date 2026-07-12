@@ -116,12 +116,26 @@ if (!is_array($permisos)) { $permisos = []; }
                                     <label class="form-check-label text-danger" for="chk_usuarios">Crear y Editar Usuarios</label>
                                 </div>
                                 <div class="form-check form-switch mb-2">
-                                    <input class="form-check-input border-danger" type="checkbox" name="permisosActivos[]" value="auditar_cierres" id="chk_auditar" <?php echo in_array("auditar_cierres", $permisos) ? 'checked' : ''; ?>>
-                                    <label class="form-check-label text-danger" for="chk_auditar">Auditar Cierres Ciegos</label>
+                                    <input class="form-check-input border-danger" type="checkbox" name="permisosActivos[]" value="aprobar_descuentos" id="chk_desc" <?php echo in_array("aprobar_descuentos", $permisos) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label text-danger" for="chk_desc">Aprobar Descuentos Especiales (PIN)</label>
+                                </div>
+                                
+                                <!-- NUEVOS PERMISOS PARA CAJA Y FACTURACIÓN -->
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input border-danger" type="checkbox" name="permisosActivos[]" value="emitir_notas_credito" id="chk_notas" <?php echo in_array("emitir_notas_credito", $permisos) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label text-danger" for="chk_notas">Emitir Notas de Crédito / Devoluciones</label>
                                 </div>
                                 <div class="form-check form-switch mb-2">
-                                    <input class="form-check-input border-danger" type="checkbox" name="permisosActivos[]" value="aprobar_descuentos" id="chk_desc" <?php echo in_array("aprobar_descuentos", $permisos) ? 'checked' : ''; ?>>
-                                    <label class="form-check-label text-danger" for="chk_desc">Aprobar Descuentos Especiales</label>
+                                    <input class="form-check-input border-danger" type="checkbox" name="permisosActivos[]" value="auditar_cierres" id="chk_auditar" <?php echo in_array("auditar_cierres", $permisos) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label text-danger" for="chk_auditar">Auditar y Arqueos de Caja</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input border-danger" type="checkbox" name="permisosActivos[]" value="forzar_cierre_caja" id="chk_forzar_cierre" <?php echo in_array("forzar_cierre_caja", $permisos) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label text-danger" for="chk_forzar_cierre">Forzar Cierre de Otros Cajeros</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input border-danger" type="checkbox" name="permisosActivos[]" value="gestionar_creditos" id="chk_gestionar_creditos" <?php echo in_array("gestionar_creditos", $permisos) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label text-danger" for="chk_gestionar_creditos">Aprobar Líneas de Crédito a Clientes</label>
                                 </div>
                                 
                                 <div class="form-check form-switch mt-4 pt-3 border-top">

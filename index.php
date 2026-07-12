@@ -20,6 +20,7 @@ require_once "controlador/CuentasPorPagarControlador.php";
 require_once "controlador/OfertasControlador.php";
 require_once "controlador/ConsultaPreciosControlador.php";
 require_once "controlador/EtiquetasControlador.php";
+require_once "controlador/VentasControlador.php";
 
 // 3. Requerimos los Modelos
 require_once "modelo/Usuarios.php";
@@ -164,6 +165,24 @@ if(isset($_POST["idProductoOferta"]) || isset($_POST["idOfertaEliminar"])) {
 // Interceptor AJAX para Verificador de Precios
 if(isset($_POST["codigoBarrasConsulta"])) {
     ConsultaPreciosControlador::ctrBuscarCodigoAjax();
+}
+// Interceptores AJAX del Módulo de Ventas
+if(isset($_POST["codigoProductoVenta"]) || isset($_POST["cargarTemporalesVenta"]) || isset($_POST["idTemporalVentaEliminar"]) || isset($_POST["idItemActualizar"])) {
+    
+    if(isset($_POST["codigoProductoVenta"])) { VentasControlador::ctrAgregarTemporalAjax(); }
+    if(isset($_POST["cargarTemporalesVenta"])) { VentasControlador::ctrCargarTemporalesAjax(); }
+    if(isset($_POST["idTemporalVentaEliminar"])) { VentasControlador::ctrEliminarTemporalAjax(); }
+    if(isset($_POST["idItemActualizar"])) { VentasControlador::ctrActualizarCantidadAjax(); } // NUEVO INTERCEPTOR
+}
+
+if (isset($_POST["cedulaSuspender"]) || isset($_POST["cedulaRecuperar"]) || isset($_POST["listarSuspendidas"])) {
+    if(isset($_POST["cedulaSuspender"])) { VentasControlador::ctrSuspenderFacturaAjax(); }
+    if(isset($_POST["listarSuspendidas"])) { VentasControlador::ctrListarSuspendidasAjax(); }
+    if(isset($_POST["cedulaRecuperar"])) { VentasControlador::ctrRecuperarFacturaAjax(); }
+}
+
+if(isset($_POST["procesarVentaFinal"])) {
+    VentasControlador::ctrProcesarVentaAjax();
 }
 
 // 4. Instanciamos la plantilla para que se muestre en pantalla
