@@ -110,7 +110,6 @@ class Ventas {
         // Forzamos explícitamente a que lo traiga como OBJETO para evitar el error stdClass
         $existe = $stmtCheck->fetch(PDO::FETCH_OBJ);
 
-        // CORRECCIÓN APLICADA: Ahora usamos la flecha -> para leer el objeto
         if ($existe) { return $existe->id; }
 
         // Si no existe, lo creamos
@@ -126,11 +125,29 @@ class Ventas {
     }
 
     /* ==============================================================
-       3. PROCESAMIENTO DE LA VENTA (TRANSACCIÓN ACID MULTIPAGO)
+       3. PROCESAMIENTO DE LA VENTA (CON AUDITORÍA DE BILLETERA)
        ============================================================== */
     public static function procesarVentaFinal($datosCabecera, $datosDetalle, $datosPagos) {
         $conexion = Conexion::conectar();
         
+        // --- VALIDACIÓN ESTRICTA DE SEGURIDAD (ANTI-FRAUDE) ---
+        foreach ($datosPagos as $pago) {
+            if ($pago["metodo"] === "Saldo a Favor (Billetera)") {
+                // Buscamos que la nota exista, sea del cliente, y esté Disponible
+                $stmtCheck = $conexion->prepare("SELECT id, monto_usd FROM notas_credito WHERE codigo_nota = :codigo AND cliente_id = :cliente AND estado = 'Disponible'");
+                $stmtCheck->bindParam(":codigo", $pago["referencia"], PDO::PARAM_STR);
+                $stmtCheck->bindParam(":cliente", $datosCabecera["cliente_id"], PDO::PARAM_INT);
+                $stmtCheck->execute();
+                $notaValida = $stmtCheck->fetch(PDO::FETCH_OBJ);
+                
+                // Si la nota no existe, ya se usó, o el monto que intentan cobrar es mayor al de la nota
+                if(!$notaValida || $pago["monto"] > $notaValida->monto_usd) {
+                    return "error_fraude_billetera"; // Frenamos la transacción en seco
+                }
+            }
+        }
+        // ------------------------------------------------------
+
         try {
             $conexion->beginTransaction();
 
@@ -173,15 +190,22 @@ class Ventas {
                 $stmtPago->bindParam(":monto_pagado", $pago["monto"], PDO::PARAM_STR);
                 $stmtPago->bindParam(":referencia", $pago["referencia"], PDO::PARAM_STR);
                 $stmtPago->execute();
+
+                // D. QUEMAR LA NOTA DE CRÉDITO (Cierre de ciclo)
+                if ($pago["metodo"] === "Saldo a Favor (Billetera)") {
+                    $stmtNC = $conexion->prepare("UPDATE notas_credito SET estado = 'Usada' WHERE codigo_nota = :codigo");
+                    $stmtNC->bindParam(":codigo", $pago["referencia"], PDO::PARAM_STR);
+                    $stmtNC->execute();
+                }
             }
 
-            // D. Vaciar Carrito Activo
+            // E. Vaciar Carrito Activo
             $stmtVaciar = $conexion->prepare("DELETE FROM ventas_temporales WHERE usuario_id = :usuario_id AND identificador_cliente IS NULL");
             $stmtVaciar->bindParam(":usuario_id", $datosCabecera["usuario_id"], PDO::PARAM_INT);
             $stmtVaciar->execute();
 
             $conexion->commit();
-            return $venta_id; // Retornamos el ID para generar el PDF inmediatamente
+            return $venta_id;
 
         } catch (Exception $e) {
             $conexion->rollBack();
@@ -194,12 +218,10 @@ class Ventas {
        ============================================================== */
     public static function crearRutaFacturaPDF(string $nombreCajero): string {
         $fechaHoy = date("Y-m-d");
-        // Reemplazamos espacios por guiones bajos para evitar problemas en URLs o Windows
         $cajeroLimpio = str_replace(' ', '_', $nombreCajero); 
         
         $rutaBase = "Facturacion/" . $fechaHoy . "/" . $cajeroLimpio . "/";
 
-        // Si la carpeta no existe, PHP la crea con permisos de escritura/lectura
         if (!file_exists($rutaBase)) {
             mkdir($rutaBase, 0777, true);
         }
@@ -229,6 +251,131 @@ class Ventas {
         $stmt->bindParam(":id", $id_venta, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /* ==============================================================
+       6. HISTORIAL Y AUDITORÍA DE VENTAS (Con Seguridad RBAC)
+       ============================================================== */
+    public static function mdlMostrarHistorialVentas($rol_id, $usuario_id) {
+        $conexion = Conexion::conectar();
+        
+        if ($rol_id == 1) {
+            $stmt = $conexion->prepare("
+                SELECT v.*, c.nombre as cliente_nombre, u.usuario as cajero_nombre 
+                FROM ventas v 
+                INNER JOIN clientes c ON v.cliente_id = c.id 
+                INNER JOIN usuarios u ON v.usuario_id = u.id 
+                ORDER BY v.id DESC
+            ");
+        } else {
+            $stmt = $conexion->prepare("
+                SELECT v.*, c.nombre as cliente_nombre, u.usuario as cajero_nombre 
+                FROM ventas v 
+                INNER JOIN clientes c ON v.cliente_id = c.id 
+                INNER JOIN usuarios u ON v.usuario_id = u.id 
+                WHERE v.usuario_id = :usuario_id 
+                AND DATE(v.fecha_venta) = CURDATE() 
+                ORDER BY v.id DESC
+            ");
+            $stmt->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /* ==============================================================
+       9. EJECUTAR TRANSACCIÓN DE DEVOLUCIÓN (CON AUDITORÍA DE CANTIDADES)
+       ============================================================== */
+    public static function mdlProcesarDevolucion($datosDevolucion, $items) {
+        $conexion = Conexion::conectar();
+        
+        // --- VALIDACIÓN DE CANTIDADES ---
+        foreach ($items as $item) {
+            $stmtVal = $conexion->prepare("SELECT cantidad FROM ventas_detalle WHERE id = :id");
+            $stmtVal->bindParam(":id", $item->id_detalle, PDO::PARAM_INT);
+            $stmtVal->execute();
+            $det = $stmtVal->fetch(PDO::FETCH_OBJ);
+            if(!$det || $det->cantidad < $item->cantidad_devuelta) {
+                return "error_cantidad"; // Intentó devolver más de lo que quedaba en factura
+            }
+        }
+        // --------------------------------
+
+        try {
+            $conexion->beginTransaction();
+
+            $stmtV = $conexion->prepare("SELECT cliente_id, tasa_bcv FROM ventas WHERE id = :id");
+            $stmtV->bindParam(":id", $datosDevolucion["idVentaOriginal"], PDO::PARAM_INT);
+            $stmtV->execute();
+            $ventaOriginal = $stmtV->fetch(PDO::FETCH_OBJ);
+            
+            $cliente_id = $ventaOriginal->cliente_id;
+            $tasa_bcv_historica = $ventaOriginal->tasa_bcv;
+
+            foreach ($items as $item) {
+                $stmtInv = $conexion->prepare("UPDATE productos SET stock = stock + :cant WHERE id = :id_prod");
+                $stmtInv->bindParam(":cant", $item->cantidad_devuelta, PDO::PARAM_INT);
+                $stmtInv->bindParam(":id_prod", $item->id_producto, PDO::PARAM_INT);
+                $stmtInv->execute();
+
+                $stmtDet = $conexion->prepare("UPDATE ventas_detalle SET cantidad = cantidad - :cant WHERE id = :id_detalle");
+                $stmtDet->bindParam(":cant", $item->cantidad_devuelta, PDO::PARAM_INT);
+                $stmtDet->bindParam(":id_detalle", $item->id_detalle, PDO::PARAM_INT);
+                $stmtDet->execute();
+            }
+
+            $codigo_nc = "NC-" . date("Ymd") . "-" . $datosDevolucion["idVentaOriginal"] . rand(10,99);
+
+            if ($datosDevolucion["metodoReembolso"] == "credito_usd") {
+                $stmtNC = $conexion->prepare("INSERT INTO notas_credito (codigo_nota, venta_original_id, cliente_id, monto_usd, estado) VALUES (:codigo, :venta_id, :cliente_id, :monto, 'Disponible')");
+                $stmtNC->bindParam(":codigo", $codigo_nc, PDO::PARAM_STR);
+                $stmtNC->bindParam(":venta_id", $datosDevolucion["idVentaOriginal"], PDO::PARAM_INT);
+                $stmtNC->bindParam(":cliente_id", $cliente_id, PDO::PARAM_INT);
+                $stmtNC->bindParam(":monto", $datosDevolucion["totalReembolso"], PDO::PARAM_STR);
+                $stmtNC->execute();
+            } else {
+                $monto_gasto = $datosDevolucion["totalReembolso"];
+                $tipo_gasto = "Variable";
+                $metodo_texto = ($datosDevolucion["metodoReembolso"] == "efectivo_bs") ? "Efectivo Bs" : "Efectivo USD";
+                
+                if ($datosDevolucion["metodoReembolso"] == "efectivo_bs") {
+                    $monto_gasto = $datosDevolucion["totalReembolso"] * $tasa_bcv_historica;
+                }
+                
+                $concepto = "Reembolso F-" . $datosDevolucion["idVentaOriginal"] . " | NC: " . $codigo_nc . " (" . $metodo_texto . ")";
+                $stmtGasto = $conexion->prepare("INSERT INTO gastos (concepto, monto, tipo, fecha, estado) VALUES (:concepto, :monto, :tipo, CURDATE(), 1)");
+                $stmtGasto->bindParam(":concepto", $concepto, PDO::PARAM_STR);
+                $stmtGasto->bindParam(":monto", $monto_gasto, PDO::PARAM_STR);
+                $stmtGasto->bindParam(":tipo", $tipo_gasto, PDO::PARAM_STR);
+                $stmtGasto->execute();
+            }
+
+            $conexion->commit();
+            return $codigo_nc; // RETORNAMOS EL CÓDIGO EN LUGAR DE "ok"
+
+        } catch (Exception $e) {
+            $conexion->rollBack();
+            return "error";
+        }
+    }
+
+    /* ==============================================================
+       10. BUSCAR NOTA DE CRÉDITO DEL CLIENTE (SOLO DEL DÍA ACTUAL)
+       ============================================================== */
+    public static function mdlBuscarBilletera($documento) {
+        $stmt = Conexion::conectar()->prepare("
+            SELECT nc.* 
+            FROM notas_credito nc 
+            INNER JOIN clientes c ON nc.cliente_id = c.id 
+            WHERE c.documento = :documento 
+            AND nc.estado = 'Disponible' 
+            AND DATE(nc.fecha_emision) = CURDATE() 
+            ORDER BY nc.id DESC LIMIT 1
+        ");
+        $stmt->bindParam(":documento", $documento, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
 }
 ?>

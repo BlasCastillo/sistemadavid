@@ -255,7 +255,9 @@ class VentasControlador {
             // 8. Ejecutar Transacción Final
             $venta_id = Ventas::procesarVentaFinal($datosCabecera, $carrito, $datosPagos);
 
-            if($venta_id){
+            if($venta_id === "error_fraude_billetera") {
+                echo json_encode(["status" => "error", "mensaje" => "error_fraude_billetera"]);
+            } else if($venta_id){
                 echo json_encode([
                     "status" => "success", 
                     "mensaje" => "Venta procesada con éxito. Inventario actualizado.", 
@@ -265,6 +267,146 @@ class VentasControlador {
                 echo json_encode(["status" => "error", "mensaje" => "Error crítico estructural (Rollback ejecutado)."]);
             }
             exit();
+        }
+    }
+    /* ==============================================================
+       6. MOSTRAR HISTORIAL DE VENTAS
+       ============================================================== */
+    public static function ctrMostrarHistorialVentas() {
+        
+        // Validamos que existan las variables de sesión por seguridad
+        if(isset($_SESSION["rol_id"]) && isset($_SESSION["id_usuario"])) {
+            
+            $rol_id = $_SESSION["rol_id"];
+            $usuario_id = $_SESSION["id_usuario"];
+            
+            $respuesta = Ventas::mdlMostrarHistorialVentas($rol_id, $usuario_id);
+            return $respuesta;
+            
+        } else {
+            return [];
+        }
+    }
+   /* ==============================================================
+       7. AUTORIZACIÓN ESTRICTA DE SUPERVISOR (DOBLE FACTOR)
+       ============================================================== */
+    public static function ctrAutorizarSupervisorAjax() {
+        if(isset($_POST["supUsuario"]) && isset($_POST["supPin"])) {
+            
+            $usuario = $_POST["supUsuario"];
+            $pin_ingresado = $_POST["supPin"];
+
+            // 1. Buscamos al usuario y traemos su matriz de permisos
+            $stmt = Conexion::conectar()->prepare("SELECT u.*, r.permisos FROM usuarios u INNER JOIN roles r ON u.rol_id = r.id WHERE u.usuario = :usuario AND u.estado = 1");
+            $stmt->bindParam(":usuario", $usuario, PDO::PARAM_STR);
+            $stmt->execute();
+            $supervisor = $stmt->fetch(PDO::FETCH_OBJ);
+
+            if($supervisor) {
+                // 2. Validamos el PIN (Usando pin_autorizacion de la BD)
+                $clave_valida = false;
+                if (password_verify($pin_ingresado, $supervisor->pin_autorizacion) || $pin_ingresado === $supervisor->pin_autorizacion) {
+                    $clave_valida = true;
+                }
+
+                if($clave_valida) {
+                    // 3. Evaluamos la matriz de permisos
+                    $permisos = json_decode($supervisor->permisos, true);
+                    
+                    if (is_array($permisos) && (in_array("all", $permisos) || in_array("anular_ventas", $permisos))) {
+                        echo json_encode([
+                            "status" => "success", 
+                            "id_supervisor" => $supervisor->id, 
+                            "nombre_supervisor" => $supervisor->nombre_completo // Corregido: usando nombre_completo de la BD
+                        ]);
+                    } else {
+                        echo json_encode(["status" => "error", "mensaje" => "Credenciales correctas, pero este usuario carece del permiso de anulación."]);
+                    }
+                } else {
+                    echo json_encode(["status" => "error", "mensaje" => "Clave/PIN incorrecto."]);
+                }
+            } else {
+                 echo json_encode(["status" => "error", "mensaje" => "Usuario no encontrado o inactivo."]);
+            }
+            
+            // EL FRENO DE EMERGENCIA: Obliga a PHP a detenerse aquí mismo.
+            exit; 
+        }
+    }
+    /* ==============================================================
+       8. EXTRAER VENTA COMPLETA (PARA DEVOLUCIONES / NOTAS DE CRÉDITO)
+       ============================================================== */
+    public static function ctrMostrarVentaCompleta($id_venta) {
+        if($id_venta != null) {
+            
+            // Reutilizamos los métodos exactos que ya usas para el PDF
+            $cabecera = Ventas::leerVentaCabecera($id_venta);
+            $detalles = Ventas::leerVentaDetalle($id_venta);
+            $pagos = Ventas::leerVentaPagos($id_venta);
+            
+            return [
+                "cabecera" => $cabecera,
+                "detalles" => $detalles,
+                "pagos" => $pagos
+            ];
+        }
+        return false;
+    }
+    /* ==============================================================
+       9. PROCESAR DEVOLUCIÓN Y NOTA DE CRÉDITO (AJAX)
+       ============================================================== */
+    public static function ctrProcesarDevolucionAjax() {
+        if(isset($_POST["procesarDevolucionAjax"])) {
+            
+            $datosDevolucion = [
+                "idVentaOriginal" => intval($_POST["idVentaOriginal"]),
+                "metodoReembolso" => $_POST["metodoReembolso"],
+                "totalReembolso"  => floatval($_POST["totalReembolso"])
+            ];
+
+            // Decodificamos el array de productos que envió JS
+            $itemsReversar = json_decode($_POST["itemsReversar"]);
+
+            if(is_array($itemsReversar) && count($itemsReversar) > 0) {
+                
+                $respuesta = Ventas::mdlProcesarDevolucion($datosDevolucion, $itemsReversar);
+                
+                if($respuesta == "error_cantidad") {
+                    echo json_encode(["status" => "error", "mensaje" => "Se intentó devolver una cantidad mayor al stock registrado en la factura original."]);
+                } else if($respuesta != "error") {
+                    // Si todo salió bien, la respuesta es el código (Ej: NC-2026...)
+                    echo json_encode(["status" => "success", "mensaje" => "Reembolso procesado.", "codigo_nota" => $respuesta]);
+                } else {
+                    echo json_encode(["status" => "error", "mensaje" => "Error al ejecutar la transacción en la base de datos."]);
+                }
+            } else {
+                echo json_encode(["status" => "error", "mensaje" => "No se recibieron productos para reversar."]);
+            }
+        }
+    }
+    /* ==============================================================
+       10. BUSCAR BILLETERA / NOTA DE CRÉDITO DEL DÍA (AJAX)
+       ============================================================== */
+    public static function ctrBuscarBilleteraAjax() {
+        if(isset($_POST["buscarBilleteraAjax"])) {
+            
+            $documento = trim($_POST["documentoCliente"]);
+            
+            $respuesta = Ventas::mdlBuscarBilletera($documento);
+
+            if($respuesta) {
+                // Si encontró una nota válida, mandamos el código y el monto
+                echo json_encode([
+                    "status" => "success", 
+                    "codigo_nota" => $respuesta->codigo_nota, 
+                    "monto_usd" => $respuesta->monto_usd
+                ]);
+            } else {
+                echo json_encode([
+                    "status" => "error", 
+                    "mensaje" => "No hay saldo"
+                ]);
+            }
         }
     }
 }

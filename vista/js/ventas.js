@@ -3,8 +3,12 @@
 ==================================================================== */
 
 $(document).ready(function() {
-    
+
+        if ($("#listaVentasTemporal").length === 0) return; 
+
     console.log("🚩 [0] Archivo ventas.js cargado correctamente.");
+    
+    
 
     // Configuración HÍBRIDA para Clientes (Permite seleccionar o escribir uno nuevo)
     $('#identificadorClientePOS').select2({

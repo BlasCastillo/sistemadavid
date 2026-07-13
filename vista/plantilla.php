@@ -11,6 +11,7 @@ if (session_status() == PHP_SESSION_NONE) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REDITUS - Sistema de Gestión</title>
 
+    <link href="vista/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="vista/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="vista/css/bootstrap.min.css">
     
@@ -43,7 +44,7 @@ if (session_status() == PHP_SESSION_NONE) {
         if (isset($_GET["ruta"])) {
             
             // Lista blanca de rutas permitidas (Iremos agregando más conforme programemos)
-            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar", "proveedores", "proveedores-crear", "proveedores-editar", "subcategorias", "subcategorias-crear", "subcategorias-editar", "clientes", "clientes-crear", "clientes-editar", "gastos", "gastos-crear", "gastos-editar", "productos", "productos-crear", "productos-editar", "compras", "compras-crear", "auditoria-core", "cuentas-por-pagar", "cuentas-por-pagar-abonar", "ofertas", "consulta-precios", "etiquetas", "etiquetas-pdf", "ventas-crear", "ventas-pago", "ticket-venta"];
+            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar", "proveedores", "proveedores-crear", "proveedores-editar", "subcategorias", "subcategorias-crear", "subcategorias-editar", "clientes", "clientes-crear", "clientes-editar", "gastos", "gastos-crear", "gastos-editar", "productos", "productos-crear", "productos-editar", "compras", "compras-crear", "auditoria-core", "cuentas-por-pagar", "cuentas-por-pagar-abonar", "ofertas", "consulta-precios", "etiquetas", "etiquetas-pdf", "ventas-crear", "ventas-pago", "ticket-venta", "ventas", "ventas-devolucion"];
 
             if (in_array($_GET["ruta"], $rutasPermitidas)) {
                 include "vista/modulos/" . $_GET["ruta"] . ".php";
@@ -95,5 +96,9 @@ if (session_status() == PHP_SESSION_NONE) {
     <script src="vista/js/etiquetas.js"></script>
     <script src="vista/js/ventas.js"></script>
     <script src="vista/js/ventas-pago.js"></script>
+    <script src="vista/js/ventas-historial.js"></script>
+    <script src="vista/js/jquery.dataTables.min.js"></script>
+    <script src="vista/js/dataTables.bootstrap5.min.js"></script>
+    <script src="vista/js/ventas-devolucion.js"></script>
     </body>
 </html>

@@ -26,57 +26,67 @@ require_once "controlador/VentasControlador.php";
 require_once "modelo/Usuarios.php";
 require_once "modelo/Roles.php";
 require_once "modelo/Tasas.php"; // NUEVO
+
 // ==========================================
 // INTERCEPTOR DE PETICIONES AJAX
 // ==========================================
+
 // Si JavaScript envía los datos del Login, este método los atrapa, imprime el JSON y hace exit()
-// deteniendo la carga del HTML para que el JSON viaje limpio.
 UsuariosControlador::ctrIngresoUsuario();
 TasasControlador::ctrActualizacionManual(); // NUEVO INTERCEPTOR
 TasasControlador::ctrSincronizarAjax(); // NUEVO: Interceptor para el gatillo y el botón
+
 // Interceptores del CRUD de Roles
 RolesControlador::ctrCrearRol();
 RolesControlador::ctrActualizarRol();
 RolesControlador::ctrEliminarRol();
 RolesControlador::ctrGuardarPermisosRol();
+
 // Interceptores del CRUD de Usuarios (NUEVOS)
 UsuariosControlador::ctrCrearUsuario();
 UsuariosControlador::ctrActualizarUsuario();
 UsuariosControlador::ctrEliminarUsuario();
 UsuariosControlador::ctrActualizarClaveUsuario();
 UsuariosControlador::ctrActivarUsuario();
+
 // Interceptores del CRUD de Categorías
 CategoriasControlador::ctrCrearCategoria();
 CategoriasControlador::ctrActualizarCategoria();
 CategoriasControlador::ctrEliminarCategoria();
 CategoriasControlador::ctrActivarCategoria();
 CategoriasControlador::ctrTraerCategoriasPorLineaAjax();
+
 // Interceptores del CRUD de Líneas
 LineasControlador::ctrCrearLinea();
 LineasControlador::ctrActualizarLinea();
 LineasControlador::ctrEliminarLinea();
 LineasControlador::ctrActivarLinea();
+
 // Interceptores del CRUD de Proveedores
 ProveedoresControlador::ctrCrearProveedor();
 ProveedoresControlador::ctrActualizarProveedor();
 ProveedoresControlador::ctrEliminarProveedor();
 ProveedoresControlador::ctrActivarProveedor();
+
 // Interceptores del CRUD de Subcategorías
 SubcategoriasControlador::ctrCrearSubcategoria();
 SubcategoriasControlador::ctrActualizarSubcategoria();
 SubcategoriasControlador::ctrEliminarSubcategoria();
 SubcategoriasControlador::ctrActivarSubcategoria();
 SubcategoriasControlador::ctrTraerSubcategoriasPorCategoriaAjax();
+
 // Interceptores del CRUD de Clientes
 ClientesControlador::ctrCrearCliente();
 ClientesControlador::ctrActualizarCliente();
 ClientesControlador::ctrEliminarCliente();
 ClientesControlador::ctrActivarCliente();
+
 // Interceptores AJAX del CRUD de Gastos
 GastosControlador::ctrCrearGasto();
 GastosControlador::ctrActualizarGasto();
 GastosControlador::ctrAnularGasto();
 GastosControlador::ctrReactivarGasto();
+
 // Interceptores AJAX del CRUD de Productos
 ProductosControlador::ctrCrearProducto();
 ProductosControlador::ctrActualizarProducto();
@@ -85,15 +95,12 @@ ProductosControlador::ctrActivarProducto();
 
 // Interceptores AJAX del Módulo de Compras
 if(isset($_POST["idProductoCompraSegura"]) || isset($_POST["idTemporalEliminar"]) || isset($_POST["procesarCompraFinal"])) {
-    
     if(isset($_POST["idProductoCompraSegura"])) {
         ComprasControlador::ctrAgregarTemporalAjax();
     }
-    
     if(isset($_POST["idTemporalEliminar"])) {
         ComprasControlador::ctrEliminarTemporalAjax();
     }
-
     if(isset($_POST["procesarCompraFinal"])) {
         ComprasControlador::ctrProcesarCompraAjax();
     }
@@ -110,33 +117,18 @@ if(isset($_POST["idCompraDetalle"])) {
     require_once "controlador/ComprasControlador.php";
     ComprasControlador::ctrMostrarDetalleCompraAjax();
 }
-// --- INICIO DEL REEMPLAZO / AGREGADO ---
 
 // Interceptores AJAX para el Núcleo y Configuración del Super Admin
-
 if(isset($_POST["pinSuperAdmin"]) || isset($_POST["actualizarConfiguracion"])) {
-
     require_once "controlador/ConfiguracionControlador.php";
-
     
-
     if(isset($_POST["pinSuperAdmin"])) {
-
         ConfiguracionControlador::ctrDesbloquearSuperAdminAjax();
-
     }
-
-    
-
     if(isset($_POST["actualizarConfiguracion"])) {
-
         ConfiguracionControlador::ctrActualizarConfiguracionAjax();
-
     }
-
 }
-
-// --- FIN DEL REEMPLAZO / AGREGADO ---
 
 // Interceptores AJAX para Cuentas Por Pagar (CxP)
 if(isset($_POST["idCuentaPorPagar"]) || isset($_POST["idCuentaAbono"])) {
@@ -166,13 +158,15 @@ if(isset($_POST["idProductoOferta"]) || isset($_POST["idOfertaEliminar"])) {
 if(isset($_POST["codigoBarrasConsulta"])) {
     ConsultaPreciosControlador::ctrBuscarCodigoAjax();
 }
-// Interceptores AJAX del Módulo de Ventas
+
+// ==========================================
+// INTERCEPTORES AJAX DEL MÓDULO DE VENTAS
+// ==========================================
 if(isset($_POST["codigoProductoVenta"]) || isset($_POST["cargarTemporalesVenta"]) || isset($_POST["idTemporalVentaEliminar"]) || isset($_POST["idItemActualizar"])) {
-    
     if(isset($_POST["codigoProductoVenta"])) { VentasControlador::ctrAgregarTemporalAjax(); }
     if(isset($_POST["cargarTemporalesVenta"])) { VentasControlador::ctrCargarTemporalesAjax(); }
     if(isset($_POST["idTemporalVentaEliminar"])) { VentasControlador::ctrEliminarTemporalAjax(); }
-    if(isset($_POST["idItemActualizar"])) { VentasControlador::ctrActualizarCantidadAjax(); } // NUEVO INTERCEPTOR
+    if(isset($_POST["idItemActualizar"])) { VentasControlador::ctrActualizarCantidadAjax(); }
 }
 
 if (isset($_POST["cedulaSuspender"]) || isset($_POST["cedulaRecuperar"]) || isset($_POST["listarSuspendidas"])) {
@@ -185,6 +179,27 @@ if(isset($_POST["procesarVentaFinal"])) {
     VentasControlador::ctrProcesarVentaAjax();
 }
 
-// 4. Instanciamos la plantilla para que se muestre en pantalla
+if(isset($_POST["idVentaAnular"])) {
+    VentasControlador::ctrAnularVentaAjax();
+}
+
+// ZONA SEGURA: Interceptor AJAX para la Autorización del Supervisor (Doble Factor)
+if(isset($_POST["supUsuario"]) && isset($_POST["supPin"])) {
+    VentasControlador::ctrAutorizarSupervisorAjax();
+    exit; // Freno de emergencia obligatorio para que no imprima HTML
+}
+
+// NUEVO: Interceptor para Procesar Devoluciones y Notas de Crédito
+if(isset($_POST["procesarDevolucionAjax"])) {
+    VentasControlador::ctrProcesarDevolucionAjax();
+    exit; // Frenamos la impresión de HTML
+}
+if(isset($_POST["buscarBilleteraAjax"])) {
+    VentasControlador::ctrBuscarBilleteraAjax();
+    exit;
+}
+// ==========================================
+// 4. INSTANCIACIÓN DE LA PLANTILLA VISUAL
+// ==========================================
 $plantilla = new PlantillaControlador();
 $plantilla->ctrPlantilla();

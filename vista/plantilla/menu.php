@@ -113,6 +113,7 @@ $modoDios = ($_SESSION["rol_id"] == 1) || in_array("all", $permisos);
                 </a>
                 <ul class="collapse nav flex-column" id="submenuProcesos">
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=ventas-crear"><i class="fas fa-shopping-cart"></i> Ventas / POS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php?ruta=ventas"><i class="fas fa-list-ul"></i> Historial de Ventas</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=consulta-precios"><i class="fas fa-barcode"></i> Consulta de Precios</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=etiquetas"><i class="fas fa-print"></i> Etiquetas</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=cierre-caja"><i class="fas fa-lock"></i> Cierre de Caja</a></li>

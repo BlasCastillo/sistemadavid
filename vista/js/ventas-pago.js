@@ -1,5 +1,5 @@
 /* ====================================================================
-   MÓDULO DE VENTAS - LIQUIDACIÓN Y MULTIPAGO
+   MÓDULO DE VENTAS - LIQUIDACIÓN Y MULTIPAGO (Con Billetera)
 ==================================================================== */
 $(document).ready(function() {
     
@@ -11,30 +11,103 @@ $(document).ready(function() {
     let tasaBcv = parseFloat($("#tasaBcvGlobal").val());
     let totalFacturaUsdt = parseFloat($("#totalUsdtGlobal").val());
     let matrizPagos = []; // Array que almacenará los pagos parciales
+    
+    // NUEVO: Memoria global fuerte para que no se pierda el código de la nota
+    let codigoNotaCreditoActiva = "N/A"; 
 
     /* ==============================================================
-       1. DINAMISMO DEL FORMULARIO DE PAGOS
+       1. DINAMISMO DEL FORMULARIO DE PAGOS Y BILLETERA
        ============================================================== */
     
-    // Cambiar los métodos de pago disponibles y AUTO-LLENAR el monto
+    // Al cambiar la MONEDA
     $("#monedaMultipago").on("change", function() {
         let moneda = $(this).val();
         
-        // Calculamos cuánto falta pagar
         let pagado = 0;
         matrizPagos.forEach(p => pagado += p.equivalencia_usdt);
         let faltanteUsdt = totalFacturaUsdt - pagado;
         
+        // Bloqueo de seguridad: No se puede usar Billetera en Bolívares
         if (moneda === "BS") {
             $("#metodoMultipago .opt-bs").removeClass("d-none");
             $("#metodoMultipago").val("Pago Movil");
-            // Auto-llena el input con el monto exacto convertido a Bolívares
+            $("#metodoMultipago option[value='Saldo a Favor (Billetera)']").hide(); // Ocultamos billetera
+            
+            $("#montoMultipago").prop("readonly", false);
             if (faltanteUsdt > 0) $("#montoMultipago").val((faltanteUsdt * tasaBcv).toFixed(2));
         } else {
             $("#metodoMultipago .opt-bs").addClass("d-none"); 
             $("#metodoMultipago").val("Efectivo");
-            // Auto-llena el input con el monto en Dólares
+            $("#metodoMultipago option[value='Saldo a Favor (Billetera)']").show(); // Mostramos billetera
+            
+            $("#montoMultipago").prop("readonly", false);
             if (faltanteUsdt > 0) $("#montoMultipago").val(faltanteUsdt.toFixed(2));
+        }
+    });
+
+    // Al cambiar el MÉTODO DE PAGO (Auditoría de Billetera)
+    $("#metodoMultipago").on("change", function() {
+        let metodo = $(this).val();
+        let docCliente = $("#docClienteFinal").val().trim(); // Traemos la cédula del cliente del formulario HTML
+
+        if (metodo === "Saldo a Favor (Billetera)") {
+            
+            // 1. Validamos que haya un cliente seleccionado
+            if(docCliente === "") {
+                Swal.fire("Error", "Debe identificar al cliente con su Cédula/RIF para poder buscar su Billetera.", "error");
+                $(this).val("Efectivo"); // Devolvemos al valor por defecto
+                return;
+            }
+
+            // 2. Bloqueamos el input para evitar alteraciones manuales
+            $("#montoMultipago").prop("readonly", true).val("Buscando...");
+            $("#btnAgregarPago").prop("disabled", true);
+
+            // 3. Vamos al servidor a buscar la Nota de Crédito del cliente del DÍA DE HOY
+            $.ajax({
+                url: "index.php",
+                method: "POST",
+                data: { 
+                    buscarBilleteraAjax: "ok", 
+                    documentoCliente: docCliente 
+                },
+                dataType: "json",
+                success: function(res) {
+                    if(res.status === "success") {
+                        // Inyectamos el saldo y guardamos el código fuerte
+                        codigoNotaCreditoActiva = res.codigo_nota;
+
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Billetera Encontrada',
+                            text: 'Se encontró la Nota de Crédito: ' + res.codigo_nota + ' por un valor de $' + res.monto_usd,
+                            toast: true, position: 'top-end', showConfirmButton: false, timer: 4000
+                        });
+                        
+                        $("#montoMultipago").val(res.monto_usd);
+                        $("#btnAgregarPago").prop("disabled", false);
+
+                    } else {
+                        Swal.fire("Billetera Vacía", "Este cliente no tiene Notas de Crédito disponibles generadas el día de hoy.", "warning");
+                        $("#metodoMultipago").val("Efectivo");
+                        $("#montoMultipago").prop("readonly", false).val("");
+                        $("#btnAgregarPago").prop("disabled", false);
+                        codigoNotaCreditoActiva = "N/A";
+                    }
+                },
+                error: function(xhr) {
+                    console.error("🚨 [ERROR BILLETERA]:", xhr.responseText);
+                    $("#metodoMultipago").val("Efectivo");
+                    $("#montoMultipago").prop("readonly", false).val("");
+                    $("#btnAgregarPago").prop("disabled", false);
+                    codigoNotaCreditoActiva = "N/A";
+                }
+            });
+
+        } else {
+            // Si es cualquier otro método, devolvemos el input a la normalidad
+            $("#montoMultipago").prop("readonly", false);
+            codigoNotaCreditoActiva = "N/A";
         }
     });
 
@@ -46,15 +119,14 @@ $(document).ready(function() {
         let moneda = $("#monedaMultipago").val();
         let metodo = $("#metodoMultipago").val();
         let monto = parseFloat($("#montoMultipago").val());
+        let referencia = "N/A";
 
         if (isNaN(monto) || monto <= 0) {
             Swal.fire("Monto Inválido", "Ingrese un monto mayor a cero.", "warning");
             return;
         }
 
-        let referencia = "N/A";
-        
-        // Si es método digital, pedimos el número de referencia obligatorio
+        // Si es método digital pedimos referencia manual
         if (["Zelle", "Pago Movil", "Punto de Venta"].includes(metodo)) {
             const { value: refInput } = await Swal.fire({
                 title: 'Número de Referencia',
@@ -74,16 +146,18 @@ $(document).ready(function() {
             if (refInput) { 
                 referencia = refInput; 
             } else { 
-                return; // Si cancela el modal, detenemos el proceso
+                return; // Si cancela
             } 
+        } else if (metodo === "Saldo a Favor (Billetera)") {
+            // Capturamos el código de la nota de crédito desde la memoria fuerte
+            referencia = codigoNotaCreditoActiva;
         }
 
-        // Matemática: Si es Bs, lo dividimos entre la tasa para pasarlo a USDT
         let equivalenteUsdt = moneda === "BS" ? (monto / tasaBcv) : monto;
 
         // Empaquetamos el pago en la matriz
         matrizPagos.push({
-            id: Date.now(), // ID temporal único
+            id: Date.now(), 
             moneda: moneda,
             metodo: metodo,
             monto_declarado: monto,
@@ -92,7 +166,9 @@ $(document).ready(function() {
         });
 
         // Limpiamos el input y renderizamos
-        $("#montoMultipago").val("");
+        $("#montoMultipago").val("").prop("readonly", false);
+        $("#metodoMultipago").val("Efectivo"); // Reseteamos
+        codigoNotaCreditoActiva = "N/A"; // Reseteamos la memoria una vez usado
         renderizarPagos();
     });
 
@@ -107,7 +183,6 @@ $(document).ready(function() {
         matrizPagos.forEach(function(pago) {
             totalPagadoUsdt += pago.equivalencia_usdt;
             
-            // Color de la insignia de moneda
             let badgeClass = pago.moneda === 'BS' ? 'bg-info text-dark' : 'bg-success';
             
             html += `
@@ -131,7 +206,6 @@ $(document).ready(function() {
         calcularFaltante(totalPagadoUsdt);
     }
 
-    // Quitar un pago erróneo
     $("#listaMultipagos").on("click", ".btnQuitarPago", function() {
         let id = $(this).attr("id_pago");
         matrizPagos = matrizPagos.filter(pago => pago.id != id);
@@ -150,14 +224,12 @@ $(document).ready(function() {
         $("#montoFaltanteVisual").text("$" + faltante.toFixed(2));
         $("#montoVueltoVisual").text("$" + vuelto.toFixed(2));
 
-        // NUEVO: Mostrar el equivalente en Bolívares dinámicamente
         if($("#spanFaltanteBs").length === 0) $("#montoFaltanteVisual").after(`<small class="d-block text-danger mt-1" id="spanFaltanteBs"></small>`);
         if($("#spanVueltoBs").length === 0) $("#montoVueltoVisual").after(`<small class="d-block text-success mt-1" id="spanVueltoBs"></small>`);
 
         $("#spanFaltanteBs").text(`(Bs ${(faltante * tasaBcv).toFixed(2)})`);
         $("#spanVueltoBs").text(`(Bs ${(vuelto * tasaBcv).toFixed(2)})`);
 
-        // Validación Crítica
         if (faltante === 0 && matrizPagos.length > 0) {
             $("#btnProcesarVentaDefinitiva").prop("disabled", false);
         } else {
@@ -174,7 +246,6 @@ $(document).ready(function() {
         let docCliente = $("#docClienteFinal").val().trim();
         let nomCliente = $("#nomClienteFinal").val().trim();
         
-        // Validación de QA para cliente express
         if (nomCliente === "") {
             Swal.fire("Datos Faltantes", "Debe registrar el nombre del cliente para poder facturar.", "warning");
             $("#nomClienteFinal").focus();
@@ -193,13 +264,12 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 
-                // Mapeamos el arreglo a un JSON simplificado para el Backend
                 let datosPagosJSON = JSON.stringify(matrizPagos.map(p => {
                     return {
                         metodo: p.metodo,
                         moneda: p.moneda,
                         monto: p.monto_declarado,
-                        referencia: p.referencia
+                        referencia: p.referencia // Si hubo billetera, viajará el NC-2026...
                     };
                 }));
 
@@ -208,11 +278,10 @@ $(document).ready(function() {
                 formData.append("docClienteFinal", docCliente);
                 formData.append("nomClienteFinal", nomCliente);
                 formData.append("telClienteFinal", $("#telClienteFinal").val());
-                formData.append("emaClienteFinal", $("#emaClienteFinal").val()); // NUEVO CAMPO
+                formData.append("emaClienteFinal", $("#emaClienteFinal").val());
                 formData.append("dirClienteFinal", $("#dirClienteFinal").val());
                 formData.append("listaPagosFinal", datosPagosJSON);
 
-                // Bloqueamos el botón para evitar doble clic
                 $("#btnProcesarVentaDefinitiva").prop("disabled", true).html('<i class="fas fa-spinner fa-spin me-2"></i> Procesando...');
 
                 $.ajax({
@@ -228,10 +297,13 @@ $(document).ready(function() {
                             Swal.fire({
                                 icon: 'success', title: '¡Cobro Exitoso!', text: res.mensaje, showConfirmButton: false, timer: 2000
                             }).then(function() {
-                                // CORRECCIÓN: Llamamos al archivo raíz directamente, como en etiquetas
                                 window.open("ticket-factura.php?idVenta=" + res.id_venta, "_blank");
                                 window.location = "index.php?ruta=ventas-crear"; 
                             });
+                        } else if (res.mensaje === "error_fraude_billetera") {
+                            // NUEVO: Atrapamos el error de auditoría si la nota es falsa o ya se gastó
+                            Swal.fire("Transacción Rechazada", "La Nota de Crédito asignada no existe, ya fue utilizada o no posee los fondos suficientes.", "error");
+                            $("#btnProcesarVentaDefinitiva").prop("disabled", false).html('<i class="fas fa-check-circle me-2"></i> Emitir Factura y Cobrar');
                         } else {
                             Swal.fire("Error Crítico", res.mensaje, "error");
                             $("#btnProcesarVentaDefinitiva").prop("disabled", false).html('<i class="fas fa-check-circle me-2"></i> Emitir Factura y Cobrar');
@@ -248,7 +320,7 @@ $(document).ready(function() {
     });
 
     /* ==============================================================
-       5. SISTEMA DE DESCUENTOS POR PIN (Adelanto del Sprint 3)
+       5. SISTEMA DE DESCUENTOS POR PIN
        ============================================================== */
     $("#btnAplicarDescuentoGlobal").on("click", function() {
         Swal.fire({
