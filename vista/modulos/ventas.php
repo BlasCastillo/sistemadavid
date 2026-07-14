@@ -45,15 +45,23 @@ $historialVentas = VentasControlador::ctrMostrarHistorialVentas();
                             <td class="fw-bold text-dark"><?php echo $venta->cliente_nombre; ?></td>
                             <td><i class="fas fa-user-circle text-muted me-1"></i> <?php echo $venta->cajero_nombre; ?></td>
                             <td class="text-end fw-bold text-success fs-6">$<?php echo number_format($venta->total_usdt, 2, ',', '.'); ?></td>
-<td class="text-end text-muted">Bs <?php echo number_format($venta->total_bs, 2, ',', '.'); ?></td>
+                            <td class="text-end text-muted">Bs <?php echo number_format($venta->total_bs, 2, ',', '.'); ?></td>
                             <td class="text-center">
                                 <div class="btn-group shadow-sm">
                                     <button type="button" class="btn btn-sm btn-info text-white btnReimprimirTicket" idVenta="<?php echo $venta->id; ?>" title="Reimprimir Ticket">
                                         <i class="fas fa-print"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-danger btnAnularVenta" idVenta="<?php echo $venta->id; ?>" numFactura="F-<?php echo $venta->numero_factura; ?>" title="Anular / Nota de Crédito">
-                                        <i class="fas fa-ban"></i>
-                                    </button>
+                                    
+                                    <?php if ($venta->tiene_devolucion == 0): ?>
+                                        <button type="button" class="btn btn-sm btn-danger btnAnularVenta" idVenta="<?php echo $venta->id; ?>" numFactura="F-<?php echo $venta->numero_factura; ?>" title="Anular / Nota de Crédito">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    <?php else: ?>
+                                        <button type="button" class="btn btn-sm btn-secondary" disabled title="Factura con devolución procesada">
+                                            <i class="fas fa-lock"></i>
+                                        </button>
+                                    <?php endif; ?>
+
                                 </div>
                             </td>
                         </tr>

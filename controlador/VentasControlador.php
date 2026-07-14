@@ -1,6 +1,6 @@
 <?php
 require_once "modelo/Ventas.php";
-require_once "modelo/ConsultaPrecios.php"; // Reutilizamos tu validador de ofertas
+require_once "modelo/ConsultaPrecios.php"; 
 require_once "modelo/Tasas.php";
 
 class VentasControlador {
@@ -8,7 +8,6 @@ class VentasControlador {
     /* ==============================================================
        1. GESTIÓN DEL CARRITO TEMPORAL (AJAX)
        ============================================================== */
-       
     public static function ctrAgregarTemporalAjax() {
         if(isset($_POST["codigoProductoVenta"])) {
             
@@ -16,7 +15,6 @@ class VentasControlador {
             $codigo = trim($_POST["codigoProductoVenta"]);
             $cantidad = intval($_POST["cantidadVenta"]);
 
-            // 1. Buscamos el ID y el Stock directamente en la base de datos por seguridad
             $stmt = Conexion::conectar()->prepare("SELECT id, stock FROM productos WHERE codigo_barras = :codigo AND estado = 1");
             $stmt->bindParam(":codigo", $codigo, PDO::PARAM_STR);
             $stmt->execute();
@@ -30,7 +28,6 @@ class VentasControlador {
             $producto_id = $prodBD->id;
             $stockReal = $prodBD->stock;
 
-            // 2. Validación Estricta de Inventario (Stock Físico - Stock en Carrito)
             $carritoActivo = Ventas::leerTemporales($usuario_id);
             $cantidadEnCarrito = 0;
             
@@ -45,7 +42,6 @@ class VentasControlador {
                 exit();
             }
 
-            // 3. Captura del Precio Exacto usando el motor de ConsultaPrecios
             $productoPrecio = ConsultaPrecios::buscarProductoPorCodigo($codigo);
             
             if ($productoPrecio) {
@@ -60,7 +56,6 @@ class VentasControlador {
                 exit();
             }
 
-            // 4. Inserción o Actualización al carrito
             $existeItem = Ventas::verificarProductoActivo($usuario_id, $producto_id);
             if($existeItem) {
                 $nuevaCant = $existeItem->cantidad + $cantidad;
@@ -81,7 +76,6 @@ class VentasControlador {
     public static function ctrCargarTemporalesAjax() {
         if(isset($_POST["cargarTemporalesVenta"])) {
             $usuario_id = $_SESSION["id_usuario"];
-            // Trae solo los activos (donde identificador_cliente es NULL)
             $respuesta = Ventas::leerTemporales($usuario_id);
             echo json_encode($respuesta);
             exit();
@@ -101,19 +95,18 @@ class VentasControlador {
             exit();
         }
     }
+
     public static function ctrActualizarCantidadAjax() {
         if(isset($_POST["idItemActualizar"]) && isset($_POST["nuevaCantidad"])) {
             $id_temporal = intval($_POST["idItemActualizar"]);
             $nueva_cantidad = intval($_POST["nuevaCantidad"]);
 
-            // Obtener el producto_id
             $stmt = Conexion::conectar()->prepare("SELECT producto_id FROM ventas_temporales WHERE id = :id");
             $stmt->bindParam(":id", $id_temporal, PDO::PARAM_INT);
             $stmt->execute();
             $temp = $stmt->fetch(PDO::FETCH_OBJ);
 
             if($temp) {
-                // Verificar stock real para no vender de más
                 $stmtStock = Conexion::conectar()->prepare("SELECT stock FROM productos WHERE id = :id");
                 $stmtStock->bindParam(":id", $temp->producto_id, PDO::PARAM_INT);
                 $stmtStock->execute();
@@ -130,16 +123,15 @@ class VentasControlador {
             exit();
         }
     }
+
     /* ==============================================================
        2. SISTEMA DE SUSPENSIÓN DE FACTURAS (Anticolas)
        ============================================================== */
-       
     public static function ctrSuspenderFacturaAjax() {
         if(isset($_POST["cedulaSuspender"])) {
             $usuario_id = $_SESSION["id_usuario"];
             $cedula = trim($_POST["cedulaSuspender"]);
 
-            // Validamos que el carrito no esté vacío
             $carrito = Ventas::leerTemporales($usuario_id);
             if(count($carrito) == 0){
                 echo json_encode(["status" => "warning", "mensaje" => "No hay productos en el carrito para suspender."]);
@@ -185,22 +177,18 @@ class VentasControlador {
     /* ==============================================================
        3. LIQUIDACIÓN, CLIENTE EXPRESS Y MULTIPAGO
        ============================================================== */
-       
     public static function ctrProcesarVentaAjax() {
         if(isset($_POST["procesarVentaFinal"])) {
             $usuario_id = $_SESSION["id_usuario"];
 
-            // 1. Validar que exista el carrito
             $carrito = Ventas::leerTemporales($usuario_id);
             if(count($carrito) == 0){
                 echo json_encode(["status" => "error", "mensaje" => "Intento de cobro vacío rechazado por el sistema."]);
                 exit();
             }
 
-            // 2. Gestión del Cliente Express "Silencioso"
             $docCliente = trim($_POST["docClienteFinal"]);
             $nomCliente = strtoupper(trim($_POST["nomClienteFinal"]));
-            // Datos opcionales
             $telCliente = $_POST["telClienteFinal"] ?? "";
             $emaCliente = $_POST["emaClienteFinal"] ?? "";
             $dirCliente = $_POST["dirClienteFinal"] ?? "Sin Dirección";
@@ -211,37 +199,61 @@ class VentasControlador {
                 exit();
             }
 
-            // 3. Capturar Tasas Frescas
             $stmt = Conexion::conectar()->prepare("SELECT tasa_bcv FROM tasas_cambio ORDER BY id DESC LIMIT 1");
             $stmt->execute();
             $tasaActual = $stmt->fetch(PDO::FETCH_OBJ);
             $tasaBcvSegura = $tasaActual ? floatval($tasaActual->tasa_bcv) : 1;
 
-            // 4. Calcular Totales Rigurosos en Backend
             $totalUsdtCalculado = 0;
             foreach($carrito as $item) {
                 $totalUsdtCalculado += ($item->cantidad * $item->precio_venta_usdt) - $item->descuento_aplicado;
             }
             $totalBsCalculado = $totalUsdtCalculado * $tasaBcvSegura;
 
-            // 5. Array de Pagos
             $datosPagos = json_decode($_POST["listaPagosFinal"], true);
             if(!is_array($datosPagos) || count($datosPagos) == 0) {
                 echo json_encode(["status" => "error", "mensaje" => "No se registraron métodos de pago para esta factura."]);
                 exit();
             }
 
-            // 6. Generador de Correlativo Secuencial (000001)
+            // --- FILTRO DE SEGURIDAD (REGLA DE CONSUMO TOTAL) CON DEBUG PAYLOAD ---
+            foreach ($datosPagos as $pago) {
+                if ($pago["metodo"] === "Saldo a Favor") {
+                    $stmtCheck = Conexion::conectar()->prepare("SELECT monto_usd FROM notas_credito WHERE codigo_nota = :codigo");
+                    $stmtCheck->bindParam(":codigo", $pago["referencia"], PDO::PARAM_STR);
+                    $stmtCheck->execute();
+                    $nota = $stmtCheck->fetch(PDO::FETCH_OBJ);
+
+                    if($nota) {
+                        $monto_nota = floatval($nota->monto_usd);
+                        $total_compra = floatval($totalUsdtCalculado);
+                        $diferencia = $total_compra - $monto_nota;
+
+                        // Si la factura es menor al saldo de la nota (dejando 0.05 de margen)
+                        if ($total_compra < ($monto_nota - 0.05)) {
+                            echo json_encode([
+                                "status" => "error", 
+                                "mensaje" => "El total de la compra ($" . number_format($total_compra, 2) . ") es menor al Saldo a Favor ($" . number_format($monto_nota, 2) . "). Debe agregar más productos.",
+                                "debug" => [
+                                    "motivo" => "Consumo Insuficiente Billetera",
+                                    "total_carrito" => round($total_compra, 4),
+                                    "saldo_bd" => round($monto_nota, 4),
+                                    "faltan" => round(abs($diferencia), 4)
+                                ]
+                            ]);
+                            exit();
+                        }
+                    }
+                }
+            }
+            // ----------------------------------------------------------------------
+
             $stmtMax = Conexion::conectar()->prepare("SELECT MAX(id) as max_id FROM ventas");
             $stmtMax->execute();
             $resultado = $stmtMax->fetch(PDO::FETCH_OBJ);
-            
-            // Si hay ventas, sumamos 1 al último ID. Si está vacía, empezamos en 1.
             $siguienteId = $resultado->max_id ? $resultado->max_id + 1 : 1;
-            
-            // str_pad rellena con ceros a la izquierda hasta tener 6 dígitos
             $numero_factura = str_pad($siguienteId, 6, "0", STR_PAD_LEFT);
-            // 7. Empaquetar el Contenedor
+            
             $datosCabecera = [
                 "usuario_id" => $usuario_id,
                 "cliente_id" => $cliente_id,
@@ -252,16 +264,19 @@ class VentasControlador {
                 "estado" => "Pagada"
             ];
 
-            // 8. Ejecutar Transacción Final
             $venta_id = Ventas::procesarVentaFinal($datosCabecera, $carrito, $datosPagos);
 
             if($venta_id === "error_fraude_billetera") {
-                echo json_encode(["status" => "error", "mensaje" => "error_fraude_billetera"]);
+                echo json_encode([
+                    "status" => "error", 
+                    "mensaje" => "La Nota de Crédito asignada no existe, ya fue utilizada o intentó cobrar más dinero del disponible.",
+                    "debug" => ["motivo" => "Fraude Billetera BD"]
+                ]);
             } else if($venta_id){
                 echo json_encode([
                     "status" => "success", 
                     "mensaje" => "Venta procesada con éxito. Inventario actualizado.", 
-                    "id_venta" => $venta_id // Devolvemos el ID para mandarlo al PDF
+                    "id_venta" => $venta_id 
                 ]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error crítico estructural (Rollback ejecutado)."]);
@@ -269,24 +284,21 @@ class VentasControlador {
             exit();
         }
     }
+
     /* ==============================================================
        6. MOSTRAR HISTORIAL DE VENTAS
        ============================================================== */
     public static function ctrMostrarHistorialVentas() {
-        
-        // Validamos que existan las variables de sesión por seguridad
         if(isset($_SESSION["rol_id"]) && isset($_SESSION["id_usuario"])) {
-            
             $rol_id = $_SESSION["rol_id"];
             $usuario_id = $_SESSION["id_usuario"];
-            
             $respuesta = Ventas::mdlMostrarHistorialVentas($rol_id, $usuario_id);
             return $respuesta;
-            
         } else {
             return [];
         }
     }
+
    /* ==============================================================
        7. AUTORIZACIÓN ESTRICTA DE SUPERVISOR (DOBLE FACTOR)
        ============================================================== */
@@ -296,28 +308,24 @@ class VentasControlador {
             $usuario = $_POST["supUsuario"];
             $pin_ingresado = $_POST["supPin"];
 
-            // 1. Buscamos al usuario y traemos su matriz de permisos
             $stmt = Conexion::conectar()->prepare("SELECT u.*, r.permisos FROM usuarios u INNER JOIN roles r ON u.rol_id = r.id WHERE u.usuario = :usuario AND u.estado = 1");
             $stmt->bindParam(":usuario", $usuario, PDO::PARAM_STR);
             $stmt->execute();
             $supervisor = $stmt->fetch(PDO::FETCH_OBJ);
 
             if($supervisor) {
-                // 2. Validamos el PIN (Usando pin_autorizacion de la BD)
                 $clave_valida = false;
                 if (password_verify($pin_ingresado, $supervisor->pin_autorizacion) || $pin_ingresado === $supervisor->pin_autorizacion) {
                     $clave_valida = true;
                 }
 
                 if($clave_valida) {
-                    // 3. Evaluamos la matriz de permisos
                     $permisos = json_decode($supervisor->permisos, true);
-                    
                     if (is_array($permisos) && (in_array("all", $permisos) || in_array("anular_ventas", $permisos))) {
                         echo json_encode([
                             "status" => "success", 
                             "id_supervisor" => $supervisor->id, 
-                            "nombre_supervisor" => $supervisor->nombre_completo // Corregido: usando nombre_completo de la BD
+                            "nombre_supervisor" => $supervisor->nombre_completo 
                         ]);
                     } else {
                         echo json_encode(["status" => "error", "mensaje" => "Credenciales correctas, pero este usuario carece del permiso de anulación."]);
@@ -328,18 +336,15 @@ class VentasControlador {
             } else {
                  echo json_encode(["status" => "error", "mensaje" => "Usuario no encontrado o inactivo."]);
             }
-            
-            // EL FRENO DE EMERGENCIA: Obliga a PHP a detenerse aquí mismo.
             exit; 
         }
     }
+
     /* ==============================================================
-       8. EXTRAER VENTA COMPLETA (PARA DEVOLUCIONES / NOTAS DE CRÉDITO)
+       8. EXTRAER VENTA COMPLETA
        ============================================================== */
     public static function ctrMostrarVentaCompleta($id_venta) {
         if($id_venta != null) {
-            
-            // Reutilizamos los métodos exactos que ya usas para el PDF
             $cabecera = Ventas::leerVentaCabecera($id_venta);
             $detalles = Ventas::leerVentaDetalle($id_venta);
             $pagos = Ventas::leerVentaPagos($id_venta);
@@ -352,6 +357,7 @@ class VentasControlador {
         }
         return false;
     }
+
     /* ==============================================================
        9. PROCESAR DEVOLUCIÓN Y NOTA DE CRÉDITO (AJAX)
        ============================================================== */
@@ -364,7 +370,6 @@ class VentasControlador {
                 "totalReembolso"  => floatval($_POST["totalReembolso"])
             ];
 
-            // Decodificamos el array de productos que envió JS
             $itemsReversar = json_decode($_POST["itemsReversar"]);
 
             if(is_array($itemsReversar) && count($itemsReversar) > 0) {
@@ -372,9 +377,8 @@ class VentasControlador {
                 $respuesta = Ventas::mdlProcesarDevolucion($datosDevolucion, $itemsReversar);
                 
                 if($respuesta == "error_cantidad") {
-                    echo json_encode(["status" => "error", "mensaje" => "Se intentó devolver una cantidad mayor al stock registrado en la factura original."]);
+                    echo json_encode(["status" => "error", "mensaje" => "Se intentó devolver una cantidad de artículos mayor a la que fue comprada originalmente."]);
                 } else if($respuesta != "error") {
-                    // Si todo salió bien, la respuesta es el código (Ej: NC-2026...)
                     echo json_encode(["status" => "success", "mensaje" => "Reembolso procesado.", "codigo_nota" => $respuesta]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al ejecutar la transacción en la base de datos."]);
@@ -384,18 +388,16 @@ class VentasControlador {
             }
         }
     }
+
     /* ==============================================================
        10. BUSCAR BILLETERA / NOTA DE CRÉDITO DEL DÍA (AJAX)
        ============================================================== */
     public static function ctrBuscarBilleteraAjax() {
         if(isset($_POST["buscarBilleteraAjax"])) {
-            
             $documento = trim($_POST["documentoCliente"]);
-            
             $respuesta = Ventas::mdlBuscarBilletera($documento);
 
             if($respuesta) {
-                // Si encontró una nota válida, mandamos el código y el monto
                 echo json_encode([
                     "status" => "success", 
                     "codigo_nota" => $respuesta->codigo_nota, 

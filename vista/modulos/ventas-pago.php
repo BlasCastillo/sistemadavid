@@ -143,7 +143,7 @@ $totalBs = $totalUsdt * $tasaBcvHoy;
                                 <option value="Zelle">Zelle / Binance</option>
                                 <option value="Punto de Venta" class="opt-bs d-none">Punto de Venta</option>
                                 <option value="Pago Movil" class="opt-bs d-none">Pago Móvil</option>
-                                <option value="Saldo a Favor">Saldo a Favor (Billetera)</option>
+                                <option value="Saldo a Favor">Saldo a Favor</option>
                             </select>
                         </div>
                         <div class="col-md-3 mb-2 mb-md-0">
