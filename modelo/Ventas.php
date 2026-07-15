@@ -125,13 +125,15 @@ class Ventas {
         try {
             $conexion->beginTransaction();
 
-            $stmt = $conexion->prepare("INSERT INTO ventas (usuario_id, cliente_id, numero_factura, tasa_bcv, total_usdt, total_bs, estado, fecha_venta) VALUES (:usuario_id, :cliente_id, :numero_factura, :tasa_bcv, :total_usdt, :total_bs, :estado, NOW())");
+            // NUEVO: Se inserta el campo ajuste_redondeo
+            $stmt = $conexion->prepare("INSERT INTO ventas (usuario_id, cliente_id, numero_factura, tasa_bcv, total_usdt, total_bs, ajuste_redondeo, estado, fecha_venta) VALUES (:usuario_id, :cliente_id, :numero_factura, :tasa_bcv, :total_usdt, :total_bs, :ajuste_redondeo, :estado, NOW())");
             $stmt->bindParam(":usuario_id", $datosCabecera["usuario_id"], PDO::PARAM_INT);
             $stmt->bindParam(":cliente_id", $datosCabecera["cliente_id"], PDO::PARAM_INT);
             $stmt->bindParam(":numero_factura", $datosCabecera["numero_factura"], PDO::PARAM_STR);
             $stmt->bindParam(":tasa_bcv", $datosCabecera["tasa_bcv"], PDO::PARAM_STR);
             $stmt->bindParam(":total_usdt", $datosCabecera["total_usdt"], PDO::PARAM_STR);
             $stmt->bindParam(":total_bs", $datosCabecera["total_bs"], PDO::PARAM_STR);
+            $stmt->bindParam(":ajuste_redondeo", $datosCabecera["ajuste_redondeo"], PDO::PARAM_STR);
             $stmt->bindParam(":estado", $datosCabecera["estado"], PDO::PARAM_STR);
             $stmt->execute();
             $venta_id = $conexion->lastInsertId();

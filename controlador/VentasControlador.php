@@ -229,7 +229,6 @@ class VentasControlador {
                         $total_compra = floatval($totalUsdtCalculado);
                         $diferencia = $total_compra - $monto_nota;
 
-                        // Si la factura es menor al saldo de la nota (dejando 0.05 de margen)
                         if ($total_compra < ($monto_nota - 0.05)) {
                             echo json_encode([
                                 "status" => "error", 
@@ -248,12 +247,27 @@ class VentasControlador {
             }
             // ----------------------------------------------------------------------
 
+            // --- CÁLCULO DEL AMORTIGUADOR CONTABLE DE REDONDEO ---
+            $totalPagadoUsdt = 0;
+            foreach($datosPagos as $pago) {
+                $montoPago = floatval($pago["monto"]);
+                if($pago["moneda"] === "BS") {
+                    $totalPagadoUsdt += ($montoPago / $tasaBcvSegura);
+                } else {
+                    $totalPagadoUsdt += $montoPago;
+                }
+            }
+            // Se extrae la diferencia exacta entre lo calculado internamente y lo recibido en métodos de pago
+            $ajuste_redondeo = $totalUsdtCalculado - $totalPagadoUsdt;
+            // -----------------------------------------------------
+
             $stmtMax = Conexion::conectar()->prepare("SELECT MAX(id) as max_id FROM ventas");
             $stmtMax->execute();
             $resultado = $stmtMax->fetch(PDO::FETCH_OBJ);
             $siguienteId = $resultado->max_id ? $resultado->max_id + 1 : 1;
             $numero_factura = str_pad($siguienteId, 6, "0", STR_PAD_LEFT);
             
+            // Empaquetamos el nuevo campo ajuste_redondeo
             $datosCabecera = [
                 "usuario_id" => $usuario_id,
                 "cliente_id" => $cliente_id,
@@ -261,6 +275,7 @@ class VentasControlador {
                 "tasa_bcv" => $tasaBcvSegura,
                 "total_usdt" => round($totalUsdtCalculado, 4),
                 "total_bs" => round($totalBsCalculado, 2),
+                "ajuste_redondeo" => round($ajuste_redondeo, 4), 
                 "estado" => "Pagada"
             ];
 

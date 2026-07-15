@@ -16,6 +16,8 @@ $(document).ready(function() {
     let codigoNotaCreditoActiva = "N/A"; 
     // Bandera para saber si mostramos la opción en el select
     let clienteTieneBilletera = false;
+    // NUEVO: Memoria fantasma para auditar alteraciones HTML
+    let saldoBilleteraReal = 0; 
 
     /* ==============================================================
        1. AUDITORÍA INICIAL (BÚSQUEDA SILENCIOSA DE BILLETERA)
@@ -122,11 +124,13 @@ $(document).ready(function() {
                             $("#montoMultipago").prop("readonly", false).val(faltanteUsdt > 0 ? faltanteUsdt.toFixed(2) : "");
                             $("#btnAgregarPago").prop("disabled", false);
                             codigoNotaCreditoActiva = "N/A";
+                            saldoBilleteraReal = 0; // Reset
                             return; // Abortamos aquí mismo
                         }
 
-                        // Si pasa la validación, inyectamos el saldo y guardamos el código fuerte
+                        // Si pasa la validación, inyectamos el saldo y guardamos las memorias fuertes
                         codigoNotaCreditoActiva = res.codigo_nota;
+                        saldoBilleteraReal = saldoNota; // Guardamos el valor real en secreto
 
                         Swal.fire({
                             icon: 'info',
@@ -144,6 +148,7 @@ $(document).ready(function() {
                         $("#montoMultipago").prop("readonly", false).val("");
                         $("#btnAgregarPago").prop("disabled", false);
                         codigoNotaCreditoActiva = "N/A";
+                        saldoBilleteraReal = 0; // Reset
                     }
                 },
                 error: function(xhr) {
@@ -152,6 +157,7 @@ $(document).ready(function() {
                     $("#montoMultipago").prop("readonly", false).val("");
                     $("#btnAgregarPago").prop("disabled", false);
                     codigoNotaCreditoActiva = "N/A";
+                    saldoBilleteraReal = 0; // Reset
                 }
             });
 
@@ -175,6 +181,27 @@ $(document).ready(function() {
             return;
         }
 
+        // NUEVAS VALIDACIONES BILLETERA
+        if (metodo === "Saldo a Favor") {
+            
+            // 1. Escudo Anti-Duplicados (Bug 005)
+            let billeteraYaAplicada = matrizPagos.some(p => p.metodo === "Saldo a Favor");
+            if (billeteraYaAplicada) {
+                Swal.fire("Acción Denegada", "Ya aplicó la Nota de Crédito en esta factura. No puede agregarla dos veces.", "error");
+                return;
+            }
+
+            // 2. Candado del Saldo Real (Anti-HTML Tampering)
+            // Margen de 0.01 por seguridad en redondeos decimales estrictos
+            if (monto > (saldoBilleteraReal + 0.01)) { 
+                Swal.fire("Monto Alterado Detectado", "El sistema detectó una discrepancia con el saldo real de la billetera. Operación bloqueada.", "error");
+                $("#montoMultipago").val(saldoBilleteraReal); // Regresamos el input a la normalidad
+                return;
+            }
+
+            referencia = codigoNotaCreditoActiva;
+        }
+
         if (["Zelle", "Pago Movil", "Punto de Venta"].includes(metodo)) {
             const { value: refInput } = await Swal.fire({
                 title: 'Número de Referencia',
@@ -192,8 +219,6 @@ $(document).ready(function() {
             });
             
             if (refInput) { referencia = refInput; } else { return; } 
-        } else if (metodo === "Saldo a Favor") {
-            referencia = codigoNotaCreditoActiva;
         }
 
         let equivalenteUsdt = moneda === "BS" ? (monto / tasaBcv) : monto;
@@ -259,6 +284,14 @@ $(document).ready(function() {
             vuelto = Math.abs(faltante);
             faltante = 0;
         }
+
+        // --- PARCHE VISUAL (Amortiguador de Céntimos) ---
+        // Si el vuelto a entregar al cliente es menor a $0.02 (basura matemática), forzamos a 0.00
+        if (vuelto > 0 && vuelto <= 0.02) {
+            vuelto = 0;
+            faltante = 0;
+        }
+        // ------------------------------------------------
 
         $("#montoFaltanteVisual").text("$" + faltante.toFixed(2));
         $("#montoVueltoVisual").text("$" + vuelto.toFixed(2));
