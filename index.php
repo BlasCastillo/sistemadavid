@@ -21,6 +21,9 @@ require_once "controlador/OfertasControlador.php";
 require_once "controlador/ConsultaPreciosControlador.php";
 require_once "controlador/EtiquetasControlador.php";
 require_once "controlador/VentasControlador.php";
+require_once "controlador/EtiquetasControlador.php";
+require_once "controlador/VentasControlador.php";
+require_once "controlador/CreditosControlador.php"; // <--- NUEVO
 
 // 3. Requerimos los Modelos
 require_once "modelo/Usuarios.php";
@@ -175,6 +178,11 @@ if (isset($_POST["cedulaSuspender"]) || isset($_POST["cedulaRecuperar"]) || isse
     if(isset($_POST["cedulaRecuperar"])) { VentasControlador::ctrRecuperarFacturaAjax(); }
 }
 
+// NUEVO: Interceptor para aplicar descuento parcial a un producto
+if(isset($_POST["idItemDescuento"])) {
+    VentasControlador::ctrAplicarDescuentoItemAjax();
+}
+
 if(isset($_POST["procesarVentaFinal"])) {
     VentasControlador::ctrProcesarVentaAjax();
 }
@@ -198,8 +206,24 @@ if(isset($_POST["buscarBilleteraAjax"])) {
     VentasControlador::ctrBuscarBilleteraAjax();
     exit;
 }
+
+// Interceptor AJAX para Cuentas Por Cobrar (Créditos)
+if(isset($_POST["idVentaAbono"])) {
+    CreditosControlador::ctrRegistrarAbonoAjax();
+}
+// Interceptor AJAX para Registrar Abonos
+if(isset($_POST["idVentaAbono"])) {
+    CreditosControlador::ctrRegistrarAbonoAjax();
+}
+
+// NUEVA BANDERA: Interceptor AJAX para Ver Historial de Pagos
+if(isset($_POST["idVentaHistorial"])) {
+    CreditosControlador::ctrMostrarPagosVentaAjax();
+}
+
 // ==========================================
 // 4. INSTANCIACIÓN DE LA PLANTILLA VISUAL
 // ==========================================
 $plantilla = new PlantillaControlador();
 $plantilla->ctrPlantilla();
+

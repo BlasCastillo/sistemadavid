@@ -46,6 +46,15 @@ class Ventas {
         return $stmt->execute();
     }
 
+    // --- NUEVO: FUNCIÓN PARA DESCUENTOS PARCIALES ---
+    public static function actualizarDescuentoItem(int $id_temporal, float $descuento) {
+        $stmt = Conexion::conectar()->prepare("UPDATE ventas_temporales SET descuento_aplicado = :descuento WHERE id = :id");
+        $stmt->bindParam(":descuento", $descuento, PDO::PARAM_STR);
+        $stmt->bindParam(":id", $id_temporal, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+    // ------------------------------------------------
+
     public static function verificarProductoActivo(int $usuario_id, int $producto_id) {
         $stmt = Conexion::conectar()->prepare("SELECT id, cantidad FROM ventas_temporales WHERE usuario_id = :usuario_id AND producto_id = :producto_id AND identificador_cliente IS NULL");
         $stmt->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
@@ -125,10 +134,19 @@ class Ventas {
         try {
             $conexion->beginTransaction();
 
-            // NUEVO: Se inserta el campo ajuste_redondeo
-            $stmt = $conexion->prepare("INSERT INTO ventas (usuario_id, cliente_id, numero_factura, tasa_bcv, total_usdt, total_bs, ajuste_redondeo, estado, fecha_venta) VALUES (:usuario_id, :cliente_id, :numero_factura, :tasa_bcv, :total_usdt, :total_bs, :ajuste_redondeo, :estado, NOW())");
+            // MODIFICADO: Se inserta el campo autorizador_id
+            $stmt = $conexion->prepare("INSERT INTO ventas (usuario_id, cliente_id, autorizador_id, numero_factura, tasa_bcv, total_usdt, total_bs, ajuste_redondeo, estado, fecha_venta) VALUES (:usuario_id, :cliente_id, :autorizador_id, :numero_factura, :tasa_bcv, :total_usdt, :total_bs, :ajuste_redondeo, :estado, NOW())");
+            
             $stmt->bindParam(":usuario_id", $datosCabecera["usuario_id"], PDO::PARAM_INT);
             $stmt->bindParam(":cliente_id", $datosCabecera["cliente_id"], PDO::PARAM_INT);
+            
+            // Lógica para aceptar NULL si no hay supervisor
+            if(isset($datosCabecera["autorizador_id"]) && $datosCabecera["autorizador_id"] != null){
+                $stmt->bindParam(":autorizador_id", $datosCabecera["autorizador_id"], PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue(":autorizador_id", null, PDO::PARAM_NULL);
+            }
+
             $stmt->bindParam(":numero_factura", $datosCabecera["numero_factura"], PDO::PARAM_STR);
             $stmt->bindParam(":tasa_bcv", $datosCabecera["tasa_bcv"], PDO::PARAM_STR);
             $stmt->bindParam(":total_usdt", $datosCabecera["total_usdt"], PDO::PARAM_STR);
@@ -194,7 +212,8 @@ class Ventas {
     }
 
     public static function leerVentaCabecera(int $id_venta) {
-        $stmt = Conexion::conectar()->prepare("SELECT v.*, c.documento as cliente_doc, c.nombre as cliente_nombre, c.direccion as cliente_direccion, u.usuario as cajero_nombre FROM ventas v INNER JOIN clientes c ON v.cliente_id = c.id INNER JOIN usuarios u ON v.usuario_id = u.id WHERE v.id = :id");
+        // MODIFICADO: Se inyecta el JOIN para traer el nombre del autorizador
+        $stmt = Conexion::conectar()->prepare("SELECT v.*, c.documento as cliente_doc, c.nombre as cliente_nombre, c.direccion as cliente_direccion, u.usuario as cajero_nombre, sup.nombre_completo as autorizador_nombre FROM ventas v INNER JOIN clientes c ON v.cliente_id = c.id INNER JOIN usuarios u ON v.usuario_id = u.id LEFT JOIN usuarios sup ON v.autorizador_id = sup.id WHERE v.id = :id");
         $stmt->bindParam(":id", $id_venta, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_OBJ);

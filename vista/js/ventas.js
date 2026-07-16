@@ -29,6 +29,7 @@ $(document).ready(function() {
     $(document).on("click", function(e) {
         if (!$(e.target).closest('.modal').length && 
             !$(e.target).closest('.select2-container').length && 
+            !$(e.target).closest('.swal2-container').length && // NUEVO: Excepción para SweetAlert (PIN de descuento)
             e.target.id !== 'identificadorClientePOS' &&
             e.target.id !== 'buscadorSuspendidas' &&          // Excepción para el buscador
             !$(e.target).hasClass('input-cantidad-venta')) {  // Excepción para los inputs de cantidad
@@ -149,19 +150,28 @@ $(document).ready(function() {
                     filas = `<tr><td colspan="5" class="text-center py-4 text-muted"><i class="fas fa-shopping-basket fa-2x mb-2 d-block"></i> El carrito está vacío</td></tr>`;
                 } else {
                     respuesta.forEach(function(item) {
-                        let subtotal = parseFloat(item.cantidad) * parseFloat(item.precio_venta_usdt);
-                        totalUsdt += subtotal;
+                        
+                        // MODIFICADO PARA DESCUENTOS PARCIALES
+                        let subtotalBruto = parseFloat(item.cantidad) * parseFloat(item.precio_venta_usdt);
+                        let descVisual = parseFloat(item.descuento_aplicado || 0);
+                        let subtotalNeto = subtotalBruto - descVisual;
+                        totalUsdt += subtotalNeto;
+
+                        let badgeDescuento = descVisual > 0 ? `<span class="badge bg-warning text-dark mt-1 d-block" style="font-size: 0.65rem;">- $${descVisual.toFixed(2)}</span>` : "";
 
                         filas += `
                             <tr>
                                 <td><span class="badge bg-secondary font-monospace">${item.codigo_barras}</span></td>
-                                <td class="fw-bold">${item.producto_nombre}</td>
+                                <td class="fw-bold">${item.producto_nombre} ${badgeDescuento}</td>
                                 <td class="text-center">
                                     <input type="number" class="form-control text-center input-cantidad-venta fw-bold text-primary shadow-sm" idItem="${item.id}" value="${item.cantidad}" min="1" style="width: 80px; margin: 0 auto;">
                                 </td>
-                                <td class="text-end text-success fw-bold">$${parseFloat(item.precio_venta_usdt).toFixed(2)}</td>
+                                <td class="text-end text-success fw-bold">$${subtotalNeto.toFixed(2)}</td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-outline-danger btnQuitarItemVenta" idItem="${item.id}"><i class="fas fa-times"></i></button>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-info btnDescuentoItem" idItem="${item.id}" precioBase="${item.precio_venta_usdt}" cant="${item.cantidad}" title="Aplicar Descuento a este producto"><i class="fas fa-tags"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger btnQuitarItemVenta" idItem="${item.id}"><i class="fas fa-times"></i></button>
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -228,6 +238,73 @@ $(document).ready(function() {
                 console.error("🚨 [ERROR FATAL] Actualizando Cantidad:", xhr.responseText);
             }
         });
+    });
+
+    // =========================================================================
+    // 2.C LÓGICA DE DESCUENTO PARCIAL POR PRODUCTO (NUEVO)
+    // =========================================================================
+    $("#tablaVentasCrear").on("click", ".btnDescuentoItem", async function() {
+        let idItem = $(this).attr("idItem");
+        let cant = parseFloat($(this).attr("cant"));
+        let precioBase = parseFloat($(this).attr("precioBase"));
+        let maxDescuento = precioBase * cant;
+
+        console.log(`🚩 [ACCIÓN] Solicitando descuento para Item ID: ${idItem}`);
+
+        // 1. Pedir Credenciales del Supervisor
+        const { value: formValues } = await Swal.fire({
+            title: 'Autorización Gerencial',
+            html:
+                '<input id="swal-usr" class="swal2-input" placeholder="Usuario Supervisor">' +
+                '<input id="swal-pin" type="password" class="swal2-input" placeholder="PIN de Seguridad">',
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Validar',
+            confirmButtonColor: '#198754',
+            preConfirm: () => {
+                return { usuario: document.getElementById('swal-usr').value, pin: document.getElementById('swal-pin').value }
+            }
+        });
+
+        if (formValues) {
+            $.ajax({
+                url: "index.php", method: "POST", dataType: "json",
+                data: { supUsuario: formValues.usuario, supPin: formValues.pin },
+                success: async function(resAuth) {
+                    if (resAuth.status === "success") {
+                        
+                        // 2. Si el PIN es correcto, pedir el Monto del Descuento
+                        const { value: montoDescuento } = await Swal.fire({
+                            title: `Descuento Aprobado por ${resAuth.nombre_supervisor}`,
+                            text: `Ingrese el descuento en Dólares ($). (Max: $${maxDescuento.toFixed(2)})`,
+                            input: 'number',
+                            inputAttributes: { min: 0, step: 0.01, max: maxDescuento },
+                            showCancelButton: true,
+                            confirmButtonText: 'Aplicar Rebaja'
+                        });
+
+                        if (montoDescuento) {
+                            if(parseFloat(montoDescuento) > maxDescuento) {
+                                Swal.fire("Error", "El descuento no puede ser mayor al valor total del producto.", "error"); return;
+                            }
+                            // 3. Aplicar en la Base de Datos Temporal
+                            $.ajax({
+                                url: "index.php", method: "POST", dataType: "json",
+                                data: { idItemDescuento: idItem, montoDescuento: montoDescuento },
+                                success: function(resDesc) {
+                                    if(resDesc.status === "success") {
+                                        Swal.fire({ icon: 'success', title: 'Descuento Aplicado', timer: 1500, showConfirmButton: false });
+                                        cargarCarritoVentas();
+                                    }
+                                }
+                            });
+                        }
+                    } else {
+                        Swal.fire("Acceso Denegado", resAuth.mensaje, "error");
+                    }
+                }
+            });
+        }
     });
 
     /* ==============================================================

@@ -9,7 +9,8 @@ $(document).ready(function() {
     console.log("🚩 [0] Archivo ventas-pago.js cargado.");
 
     let tasaBcv = parseFloat($("#tasaBcvGlobal").val());
-    let totalFacturaUsdt = parseFloat($("#totalUsdtGlobal").val());
+    let totalFacturaUsdtOriginal = parseFloat($("#totalUsdtGlobal").val()); // NUEVO: Guardamos el original
+    let totalFacturaUsdt = totalFacturaUsdtOriginal; // MODIFICADO: Este variará si hay descuentos
     let matrizPagos = []; 
     
     // Memoria global fuerte para que no se pierda el código de la nota
@@ -18,6 +19,15 @@ $(document).ready(function() {
     let clienteTieneBilletera = false;
     // NUEVO: Memoria fantasma para auditar alteraciones HTML
     let saldoBilleteraReal = 0; 
+    
+    // --- NUEVAS VARIABLES PARA DESCUENTO GLOBAL ---
+    let descuentoGlobalAplicado = 0;
+    let autorizadorGlobalId = ""; 
+    // ----------------------------------------------
+
+    // --- NUEVA VARIABLE PARA VENTAS A CRÉDITO ---
+    let esVentaCredito = false;
+    // --------------------------------------------
 
     /* ==============================================================
        1. AUDITORÍA INICIAL (BÚSQUEDA SILENCIOSA DE BILLETERA)
@@ -302,12 +312,19 @@ $(document).ready(function() {
         $("#spanFaltanteBs").text(`(Bs ${(faltante * tasaBcv).toFixed(2)})`);
         $("#spanVueltoBs").text(`(Bs ${(vuelto * tasaBcv).toFixed(2)})`);
 
-        // Tolerancia de 0.05 USD para activar el botón de procesar 
-        if (faltante <= 0.05 && matrizPagos.length > 0) {
+        // --- MODIFICACIÓN DE BOTÓN PARA CRÉDITO ---
+        if (esVentaCredito) {
+            // Si el modo crédito está activo, siempre permitimos facturar (incluso si deben todo o dieron inicial)
             $("#btnProcesarVentaDefinitiva").prop("disabled", false);
         } else {
-            $("#btnProcesarVentaDefinitiva").prop("disabled", true);
+            // Tolerancia original de 0.05 USD para venta pagada
+            if (faltante <= 0.05 && matrizPagos.length > 0) {
+                $("#btnProcesarVentaDefinitiva").prop("disabled", false);
+            } else {
+                $("#btnProcesarVentaDefinitiva").prop("disabled", true);
+            }
         }
+        // ------------------------------------------
     }
 
     /* ==============================================================
@@ -324,14 +341,17 @@ $(document).ready(function() {
             return;
         }
 
+        let tituloMensaje = esVentaCredito ? "¿Registrar Venta a Crédito?" : "¿Emitir Factura Definitiva?";
+        let textoMensaje = esVentaCredito ? "Se guardará la deuda en las Cuentas por Cobrar y se registrará la inicial en caja." : "Se descargará el stock y se registrará el dinero en la caja.";
+
         Swal.fire({
-            title: '¿Emitir Factura Definitiva?',
-            text: "Se descargará el stock y se registrará el dinero en la caja.",
+            title: tituloMensaje,
+            text: textoMensaje,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#198754',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, Facturar y Cobrar',
+            confirmButtonText: 'Sí, Procesar',
             cancelButtonText: 'Revisar Pagos'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -353,6 +373,12 @@ $(document).ready(function() {
                 formData.append("emaClienteFinal", $("#emaClienteFinal").val());
                 formData.append("dirClienteFinal", $("#dirClienteFinal").val());
                 formData.append("listaPagosFinal", datosPagosJSON);
+                
+                // --- INYECTAMOS LAS VARIABLES DEL DESCUENTO Y EL CRÉDITO ---
+                formData.append("autorizadorFinal", autorizadorGlobalId);
+                formData.append("descuentoGlobalFinal", descuentoGlobalAplicado);
+                formData.append("ventaCredito", esVentaCredito ? "1" : "0");
+                // -----------------------------------------------------------
 
                 $("#btnProcesarVentaDefinitiva").prop("disabled", true).html('<i class="fas fa-spinner fa-spin me-2"></i> Procesando...');
 
@@ -367,7 +393,7 @@ $(document).ready(function() {
                     success: function(res) {
                         if (res.status === "success") {
                             Swal.fire({
-                                icon: 'success', title: '¡Cobro Exitoso!', text: res.mensaje, showConfirmButton: false, timer: 2000
+                                icon: 'success', title: '¡Transacción Exitosa!', text: res.mensaje, showConfirmButton: false, timer: 2000
                             }).then(function() {
                                 window.open("ticket-factura.php?idVenta=" + res.id_venta, "_blank");
                                 window.location = "index.php?ruta=ventas-crear"; 
@@ -395,11 +421,146 @@ $(document).ready(function() {
     /* ==============================================================
        6. SISTEMA DE DESCUENTOS POR PIN
        ============================================================== */
-    $("#btnAplicarDescuentoGlobal").on("click", function() {
-        Swal.fire({
-            title: 'Descuento Especial',
-            text: "El motor de validación de PIN del supervisor se implementará en la siguiente fase.",
-            icon: 'info'
+    $("#btnAplicarDescuentoGlobal").on("click", async function() {
+        
+        // Evitamos que apliquen doble descuento y desajusten las cuentas
+        if (descuentoGlobalAplicado > 0) {
+            Swal.fire("Atención", "Ya se aplicó un descuento global a esta factura.", "info"); return;
+        }
+        if (matrizPagos.length > 0) {
+            Swal.fire("Acción Bloqueada", "Debe vaciar los pagos ingresados en la tabla de abajo antes de aplicar un descuento global.", "warning"); return;
+        }
+
+        // 1. Pedir Credenciales del Supervisor
+        const { value: formValues } = await Swal.fire({
+            title: 'Autorización Gerencial',
+            html:
+                '<input id="swal-usr" class="swal2-input" placeholder="Usuario Supervisor">' +
+                '<input id="swal-pin" type="password" class="swal2-input" placeholder="PIN de Seguridad">',
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Validar',
+            confirmButtonColor: '#ffc107',
+            preConfirm: () => {
+                return { usuario: document.getElementById('swal-usr').value, pin: document.getElementById('swal-pin').value }
+            }
         });
+
+        if (formValues) {
+            $.ajax({
+                url: "index.php", method: "POST", dataType: "json",
+                data: { supUsuario: formValues.usuario, supPin: formValues.pin },
+                success: async function(resAuth) {
+                    if (resAuth.status === "success") {
+                        
+                        // 2. Pedir Monto a descontar
+                        const { value: montoDescuento } = await Swal.fire({
+                            title: `Autorizado por ${resAuth.nombre_supervisor}`,
+                            text: `Ingrese el descuento TOTAL a la factura en Dólares ($). (Max: $${totalFacturaUsdtOriginal.toFixed(2)})`,
+                            input: 'number',
+                            inputAttributes: { min: 0, step: 0.01, max: totalFacturaUsdtOriginal },
+                            showCancelButton: true,
+                            confirmButtonText: 'Aplicar Rebaja Global'
+                        });
+
+                        if (montoDescuento) {
+                            let rebaja = parseFloat(montoDescuento);
+                            if(rebaja > totalFacturaUsdtOriginal) {
+                                Swal.fire("Error", "El descuento supera el costo de la factura.", "error"); return;
+                            }
+                            
+                            // 3. Aplicar descuento matemáticamente y visualmente
+                            descuentoGlobalAplicado = rebaja;
+                            autorizadorGlobalId = resAuth.id_supervisor; // Guardamos el ID del gerente
+                            totalFacturaUsdt = totalFacturaUsdtOriginal - descuentoGlobalAplicado;
+
+                            // Actualizar la zona negra de la interfaz
+                            $("#granTotalPagarVisual").text("$" + totalFacturaUsdt.toFixed(2)).removeClass("text-warning").addClass("text-success");
+                            $("#granTotalPagarVisual").after(`<span class="badge bg-danger mt-1 d-block" style="width: 150px;">Descuento: -$${rebaja.toFixed(2)}</span>`);
+                            $("#btnAplicarDescuentoGlobal").hide(); // Ocultamos el botón para evitar doble uso
+                            
+                            calcularFaltante(0); // Forzamos recálculo de la pantalla roja y verde
+                            
+                            Swal.fire({ icon: 'success', title: 'Descuento Global Aplicado', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+                        }
+                    } else {
+                        Swal.fire("Acceso Denegado", resAuth.mensaje, "error");
+                    }
+                }
+            });
+        }
     });
+
+    /* ==============================================================
+       7. SISTEMA DE AUTORIZACIÓN PARA VENTA A CRÉDITO (NUEVO)
+       ============================================================== */
+    $("#chkFacturaCredito").on("change", async function(e) {
+        let interruptor = $(this);
+        
+        if (interruptor.is(":checked")) {
+            
+            // 1. Validar que la factura tenga un cliente asignado
+            let docCliente = $("#docClienteFinal").val().trim();
+            if(docCliente === "") {
+                Swal.fire("Identificación Requerida", "No se puede otorgar crédito a un cliente no registrado. Vuelva a la caja e identifíquelo.", "warning");
+                interruptor.prop("checked", false);
+                return;
+            }
+
+            // 2. Pedir Credenciales del Supervisor
+            const { value: formValues } = await Swal.fire({
+                title: 'Autorizar Cuenta por Cobrar',
+                html:
+                    '<input id="swal-usr-cred" class="swal2-input" placeholder="Usuario Gerente">' +
+                    '<input id="swal-pin-cred" type="password" class="swal2-input" placeholder="PIN de Seguridad">',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Autorizar Crédito',
+                confirmButtonColor: '#0dcaf0', 
+                cancelButtonText: 'Cancelar',
+                preConfirm: () => {
+                    return { usuario: document.getElementById('swal-usr-cred').value, pin: document.getElementById('swal-pin-cred').value }
+                }
+            });
+
+            if (formValues) {
+                $.ajax({
+                    url: "index.php", method: "POST", dataType: "json",
+                    data: { supUsuario: formValues.usuario, supPin: formValues.pin },
+                    success: function(resAuth) {
+                        if (resAuth.status === "success") {
+                            
+                            esVentaCredito = true;
+                            autorizadorGlobalId = resAuth.id_supervisor; // Reutilizamos la variable para auditar quién autorizó la deuda
+                            
+                            Swal.fire({ 
+                                icon: 'success', 
+                                title: 'Crédito Aprobado', 
+                                text: `Autorizado por: ${resAuth.nombre_supervisor}`, 
+                                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 
+                            });
+                            
+                            // Forzamos el recálculo para que el botón de facturar se active de inmediato
+                            renderizarPagos(); 
+                        } else {
+                            Swal.fire("Acceso Denegado", resAuth.mensaje, "error");
+                            interruptor.prop("checked", false);
+                            esVentaCredito = false;
+                            renderizarPagos();
+                        }
+                    }
+                });
+            } else {
+                interruptor.prop("checked", false);
+                esVentaCredito = false;
+                renderizarPagos();
+            }
+            
+        } else {
+            // Si el cajero apaga el interruptor, revertimos al estado de venta al contado
+            esVentaCredito = false;
+            renderizarPagos();
+        }
+    });
+
 });

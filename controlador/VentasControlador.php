@@ -124,6 +124,22 @@ class VentasControlador {
         }
     }
 
+    // --- MÉTODO PARA APLICAR DESCUENTO A UN PRODUCTO EN EL CARRITO ---
+    public static function ctrAplicarDescuentoItemAjax() {
+        if(isset($_POST["idItemDescuento"]) && isset($_POST["montoDescuento"])) {
+            $id_temporal = intval($_POST["idItemDescuento"]);
+            $descuento = floatval($_POST["montoDescuento"]);
+            $respuesta = Ventas::actualizarDescuentoItem($id_temporal, $descuento);
+            
+            if($respuesta){
+                echo json_encode(["status" => "success"]);
+            } else {
+                echo json_encode(["status" => "error", "mensaje" => "No se pudo aplicar el descuento."]);
+            }
+            exit();
+        }
+    }
+
     /* ==============================================================
        2. SISTEMA DE SUSPENSIÓN DE FACTURAS (Anticolas)
        ============================================================== */
@@ -204,19 +220,30 @@ class VentasControlador {
             $tasaActual = $stmt->fetch(PDO::FETCH_OBJ);
             $tasaBcvSegura = $tasaActual ? floatval($tasaActual->tasa_bcv) : 1;
 
+            // --- CAPTURA DE VARIABLES DEL DESCUENTO, AUTORIZACIÓN Y CRÉDITO ---
+            $autorizador_id = !empty($_POST["autorizadorFinal"]) ? intval($_POST["autorizadorFinal"]) : null;
+            $descuentoGlobal = isset($_POST["descuentoGlobalFinal"]) ? floatval($_POST["descuentoGlobalFinal"]) : 0;
+            
+            // NUEVO: Verificamos si la venta fue marcada como Crédito en el FrontEnd
+            $esCredito = (isset($_POST["ventaCredito"]) && $_POST["ventaCredito"] == "1") ? true : false;
+            $estadoFactura = $esCredito ? "Credito" : "Pagada";
+            // -------------------------------------------------------------------
+
             $totalUsdtCalculado = 0;
             foreach($carrito as $item) {
                 $totalUsdtCalculado += ($item->cantidad * $item->precio_venta_usdt) - $item->descuento_aplicado;
             }
+            
+            $totalUsdtCalculado -= $descuentoGlobal;
             $totalBsCalculado = $totalUsdtCalculado * $tasaBcvSegura;
 
+            // Permitimos array de pagos vacío SOLO SI es a crédito con inicial $0
             $datosPagos = json_decode($_POST["listaPagosFinal"], true);
-            if(!is_array($datosPagos) || count($datosPagos) == 0) {
+            if((!is_array($datosPagos) || count($datosPagos) == 0) && !$esCredito) {
                 echo json_encode(["status" => "error", "mensaje" => "No se registraron métodos de pago para esta factura."]);
                 exit();
             }
 
-            // --- FILTRO DE SEGURIDAD (REGLA DE CONSUMO TOTAL) CON DEBUG PAYLOAD ---
             foreach ($datosPagos as $pago) {
                 if ($pago["metodo"] === "Saldo a Favor") {
                     $stmtCheck = Conexion::conectar()->prepare("SELECT monto_usd FROM notas_credito WHERE codigo_nota = :codigo");
@@ -229,7 +256,8 @@ class VentasControlador {
                         $total_compra = floatval($totalUsdtCalculado);
                         $diferencia = $total_compra - $monto_nota;
 
-                        if ($total_compra < ($monto_nota - 0.05)) {
+                        // Si es crédito, el total de la compra no importa que sea menor
+                        if (!$esCredito && $total_compra < ($monto_nota - 0.05)) {
                             echo json_encode([
                                 "status" => "error", 
                                 "mensaje" => "El total de la compra ($" . number_format($total_compra, 2) . ") es menor al Saldo a Favor ($" . number_format($monto_nota, 2) . "). Debe agregar más productos.",
@@ -245,20 +273,25 @@ class VentasControlador {
                     }
                 }
             }
-            // ----------------------------------------------------------------------
 
             // --- CÁLCULO DEL AMORTIGUADOR CONTABLE DE REDONDEO ---
             $totalPagadoUsdt = 0;
-            foreach($datosPagos as $pago) {
-                $montoPago = floatval($pago["monto"]);
-                if($pago["moneda"] === "BS") {
-                    $totalPagadoUsdt += ($montoPago / $tasaBcvSegura);
-                } else {
-                    $totalPagadoUsdt += $montoPago;
+            if(is_array($datosPagos)) {
+                foreach($datosPagos as $pago) {
+                    $montoPago = floatval($pago["monto"]);
+                    if($pago["moneda"] === "BS") {
+                        $totalPagadoUsdt += ($montoPago / $tasaBcvSegura);
+                    } else {
+                        $totalPagadoUsdt += $montoPago;
+                    }
                 }
             }
-            // Se extrae la diferencia exacta entre lo calculado internamente y lo recibido en métodos de pago
-            $ajuste_redondeo = $totalUsdtCalculado - $totalPagadoUsdt;
+            
+            $ajuste_redondeo = 0;
+            if(!$esCredito) {
+                // Solo si es de contado verificamos la basura matemática
+                $ajuste_redondeo = $totalUsdtCalculado - $totalPagadoUsdt;
+            }
             // -----------------------------------------------------
 
             $stmtMax = Conexion::conectar()->prepare("SELECT MAX(id) as max_id FROM ventas");
@@ -267,16 +300,16 @@ class VentasControlador {
             $siguienteId = $resultado->max_id ? $resultado->max_id + 1 : 1;
             $numero_factura = str_pad($siguienteId, 6, "0", STR_PAD_LEFT);
             
-            // Empaquetamos el nuevo campo ajuste_redondeo
             $datosCabecera = [
                 "usuario_id" => $usuario_id,
                 "cliente_id" => $cliente_id,
+                "autorizador_id" => $autorizador_id, 
                 "numero_factura" => $numero_factura,
                 "tasa_bcv" => $tasaBcvSegura,
                 "total_usdt" => round($totalUsdtCalculado, 4),
                 "total_bs" => round($totalBsCalculado, 2),
                 "ajuste_redondeo" => round($ajuste_redondeo, 4), 
-                "estado" => "Pagada"
+                "estado" => $estadoFactura // NUEVO: Pagada o Credito
             ];
 
             $venta_id = Ventas::procesarVentaFinal($datosCabecera, $carrito, $datosPagos);
@@ -343,7 +376,7 @@ class VentasControlador {
                             "nombre_supervisor" => $supervisor->nombre_completo 
                         ]);
                     } else {
-                        echo json_encode(["status" => "error", "mensaje" => "Credenciales correctas, pero este usuario carece del permiso de anulación."]);
+                        echo json_encode(["status" => "error", "mensaje" => "Credenciales correctas, pero este usuario carece del permiso gerencial."]);
                     }
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Clave/PIN incorrecto."]);

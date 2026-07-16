@@ -29,6 +29,27 @@ $stmtConfig = Conexion::conectar()->prepare("SELECT * FROM configuracion WHERE i
 $stmtConfig->execute();
 $empresa = $stmtConfig->fetch(PDO::FETCH_OBJ);
 
+// --- MATEMÁTICA PARA DETECTAR DESCUENTOS GLOBALES ---
+$sumaItemsNeto = 0;
+foreach ($detalles as $item) {
+    $sumaItemsNeto += ($item->cantidad * $item->precio_unitario_usdt) - $item->descuento_usdt;
+}
+// Si la suma de los items es mayor al total cobrado en caja, hubo un descuento global
+$descuentoGlobal = $sumaItemsNeto - $venta->total_usdt;
+// ----------------------------------------------------
+
+// --- MATEMÁTICA PARA DETECTAR SALDO PENDIENTE (CRÉDITOS) ---
+$total_pagado_usd = 0;
+foreach ($pagos as $pago) {
+    if($pago->moneda == "BS"){
+        $total_pagado_usd += ($pago->monto_pagado / $venta->tasa_bcv);
+    } else {
+        $total_pagado_usd += $pago->monto_pagado;
+    }
+}
+$deuda_restante = $venta->total_usdt - $total_pagado_usd;
+// -----------------------------------------------------------
+
 // 3. Incluimos TCPDF
 require_once('extensiones/TCPDF/tcpdf.php');
 
@@ -49,7 +70,12 @@ $pdf->MultiCell(70, 4, $empresa->direccion_fiscal, 0, 'C', false);
 
 $pdf->Ln(3);
 $pdf->SetFont('helvetica', 'B', 10);
-$pdf->MultiCell(70, 5, "FACTURA NO. " . $venta->numero_factura, 0, 'C', false);
+
+// --- TÍTULO DINÁMICO ---
+$tituloFactura = ($venta->estado == 'Credito') ? "FACTURA A CRÉDITO NO. " : "FACTURA NO. ";
+$pdf->MultiCell(70, 5, $tituloFactura . $venta->numero_factura, 0, 'C', false);
+// -----------------------
+
 $pdf->SetFont('helvetica', '', 9);
 $pdf->MultiCell(70, 4, "Fecha: " . date("d/m/Y H:i A", strtotime($venta->fecha_venta)), 0, 'C', false);
 $pdf->MultiCell(70, 4, "Cajero: @" . $venta->cajero_nombre, 0, 'C', false);
@@ -73,8 +99,15 @@ foreach ($detalles as $item) {
     $pdf->SetXY(5, $startY);
     $pdf->Cell(10, 4, $item->cantidad, 0, 0, 'C');
     
+    // --- IMPRESIÓN DEL DESCUENTO POR PRODUCTO ---
+    $textoDescripcion = $item->nombre;
+    if($item->descuento_usdt > 0) {
+        $textoDescripcion .= "\n(Desc: -$".number_format($item->descuento_usdt, 2).")";
+    }
+    // --------------------------------------------
+    
     $pdf->SetXY(15, $startY);
-    $pdf->MultiCell(35, 4, $item->nombre, 0, 'L', false);
+    $pdf->MultiCell(35, 4, $textoDescripcion, 0, 'L', false);
     
     $endY = $pdf->GetY();
     
@@ -84,8 +117,19 @@ foreach ($detalles as $item) {
 }
 
 $pdf->Cell(70, 0, '------------------------------------------------------------------', 0, 1, 'C');
+
+// --- IMPRESIÓN DEL DESCUENTO GLOBAL ---
+if ($descuentoGlobal > 0.01) {
+    $pdf->SetFont('helvetica', '', 9);
+    $pdf->Cell(40, 4, 'Subtotal Bruto:', 0, 0, 'L');
+    $pdf->Cell(30, 4, "$" . number_format($sumaItemsNeto, 2), 0, 1, 'R');
+    $pdf->Cell(40, 4, 'Descuento Global:', 0, 0, 'L');
+    $pdf->Cell(30, 4, "-$" . number_format($descuentoGlobal, 2), 0, 1, 'R');
+}
+// --------------------------------------
+
 $pdf->SetFont('helvetica', 'B', 10);
-$pdf->Cell(40, 5, 'TOTAL A PAGAR:', 0, 0, 'L');
+$pdf->Cell(40, 5, 'TOTAL DE FACTURA:', 0, 0, 'L');
 $pdf->Cell(30, 5, "$" . number_format($venta->total_usdt, 2), 0, 1, 'R');
 $pdf->SetFont('helvetica', '', 9);
 $pdf->Cell(40, 4, 'Equivalente (Bs):', 0, 0, 'L');
@@ -93,7 +137,7 @@ $pdf->Cell(30, 4, number_format($venta->total_bs, 2), 0, 1, 'R');
 
 $pdf->Cell(70, 0, '------------------------------------------------------------------', 0, 1, 'C');
 $pdf->SetFont('helvetica', 'B', 9);
-$pdf->Cell(70, 5, 'METODOS DE PAGO', 0, 1, 'C');
+$pdf->Cell(70, 5, 'MÉTODOS DE PAGO (INICIAL)', 0, 1, 'C');
 $pdf->SetFont('helvetica', '', 8);
 
 foreach ($pagos as $pago) {
@@ -101,6 +145,34 @@ foreach ($pagos as $pago) {
     $pdf->Cell(40, 4, $pago->metodo_pago, 0, 0, 'L');
     $pdf->Cell(30, 4, $simbolo . number_format($pago->monto_pagado, 2), 0, 1, 'R');
 }
+
+// --- IMPRESIÓN DE LA DEUDA RESTANTE ---
+if ($venta->estado == 'Credito') {
+    $pdf->Cell(70, 0, '------------------------------------------------------------------', 0, 1, 'C');
+    $pdf->SetFont('helvetica', 'B', 10);
+    $pdf->Cell(40, 5, 'SALDO PENDIENTE:', 0, 0, 'L');
+    // Usamos abs() para evitar signos negativos por céntimos sueltos de JS
+    $pdf->Cell(30, 5, "$" . number_format(abs($deuda_restante), 2), 0, 1, 'R');
+    $pdf->SetFont('helvetica', '', 8);
+}
+// --------------------------------------
+
+// --- IMPRESIÓN DE LA AUTORIZACIÓN GERENCIAL ---
+if (!empty($venta->autorizador_nombre)) {
+    $pdf->Ln(2);
+    $pdf->SetFont('helvetica', 'I', 8);
+    
+    // Decidimos el prefijo según el estado
+    $motivoAutorizacion = ($venta->estado == 'Credito') ? "Crédito autorizado por:" : "Descuento autorizado por:";
+    
+    // Si casualmente le dieron crédito Y descuento al mismo tiempo
+    if ($venta->estado == 'Credito' && $descuentoGlobal > 0.01) {
+        $motivoAutorizacion = "Crédito y Descuento autorizados por:";
+    }
+    
+    $pdf->MultiCell(70, 4, $motivoAutorizacion . "\n" . $venta->autorizador_nombre, 0, 'C', false);
+}
+// ----------------------------------------------
 
 $pdf->Ln(5);
 $pdf->SetFont('helvetica', 'B', 9);

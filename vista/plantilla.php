@@ -43,8 +43,8 @@ if (session_status() == PHP_SESSION_NONE) {
         // Verificamos qué ruta solicita el usuario mediante la URL (Front Controller)
         if (isset($_GET["ruta"])) {
             
-            // Lista blanca de rutas permitidas (Iremos agregando más conforme programemos)
-            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar", "proveedores", "proveedores-crear", "proveedores-editar", "subcategorias", "subcategorias-crear", "subcategorias-editar", "clientes", "clientes-crear", "clientes-editar", "gastos", "gastos-crear", "gastos-editar", "productos", "productos-crear", "productos-editar", "compras", "compras-crear", "auditoria-core", "cuentas-por-pagar", "cuentas-por-pagar-abonar", "ofertas", "consulta-precios", "etiquetas", "etiquetas-pdf", "ventas-crear", "ventas-pago", "ticket-venta", "ventas", "ventas-devolucion"];
+            // Lista blanca de rutas permitidas
+            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar", "proveedores", "proveedores-crear", "proveedores-editar", "subcategorias", "subcategorias-crear", "subcategorias-editar", "clientes", "clientes-crear", "clientes-editar", "gastos", "gastos-crear", "gastos-editar", "productos", "productos-crear", "productos-editar", "compras", "compras-crear", "auditoria-core", "cuentas-por-pagar", "cuentas-por-pagar-abonar", "ofertas", "consulta-precios", "etiquetas", "etiquetas-pdf", "ventas-crear", "ventas-pago", "ticket-venta", "ventas", "ventas-devolucion", "creditos"];
 
             if (in_array($_GET["ruta"], $rutasPermitidas)) {
                 include "vista/modulos/" . $_GET["ruta"] . ".php";
@@ -100,5 +100,6 @@ if (session_status() == PHP_SESSION_NONE) {
     <script src="vista/js/jquery.dataTables.min.js"></script>
     <script src="vista/js/dataTables.bootstrap5.min.js"></script>
     <script src="vista/js/ventas-devolucion.js"></script>
+    <script src="vista/js/creditos.js"></script>
     </body>
 </html>

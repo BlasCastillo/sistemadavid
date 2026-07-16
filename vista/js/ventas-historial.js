@@ -4,6 +4,7 @@
 
 $(document).ready(function() {
     
+    
     // BASTIÓN DE SEGURIDAD: Si no estoy en la tabla de historial, aborto el script
     if ($("#tablaHistorialVentas").length === 0) return;
 

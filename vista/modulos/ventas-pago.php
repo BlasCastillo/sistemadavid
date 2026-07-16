@@ -32,7 +32,7 @@ $clienteDB = $stmtCliente->fetch(PDO::FETCH_OBJ);
 $esClienteNuevo = !$clienteDB;
 $nombreCliente = $esClienteNuevo ? "" : $clienteDB->nombre;
 $telefonoCliente = $esClienteNuevo ? "" : $clienteDB->telefono;
-$emailCliente = $esClienteNuevo ? "" : $clienteDB->email; // NUEVA LÍNEA
+$emailCliente = $esClienteNuevo ? "" : $clienteDB->email; 
 $direccionCliente = $esClienteNuevo ? "" : $clienteDB->direccion;
 $atributoSoloLectura = $esClienteNuevo ? "" : "readonly";
 $claseFondo = $esClienteNuevo ? "bg-white" : "bg-light";
@@ -188,6 +188,16 @@ $totalBs = $totalUsdt * $tasaBcvHoy;
                 </div>
 
                 <div class="card-footer bg-white p-4 border-top">
+                    
+                    <!-- NUEVO: INTERRUPTOR PARA ACTIVAR VENTA A CRÉDITO -->
+                    <div class="form-check form-switch mb-3 d-flex justify-content-center align-items-center">
+                        <input class="form-check-input fs-4 me-2" type="checkbox" role="switch" id="chkFacturaCredito">
+                        <label class="form-check-label fw-bold text-secondary user-select-none" for="chkFacturaCredito" style="padding-top: 3px; cursor: pointer;">
+                            ¿Facturar como Cuenta por Cobrar (Crédito)?
+                        </label>
+                    </div>
+                    <!-- ----------------------------------------------- -->
+
                     <div class="d-grid">
                         <button type="button" class="btn btn-success btn-lg fw-bold shadow" id="btnProcesarVentaDefinitiva" disabled>
                             <i class="fas fa-check-circle me-2"></i> Emitir Factura y Cobrar
