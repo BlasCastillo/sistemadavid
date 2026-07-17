@@ -220,6 +220,10 @@ if(isset($_POST["idVentaAbono"])) {
 if(isset($_POST["idVentaHistorial"])) {
     CreditosControlador::ctrMostrarPagosVentaAjax();
 }
+if(isset($_POST["procesarCierreTurno"])) {
+    require_once "controlador/CierresControlador.php";
+    CierresControlador::ctrProcesarCierreTurnoAjax();
+}
 
 // ==========================================
 // 4. INSTANCIACIÓN DE LA PLANTILLA VISUAL

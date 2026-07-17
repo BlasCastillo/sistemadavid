@@ -13,9 +13,16 @@ $historialVentas = VentasControlador::ctrMostrarHistorialVentas();
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800 fw-bold"><i class="fas fa-list-ul text-primary me-2"></i> Historial de Ventas</h1>
-        <a href="index.php?ruta=ventas-crear" class="btn btn-success shadow-sm fw-bold">
-            <i class="fas fa-cash-register me-1"></i> Ir a la Caja
-        </a>
+        <div>
+            <!-- NUEVO BOTÓN: Cierre de Turno -->
+            <a href="index.php?ruta=cierre-turno" class="btn btn-warning shadow-sm fw-bold me-2 text-dark">
+                <i class="fas fa-lock me-1"></i> Cerrar Turno
+            </a>
+            
+            <a href="index.php?ruta=ventas-crear" class="btn btn-success shadow-sm fw-bold">
+                <i class="fas fa-cash-register me-1"></i> Ir a la Caja
+            </a>
+        </div>
     </div>
 
     <div class="card shadow border-0 border-top border-primary border-3">
