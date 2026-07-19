@@ -81,5 +81,57 @@ class CierresControlador {
         echo json_encode($respuesta);
         exit();
     }
+    /* ==============================================================
+       4. MOSTRAR CIERRES DE CAJA (PANEL DE AUDITORÍA)
+       ============================================================== */
+    public static function ctrMostrarCierres($item, $valor) {
+        $respuesta = Cierres::mdlMostrarCierres($item, $valor);
+        return $respuesta;
+    }
+    /* ==============================================================
+       5. MOSTRAR DETALLE DE CIERRE VÍA AJAX (MODAL)
+       ============================================================== */
+    public static function ctrMostrarDetalleCierreAjax() {
+        if(isset($_POST["idCierreDetalle"])){
+            
+            $item = "id";
+            $valor = $_POST["idCierreDetalle"];
+            
+            // Reutilizamos el modelo para traer un solo cierre
+            $respuesta = Cierres::mdlMostrarCierres($item, $valor);
+            
+            echo json_encode($respuesta);
+            exit();
+        }
+    }
+    /* ==============================================================
+       6. RECIBIR PETICIONES DE AUDITORÍA VÍA AJAX
+       ============================================================== */
+    public static function ctrAuditoriaAjax() {
+        if(isset($_POST["accionAuditoria"])) {
+            
+            // Si es el ajuste de una moneda específica
+            if($_POST["accionAuditoria"] == "movimiento_linea") {
+                $datos = [
+                    "tipo" => $_POST["tipo"],
+                    "monto" => $_POST["monto"],
+                    "moneda" => $_POST["moneda"],
+                    "concepto" => $_POST["concepto"],
+                    "metodo_pago" => isset($_POST["metodo_pago"]) ? $_POST["metodo_pago"] : null,
+                    "referencia" => isset($_POST["referencia"]) ? $_POST["referencia"] : null
+                ];
+                $respuesta = Cierres::mdlRegistrarMovimientoAuditoria($datos);
+                echo json_encode(["status" => $respuesta]);
+                exit();
+            }
+
+            // Si es el cierre definitivo de la auditoría
+            if($_POST["accionAuditoria"] == "finalizar") {
+                $respuesta = Cierres::mdlFinalizarAuditoriaCaja($_POST["idCierre"]);
+                echo json_encode(["status" => $respuesta]);
+                exit();
+            }
+        }
+    }
 }
 ?>

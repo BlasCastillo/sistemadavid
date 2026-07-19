@@ -154,7 +154,73 @@ class Cierres {
         } catch (Exception $e) {
             $conexion->rollBack();
             return ["status" => "error", "mensaje" => "Fallo en Base de Datos: " . $e->getMessage()];
+
+
         }
+        
+    }
+    /* ==============================================================
+       3. MOSTRAR CIERRES DE CAJA (PANEL DE AUDITORÍA)
+       ============================================================== */
+    public static function mdlMostrarCierres($item, $valor) {
+        $conexion = Conexion::conectar();
+        
+        if ($item != null) {
+            $stmt = $conexion->prepare("
+                SELECT c.*, u.usuario as cajero_nombre, auth.usuario as autorizador_nombre 
+                FROM cierres_caja c 
+                INNER JOIN usuarios u ON c.cajero_id = u.id 
+                LEFT JOIN usuarios auth ON c.autorizador_id = auth.id 
+                WHERE c.$item = :$item 
+                ORDER BY c.id DESC
+            ");
+            $stmt->bindParam(":" . $item, $valor, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } else {
+            $stmt = $conexion->prepare("
+                SELECT c.*, u.usuario as cajero_nombre, auth.usuario as autorizador_nombre 
+                FROM cierres_caja c 
+                INNER JOIN usuarios u ON c.cajero_id = u.id 
+                LEFT JOIN usuarios auth ON c.autorizador_id = auth.id 
+                ORDER BY c.id DESC
+            ");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+    }
+    /* ==============================================================
+       6. AUDITORÍA: REGISTRAR MOVIMIENTO INDIVIDUAL
+       ============================================================== */
+    public static function mdlRegistrarMovimientoAuditoria($datos) {
+        $conexion = Conexion::conectar();
+        try {
+            if ($datos["tipo"] == "gasto") {
+                // Si la tienda asume la pérdida
+                $stmt = $conexion->prepare("INSERT INTO gastos (concepto, monto, tipo, fecha, estado) VALUES (:concepto, :monto, 'Operativo', CURDATE(), 1)");
+            } else {
+                // Si el cajero paga el faltante o se registra un sobrante
+                $stmt = $conexion->prepare("INSERT INTO ingresos (concepto, monto, moneda, metodo_pago, referencia, fecha, estado) VALUES (:concepto, :monto, :moneda, :metodo_pago, :referencia, CURDATE(), 1)");
+                $stmt->bindParam(":moneda", $datos["moneda"], PDO::PARAM_STR);
+                $stmt->bindParam(":metodo_pago", $datos["metodo_pago"], PDO::PARAM_STR);
+                $stmt->bindParam(":referencia", $datos["referencia"], PDO::PARAM_STR);
+            }
+            $stmt->bindParam(":concepto", $datos["concepto"], PDO::PARAM_STR);
+            $stmt->bindParam(":monto", $datos["monto"], PDO::PARAM_STR);
+            
+            if($stmt->execute()){ return "ok"; } else { return "error"; }
+        } catch (Exception $e) {
+            return "error";
+        }
+    }
+
+    /* ==============================================================
+       7. AUDITORÍA: FINALIZAR Y MARCAR COMO AJUSTADO
+       ============================================================== */
+    public static function mdlFinalizarAuditoriaCaja($id_cierre) {
+        $stmt = Conexion::conectar()->prepare("UPDATE cierres_caja SET estado = 'Ajustado' WHERE id = :id_cierre");
+        $stmt->bindParam(":id_cierre", $id_cierre, PDO::PARAM_INT);
+        if($stmt->execute()){ return "ok"; } else { return "error"; }
     }
 }
 ?>

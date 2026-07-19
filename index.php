@@ -24,11 +24,18 @@ require_once "controlador/VentasControlador.php";
 require_once "controlador/EtiquetasControlador.php";
 require_once "controlador/VentasControlador.php";
 require_once "controlador/CreditosControlador.php"; // <--- NUEVO
+require_once "controlador/CierresControlador.php";
+require_once "controlador/IngresosControlador.php";
+require_once "controlador/CierreZControlador.php";
 
 // 3. Requerimos los Modelos
 require_once "modelo/Usuarios.php";
 require_once "modelo/Roles.php";
 require_once "modelo/Tasas.php"; // NUEVO
+require_once "modelo/Cierres.php";
+require_once "modelo/Ingresos.php";
+require_once "modelo/CierreZ.php";
+
 
 // ==========================================
 // INTERCEPTOR DE PETICIONES AJAX
@@ -223,6 +230,53 @@ if(isset($_POST["idVentaHistorial"])) {
 if(isset($_POST["procesarCierreTurno"])) {
     require_once "controlador/CierresControlador.php";
     CierresControlador::ctrProcesarCierreTurnoAjax();
+}
+if(isset($_POST["idCierreDetalle"])) {
+    require_once "controlador/CierresControlador.php";
+    CierresControlador::ctrMostrarDetalleCierreAjax();
+}
+if(isset($_POST["accionAuditoria"])) {
+    require_once "controlador/CierresControlador.php";
+    CierresControlador::ctrAuditoriaAjax();
+}
+// =======================================================
+// INTERCEPTOR: Panel Z (Radar y Cierre)
+// =======================================================
+if(isset($_POST["accionCierreZ"])) {
+    require_once "controlador/CierreZControlador.php";
+    
+    if($_POST["accionCierreZ"] == "radar") {
+        $respuesta = CierreZControlador::ctrDetectarSesionesAbiertas();
+        echo json_encode($respuesta);
+        exit();
+    }
+}
+// =======================================================
+// INTERCEPTOR: Panel Z (Radar y Cierre)
+// =======================================================
+if(isset($_POST["accionCierreZ"])) {
+    require_once "controlador/CierreZControlador.php";
+    
+    // 1. Petición del Radar
+    if($_POST["accionCierreZ"] == "radar") {
+        $respuesta = CierreZControlador::ctrDetectarSesionesAbiertas();
+        echo json_encode($respuesta);
+        exit(); // <-- Si esto falta, el Ajax recibe HTML y se rompe
+    }
+
+    // 2. Petición de Ejecución del Cierre Maestro
+    if($_POST["accionCierreZ"] == "ejecutar_z") {
+        $respuesta = CierreZControlador::ctrEjecutarCierreZ();
+        echo json_encode(["status" => $respuesta]);
+        exit();
+    }
+
+    // 3. Petición para Forzar un Cierre X remoto
+    if($_POST["accionCierreZ"] == "forzar_cierre_x") {
+        $respuesta = CierreZControlador::ctrForzarCierreX();
+        echo json_encode(["status" => $respuesta]);
+        exit();
+    }
 }
 
 // ==========================================

@@ -79,13 +79,18 @@ $modoDios = ($_SESSION["rol_id"] == 1) || in_array("all", $permisos);
             </li>
         <?php endif; ?>
 
-        <?php if ($modoDios || in_array("ver_gastos", $permisos)): ?>
+       <?php if ($modoDios || in_array("ver_gastos", $permisos)): ?>
             <li class="nav-item">
                 <a class="nav-link" href="#submenuGastos" data-bs-toggle="collapse" aria-expanded="false">
-                    <i class="fas fa-wallet text-warning"></i> Gastos / Egresos 
+                    <i class="fas fa-wallet text-warning"></i> Ingresos / Gastos 
                     <i class="fas fa-caret-down ms-auto"></i>
                 </a>
                 <ul class="collapse nav flex-column" id="submenuGastos">
+                    <!-- NUEVA VISTA DE INGRESOS EXTRAORDINARIOS -->
+                    <li class="nav-item border-bottom border-secondary mb-1 pb-1">
+                        <a class="nav-link text-success" href="index.php?ruta=ingresos"><i class="fas fa-hand-holding-usd"></i> Ingresos Extras</a>
+                    </li>
+                    <!-- VISTAS DE GASTOS EXISTENTES -->
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=gastos"><i class="fas fa-file-invoice-dollar"></i> Control de Gastos</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=gastos-crear"><i class="fas fa-plus"></i> Registrar Gasto</a></li>
                 </ul>
@@ -116,9 +121,18 @@ $modoDios = ($_SESSION["rol_id"] == 1) || in_array("all", $permisos);
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=ventas"><i class="fas fa-list-ul"></i> Historial de Ventas</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=consulta-precios"><i class="fas fa-barcode"></i> Consulta de Precios</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=etiquetas"><i class="fas fa-print"></i> Etiquetas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.php?ruta=cierre-caja"><i class="fas fa-lock"></i> Cierre de Caja</a></li>
+                    
+                    <!-- Le agregamos (X) para diferenciarlo visualmente -->
+                    <li class="nav-item"><a class="nav-link" href="index.php?ruta=cierre-caja"><i class="fas fa-lock"></i> Cierre de Caja (X)</a></li>
+                    
                     <?php if ($modoDios || in_array("auditar_cierres", $permisos)): ?>
-                        <li class="nav-item mt-2 border-top border-secondary pt-2"><a class="nav-link text-warning" href="index.php?ruta=auditoria-cierres"><i class="fas fa-balance-scale"></i> Auditoría de Cierres</a></li>
+                        <li class="nav-item mt-2 border-top border-secondary pt-2">
+                            <a class="nav-link text-warning" href="index.php?ruta=auditoria-cierres"><i class="fas fa-balance-scale"></i> Auditoría de Cierres</a>
+                        </li>
+                        <!-- NUEVA VISTA DE CIERRE Z DE TIENDA -->
+                        <li class="nav-item">
+                            <a class="nav-link text-danger fw-bold" href="index.php?ruta=cierre-z"><i class="fas fa-store-slash"></i> Cierre de Tienda (Z)</a>
+                        </li>
                     <?php endif; ?>
                 </ul>
             </li>
