@@ -59,7 +59,12 @@ $historialVentas = VentasControlador::ctrMostrarHistorialVentas();
                                         <i class="fas fa-print"></i>
                                     </button>
                                     
-                                    <?php if ($venta->tiene_devolucion == 0): ?>
+                                    <!-- CAPA 1: BLOQUEO VISUAL DE BOTÓN -->
+                                    <?php if ($venta->estado == "Credito"): ?>
+                                        <button type="button" class="btn btn-sm btn-secondary" disabled title="No permitido: La factura está a Crédito">
+                                            <i class="fas fa-lock"></i>
+                                        </button>
+                                    <?php elseif ($venta->tiene_devolucion == 0): ?>
                                         <button type="button" class="btn btn-sm btn-danger btnAnularVenta" idVenta="<?php echo $venta->id; ?>" numFactura="F-<?php echo $venta->numero_factura; ?>" title="Anular / Nota de Crédito">
                                             <i class="fas fa-ban"></i>
                                         </button>

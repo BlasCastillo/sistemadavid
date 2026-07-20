@@ -292,11 +292,19 @@ class Ventas {
         try {
             $conexion->beginTransaction();
 
-            $stmtV = $conexion->prepare("SELECT cliente_id, tasa_bcv FROM ventas WHERE id = :id");
+            // MODIFICADO: Agregamos "estado" a la consulta
+            $stmtV = $conexion->prepare("SELECT cliente_id, tasa_bcv, estado FROM ventas WHERE id = :id");
             $stmtV->bindParam(":id", $datosDevolucion["idVentaOriginal"], PDO::PARAM_INT);
             $stmtV->execute();
             $ventaOriginal = $stmtV->fetch(PDO::FETCH_OBJ);
             
+            // ---> NUEVA REGLA DE NEGOCIO (CAPA 3: BACKEND PROFUNDO) <---
+            if($ventaOriginal->estado === "Credito") {
+                $conexion->rollBack();
+                return "error_es_credito"; 
+            }
+            // -----------------------------------------------------------
+
             $cliente_id = $ventaOriginal->cliente_id;
             $tasa_bcv_historica = $ventaOriginal->tasa_bcv;
 

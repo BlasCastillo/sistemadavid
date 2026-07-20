@@ -102,7 +102,7 @@ class CierreZ {
             $stmtUpdate->execute();
 
             $conexion->commit();
-            return "ok";
+            return $idCierreZ;
 
         } catch (Throwable $e) { // Usamos Throwable para atrapar fallos letales de PHP 8+
             if($conexion->inTransaction()) {

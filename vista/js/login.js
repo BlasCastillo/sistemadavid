@@ -59,7 +59,7 @@ $("#formLogin").on("submit", function(e) {
                 }).then(function() {
                     // Redirigimos al dashboard recargando la página,
                     // ahora PHP detectará la sesión y cargará la plantilla completa.
-                    window.location = "index.php?ruta=dashboard";
+                    window.location = "index.php?ruta=" + respuesta.ruta;
                 });
 
             } else {

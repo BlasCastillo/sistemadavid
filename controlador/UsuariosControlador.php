@@ -35,7 +35,17 @@ class UsuariosControlador {
                         $_SESSION["nombre_rol"] = "Sin Rol";
                         $_SESSION["permisos"] = [];
                     }
-                    echo json_encode(["status" => "success", "mensaje" => "Acceso concedido."]);
+
+                    // --- NUEVA LÓGICA DE REDIRECCIÓN ---
+                    $rutaDestino = "dashboard"; // Ruta por defecto para gerentes/administradores
+                    
+                    // Si no es SuperAdmin (rol 1) y tampoco tiene permiso explícito para el dashboard, va al POS
+                    if ($_SESSION["rol_id"] != 1 && !in_array("ver_dashboard", $_SESSION["permisos"])) {
+                        $rutaDestino = "ventas-crear";
+                    }
+
+                    // Enviamos la ruta calculada al frontend dentro del JSON
+                    echo json_encode(["status" => "success", "mensaje" => "Acceso concedido.", "ruta" => $rutaDestino]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Usuario o contraseña incorrectos, o usuario inactivo."]);
                 }

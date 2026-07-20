@@ -11,7 +11,14 @@ class VentasControlador {
     public static function ctrAgregarTemporalAjax() {
         if(isset($_POST["codigoProductoVenta"])) {
             
-            $usuario_id = $_SESSION["id_usuario"];
+            // --- BLINDAJE DE SESIÓN ---
+            $usuario_id = $_SESSION["id_usuario"] ?? $_SESSION["id"] ?? null;
+            if (!$usuario_id) {
+                echo json_encode(["status" => "error", "mensaje" => "Su sesión ha expirado o no es válida. Por favor, recargue la página e inicie sesión nuevamente."]);
+                exit();
+            }
+            // --------------------------
+
             $codigo = trim($_POST["codigoProductoVenta"]);
             $cantidad = intval($_POST["cantidadVenta"]);
 
@@ -75,7 +82,12 @@ class VentasControlador {
 
     public static function ctrCargarTemporalesAjax() {
         if(isset($_POST["cargarTemporalesVenta"])) {
-            $usuario_id = $_SESSION["id_usuario"];
+            $usuario_id = $_SESSION["id_usuario"] ?? $_SESSION["id"] ?? null;
+            if (!$usuario_id) {
+                echo json_encode([]);
+                exit();
+            }
+
             $respuesta = Ventas::leerTemporales($usuario_id);
             echo json_encode($respuesta);
             exit();
@@ -145,9 +157,13 @@ class VentasControlador {
        ============================================================== */
     public static function ctrSuspenderFacturaAjax() {
         if(isset($_POST["cedulaSuspender"])) {
-            $usuario_id = $_SESSION["id_usuario"];
-            $cedula = trim($_POST["cedulaSuspender"]);
+            $usuario_id = $_SESSION["id_usuario"] ?? $_SESSION["id"] ?? null;
+            if (!$usuario_id) {
+                echo json_encode(["status" => "error", "mensaje" => "Sesión expirada. Recargue la página."]);
+                exit();
+            }
 
+            $cedula = trim($_POST["cedulaSuspender"]);
             $carrito = Ventas::leerTemporales($usuario_id);
             if(count($carrito) == 0){
                 echo json_encode(["status" => "warning", "mensaje" => "No hay productos en el carrito para suspender."]);
@@ -167,7 +183,12 @@ class VentasControlador {
 
     public static function ctrListarSuspendidasAjax() {
         if(isset($_POST["listarSuspendidas"])) {
-            $usuario_id = $_SESSION["id_usuario"];
+            $usuario_id = $_SESSION["id_usuario"] ?? $_SESSION["id"] ?? null;
+            if (!$usuario_id) {
+                echo json_encode([]);
+                exit();
+            }
+
             $respuesta = Ventas::listarSuspendidas($usuario_id);
             echo json_encode($respuesta);
             exit();
@@ -176,9 +197,13 @@ class VentasControlador {
 
     public static function ctrRecuperarFacturaAjax() {
         if(isset($_POST["cedulaRecuperar"])) {
-            $usuario_id = $_SESSION["id_usuario"];
+            $usuario_id = $_SESSION["id_usuario"] ?? $_SESSION["id"] ?? null;
+            if (!$usuario_id) {
+                echo json_encode(["status" => "error", "mensaje" => "Sesión expirada. Recargue la página."]);
+                exit();
+            }
+
             $cedula = trim($_POST["cedulaRecuperar"]);
-            
             $respuesta = Ventas::recuperarCarrito($usuario_id, $cedula);
             
             if($respuesta){
@@ -195,7 +220,11 @@ class VentasControlador {
        ============================================================== */
     public static function ctrProcesarVentaAjax() {
         if(isset($_POST["procesarVentaFinal"])) {
-            $usuario_id = $_SESSION["id_usuario"];
+            $usuario_id = $_SESSION["id_usuario"] ?? $_SESSION["id"] ?? null;
+            if (!$usuario_id) {
+                echo json_encode(["status" => "error", "mensaje" => "Su sesión expiró. Venta cancelada por seguridad."]);
+                exit();
+            }
 
             $carrito = Ventas::leerTemporales($usuario_id);
             if(count($carrito) == 0){
@@ -220,14 +249,11 @@ class VentasControlador {
             $tasaActual = $stmt->fetch(PDO::FETCH_OBJ);
             $tasaBcvSegura = $tasaActual ? floatval($tasaActual->tasa_bcv) : 1;
 
-            // --- CAPTURA DE VARIABLES DEL DESCUENTO, AUTORIZACIÓN Y CRÉDITO ---
             $autorizador_id = !empty($_POST["autorizadorFinal"]) ? intval($_POST["autorizadorFinal"]) : null;
             $descuentoGlobal = isset($_POST["descuentoGlobalFinal"]) ? floatval($_POST["descuentoGlobalFinal"]) : 0;
             
-            // NUEVO: Verificamos si la venta fue marcada como Crédito en el FrontEnd
             $esCredito = (isset($_POST["ventaCredito"]) && $_POST["ventaCredito"] == "1") ? true : false;
             $estadoFactura = $esCredito ? "Credito" : "Pagada";
-            // -------------------------------------------------------------------
 
             $totalUsdtCalculado = 0;
             foreach($carrito as $item) {
@@ -237,7 +263,6 @@ class VentasControlador {
             $totalUsdtCalculado -= $descuentoGlobal;
             $totalBsCalculado = $totalUsdtCalculado * $tasaBcvSegura;
 
-            // Permitimos array de pagos vacío SOLO SI es a crédito con inicial $0
             $datosPagos = json_decode($_POST["listaPagosFinal"], true);
             if((!is_array($datosPagos) || count($datosPagos) == 0) && !$esCredito) {
                 echo json_encode(["status" => "error", "mensaje" => "No se registraron métodos de pago para esta factura."]);
@@ -256,7 +281,6 @@ class VentasControlador {
                         $total_compra = floatval($totalUsdtCalculado);
                         $diferencia = $total_compra - $monto_nota;
 
-                        // Si es crédito, el total de la compra no importa que sea menor
                         if (!$esCredito && $total_compra < ($monto_nota - 0.05)) {
                             echo json_encode([
                                 "status" => "error", 
@@ -274,7 +298,6 @@ class VentasControlador {
                 }
             }
 
-            // --- CÁLCULO DEL AMORTIGUADOR CONTABLE DE REDONDEO ---
             $totalPagadoUsdt = 0;
             if(is_array($datosPagos)) {
                 foreach($datosPagos as $pago) {
@@ -289,10 +312,8 @@ class VentasControlador {
             
             $ajuste_redondeo = 0;
             if(!$esCredito) {
-                // Solo si es de contado verificamos la basura matemática
                 $ajuste_redondeo = $totalUsdtCalculado - $totalPagadoUsdt;
             }
-            // -----------------------------------------------------
 
             $stmtMax = Conexion::conectar()->prepare("SELECT MAX(id) as max_id FROM ventas");
             $stmtMax->execute();
@@ -309,7 +330,7 @@ class VentasControlador {
                 "total_usdt" => round($totalUsdtCalculado, 4),
                 "total_bs" => round($totalBsCalculado, 2),
                 "ajuste_redondeo" => round($ajuste_redondeo, 4), 
-                "estado" => $estadoFactura // NUEVO: Pagada o Credito
+                "estado" => $estadoFactura 
             ];
 
             $venta_id = Ventas::procesarVentaFinal($datosCabecera, $carrito, $datosPagos);
@@ -337,9 +358,9 @@ class VentasControlador {
        6. MOSTRAR HISTORIAL DE VENTAS
        ============================================================== */
     public static function ctrMostrarHistorialVentas() {
-        if(isset($_SESSION["rol_id"]) && isset($_SESSION["id_usuario"])) {
+        if(isset($_SESSION["rol_id"]) && (isset($_SESSION["id_usuario"]) || isset($_SESSION["id"]))) {
             $rol_id = $_SESSION["rol_id"];
-            $usuario_id = $_SESSION["id_usuario"];
+            $usuario_id = $_SESSION["id_usuario"] ?? $_SESSION["id"];
             $respuesta = Ventas::mdlMostrarHistorialVentas($rol_id, $usuario_id);
             return $respuesta;
         } else {
@@ -424,7 +445,10 @@ class VentasControlador {
                 
                 $respuesta = Ventas::mdlProcesarDevolucion($datosDevolucion, $itemsReversar);
                 
-                if($respuesta == "error_cantidad") {
+                // ---> CAPA 2 DE SEGURIDAD: INTERPRETACIÓN DEL MODELO <---
+                if($respuesta == "error_es_credito") {
+                    echo json_encode(["status" => "error", "mensaje" => "Las facturas a crédito no admiten devoluciones ni notas de crédito. El cliente debe cancelar su deuda."]);
+                } else if($respuesta == "error_cantidad") {
                     echo json_encode(["status" => "error", "mensaje" => "Se intentó devolver una cantidad de artículos mayor a la que fue comprada originalmente."]);
                 } else if($respuesta != "error") {
                     echo json_encode(["status" => "success", "mensaje" => "Reembolso procesado.", "codigo_nota" => $respuesta]);

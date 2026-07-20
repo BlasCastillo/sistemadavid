@@ -22,6 +22,17 @@ if(!$datosVenta || !$datosVenta["cabecera"]) {
 }
 
 $cabecera = $datosVenta["cabecera"];
+
+// ---> CAPA 2: PROTECCIÓN DE NAVEGACIÓN <---
+if($cabecera->estado === "Credito") {
+    echo '<div class="alert alert-danger m-4 fw-bold fs-5 shadow-sm">
+            <i class="fas fa-shield-alt me-2"></i> Acción Denegada: Las facturas a crédito no admiten devoluciones directas. Redirigiendo al historial...
+          </div>';
+    echo '<script>setTimeout(function(){ window.location = "index.php?ruta=ventas"; }, 3500);</script>';
+    exit;
+}
+// ------------------------------------------
+
 $detalles = $datosVenta["detalles"];
 $pagos = $datosVenta["pagos"];
 ?>

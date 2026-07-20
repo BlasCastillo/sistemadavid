@@ -1,4 +1,14 @@
 <?php
+$modoDios = ($_SESSION["rol_id"] == 1);
+$permisos = $_SESSION["permisos"] ?? [];
+
+// Si no es admin y no tiene permiso, lo rebotamos al POS
+if (!$modoDios && !in_array("ver_dashboard", $permisos)) {
+    echo '<script>window.location = "index.php?ruta=ventas-crear";</script>';
+    exit;
+}
+?>
+<?php
 // Solicitamos la tasa activa
 $tasaActual = Tasas::obtenerTasaActiva();
 ?>

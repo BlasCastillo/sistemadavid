@@ -44,7 +44,7 @@ if (session_status() == PHP_SESSION_NONE) {
         if (isset($_GET["ruta"])) {
             
             // Lista blanca de rutas permitidas
-            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar", "proveedores", "proveedores-crear", "proveedores-editar", "subcategorias", "subcategorias-crear", "subcategorias-editar", "clientes", "clientes-crear", "clientes-editar", "gastos", "gastos-crear", "gastos-editar", "productos", "productos-crear", "productos-editar", "compras", "compras-crear", "auditoria-core", "cuentas-por-pagar", "cuentas-por-pagar-abonar", "ofertas", "consulta-precios", "etiquetas", "etiquetas-pdf", "ventas-crear", "ventas-pago", "ticket-venta", "ventas", "ventas-devolucion", "creditos", "cierre-turno", "ticket-cierre", "auditoria-cierres", "cierre-z", "ingresos", "ingresos-crear", "ingresos-editar"];
+            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar", "proveedores", "proveedores-crear", "proveedores-editar", "subcategorias", "subcategorias-crear", "subcategorias-editar", "clientes", "clientes-crear", "clientes-editar", "gastos", "gastos-crear", "gastos-editar", "productos", "productos-crear", "productos-editar", "compras", "compras-crear", "auditoria-core", "cuentas-por-pagar", "cuentas-por-pagar-abonar", "ofertas", "consulta-precios", "etiquetas", "etiquetas-pdf", "ventas-crear", "ventas-pago", "ticket-venta", "ventas", "ventas-devolucion", "creditos", "cierre-turno", "ticket-cierre", "auditoria-cierres", "cierre-z", "ingresos", "ingresos-crear", "ingresos-editar", "historial-z", "ticket-cierre-z"];
 
             if (in_array($_GET["ruta"], $rutasPermitidas)) {
                 include "vista/modulos/" . $_GET["ruta"] . ".php";
@@ -52,8 +52,16 @@ if (session_status() == PHP_SESSION_NONE) {
                 include "vista/modulos/404.php"; // Página de error si la ruta no existe
             }
         } else {
-            // Si no hay ruta en la URL, por defecto cargamos el Dashboard
-            include "vista/modulos/dashboard.php";
+            // LÓGICA INTELIGENTE: Si no hay ruta en la URL, verificamos el rol
+            $modoDios = ($_SESSION["rol_id"] == 1);
+            $permisos = $_SESSION["permisos"] ?? [];
+            
+            if ($modoDios || in_array("ver_dashboard", $permisos)) {
+                include "vista/modulos/dashboard.php";
+            } else {
+                // Si es cajero y no tiene permiso del dashboard, lo mandamos al POS
+                include "vista/modulos/ventas-crear.php";
+            }
         }
 
         // 4. INCLUIMOS EL FOOTER
@@ -104,5 +112,7 @@ if (session_status() == PHP_SESSION_NONE) {
     <script src="vista/js/cierre-turno.js"></script>
     <script src="vista/js/auditoria-cierres.js"></script>
     <script src="vista/js/cierre-z.js?v=1"></script>
+    <script src="vista/js/historial-z.js"></script>
+    <script src="vista/js/ingresos.js"></script>
     </body>
 </html>

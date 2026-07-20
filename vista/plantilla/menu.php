@@ -129,9 +129,12 @@ $modoDios = ($_SESSION["rol_id"] == 1) || in_array("all", $permisos);
                         <li class="nav-item mt-2 border-top border-secondary pt-2">
                             <a class="nav-link text-warning" href="index.php?ruta=auditoria-cierres"><i class="fas fa-balance-scale"></i> Auditoría de Cierres</a>
                         </li>
-                        <!-- NUEVA VISTA DE CIERRE Z DE TIENDA -->
+                        <!-- VISTAS DEL MÓDULO Z -->
                         <li class="nav-item">
-                            <a class="nav-link text-danger fw-bold" href="index.php?ruta=cierre-z"><i class="fas fa-store-slash"></i> Cierre de Tienda (Z)</a>
+                            <a class="nav-link text-danger fw-bold" href="index.php?ruta=cierre-z"><i class="fas fa-store-slash"></i> Ejecutar Cierre Z</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-secondary" href="index.php?ruta=historial-z"><i class="fas fa-history"></i> Historial Cierres Z</a>
                         </li>
                     <?php endif; ?>
                 </ul>

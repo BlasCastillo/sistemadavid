@@ -27,6 +27,7 @@ require_once "controlador/CreditosControlador.php"; // <--- NUEVO
 require_once "controlador/CierresControlador.php";
 require_once "controlador/IngresosControlador.php";
 require_once "controlador/CierreZControlador.php";
+require_once "controlador/IngresosControlador.php";
 
 // 3. Requerimos los Modelos
 require_once "modelo/Usuarios.php";
@@ -267,7 +268,13 @@ if(isset($_POST["accionCierreZ"])) {
     // 2. Petición de Ejecución del Cierre Maestro
     if($_POST["accionCierreZ"] == "ejecutar_z") {
         $respuesta = CierreZControlador::ctrEjecutarCierreZ();
-        echo json_encode(["status" => $respuesta]);
+        
+        // Si la respuesta es un número (el ID), enviamos status 'ok' y el id_cierre
+        if(is_numeric($respuesta)){
+            echo json_encode(["status" => "ok", "id_cierre" => $respuesta]);
+        } else {
+            echo json_encode(["status" => $respuesta]);
+        }
         exit();
     }
 

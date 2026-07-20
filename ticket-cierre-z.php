@@ -1,5 +1,14 @@
+
+
 <?php
+
+
 session_start();
+// Candado de Seguridad
+if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
+    echo "Acceso denegado. Debe iniciar sesión.";
+    exit;
+}
 require_once "controlador/CierreZControlador.php";
 require_once "modelo/CierreZ.php";
 

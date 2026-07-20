@@ -21,6 +21,7 @@ class Gastos {
     }
 
     public function getId(): ?int { return $this->id; }
+    public function setId(int $id): void { $this->id = $id; }
     public function getConcepto(): string { return $this->concepto; }
     public function setConcepto(string $concepto): void { $this->concepto = $concepto; }
     public function getMonto(): float { return $this->monto; }

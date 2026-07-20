@@ -87,7 +87,7 @@ $(document).ready(function() {
                                 title: "Cierre Forzado",
                                 text: `La caja de @${nombreCajero} ha sido cerrada.`
                             }).then(() => {
-                                // ¡LA SOLUCIÓN AL PRIMER BUG! Forzamos la recarga al cerrar la alerta.
+                                // Forzamos la recarga al cerrar la alerta.
                                 window.location.reload(); 
                             });
                         } else {
@@ -147,6 +147,10 @@ $(document).ready(function() {
                             Swal.fire({
                                 icon: 'success', title: '¡Cierre Z Exitoso!', text: 'El día operativo ha sido cerrado.', confirmButtonText: 'Finalizar'
                             }).then(function() {
+                                // Abre el ticket Z automáticamente en nueva pestaña
+                                window.open("ticket-cierre-z.php?idCierreZ=" + respuesta.id_cierre, "_blank");
+                                
+                                // Redirige la pestaña actual al dashboard
                                 window.location = "index.php?ruta=dashboard"; 
                             });
                         } else if(respuesta.status === "credenciales_invalidas") {
