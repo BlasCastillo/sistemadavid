@@ -28,6 +28,12 @@ require_once "controlador/CierresControlador.php";
 require_once "controlador/IngresosControlador.php";
 require_once "controlador/CierreZControlador.php";
 require_once "controlador/IngresosControlador.php";
+require_once "controlador/DashboardControlador.php";
+require_once "controlador/ConciliacionesControlador.php";
+require_once "controlador/ReportesControlador.php";
+
+
+
 
 // 3. Requerimos los Modelos
 require_once "modelo/Usuarios.php";
@@ -36,6 +42,9 @@ require_once "modelo/Tasas.php"; // NUEVO
 require_once "modelo/Cierres.php";
 require_once "modelo/Ingresos.php";
 require_once "modelo/CierreZ.php";
+require_once "modelo/Dashboard.php";
+require_once "modelo/Conciliaciones.php";
+require_once "modelo/Reportes.php";
 
 
 // ==========================================
@@ -284,6 +293,21 @@ if(isset($_POST["accionCierreZ"])) {
         echo json_encode(["status" => $respuesta]);
         exit();
     }
+}
+// Interceptor AJAX del Dashboard
+if(isset($_POST["cargarGraficoVentas"])) {
+    DashboardControlador::ctrGraficoVentasAjax();
+}
+// Interceptor AJAX de Conciliaciones
+if(isset($_POST["estadoConciliacion"])) {
+    ConciliacionesControlador::ctrMostrarPagosAjax();
+}
+if(isset($_POST["idPagoConciliar"])) {
+    ConciliacionesControlador::ctrRegistrarConciliacionAjax();
+}
+// Interceptor AJAX para los Reportes por Rango de Fechas
+if(isset($_POST["fechaInicial"]) && isset($_POST["fechaFinal"])) {
+    ReportesControlador::ctrResumenVentasAjax();
 }
 
 // ==========================================

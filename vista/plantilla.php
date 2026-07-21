@@ -44,7 +44,7 @@ if (session_status() == PHP_SESSION_NONE) {
         if (isset($_GET["ruta"])) {
             
             // Lista blanca de rutas permitidas
-            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar", "proveedores", "proveedores-crear", "proveedores-editar", "subcategorias", "subcategorias-crear", "subcategorias-editar", "clientes", "clientes-crear", "clientes-editar", "gastos", "gastos-crear", "gastos-editar", "productos", "productos-crear", "productos-editar", "compras", "compras-crear", "auditoria-core", "cuentas-por-pagar", "cuentas-por-pagar-abonar", "ofertas", "consulta-precios", "etiquetas", "etiquetas-pdf", "ventas-crear", "ventas-pago", "ticket-venta", "ventas", "ventas-devolucion", "creditos", "cierre-turno", "ticket-cierre", "auditoria-cierres", "cierre-z", "ingresos", "ingresos-crear", "ingresos-editar", "historial-z", "ticket-cierre-z"];
+            $rutasPermitidas = ["dashboard", "usuarios", "usuarios-crear", "usuarios-editar", "usuarios-clave", "roles", "roles-crear", "roles-editar", "salir", "tasas-cambio", "categorias", "categorias-crear", "categorias-editar", "lineas", "lineas-crear", "lineas-editar", "proveedores", "proveedores-crear", "proveedores-editar", "subcategorias", "subcategorias-crear", "subcategorias-editar", "clientes", "clientes-crear", "clientes-editar", "gastos", "gastos-crear", "gastos-editar", "productos", "productos-crear", "productos-editar", "compras", "compras-crear", "auditoria-core", "cuentas-por-pagar", "cuentas-por-pagar-abonar", "ofertas", "consulta-precios", "etiquetas", "etiquetas-pdf", "ventas-crear", "ventas-pago", "ticket-venta", "ventas", "ventas-devolucion", "creditos", "cierre-turno", "ticket-cierre", "auditoria-cierres", "cierre-z", "ingresos", "ingresos-crear", "ingresos-editar", "historial-z", "ticket-cierre-z", "conciliaciones", "reporte-ventas", "bitacora"];
 
             if (in_array($_GET["ruta"], $rutasPermitidas)) {
                 include "vista/modulos/" . $_GET["ruta"] . ".php";
@@ -114,5 +114,8 @@ if (session_status() == PHP_SESSION_NONE) {
     <script src="vista/js/cierre-z.js?v=1"></script>
     <script src="vista/js/historial-z.js"></script>
     <script src="vista/js/ingresos.js"></script>
+    <script src="vista/js/chart.js"></script>
+    <script src="vista/js/conciliaciones.js"></script>
+    <script src="vista/js/reportes.js"></script>
     </body>
 </html>

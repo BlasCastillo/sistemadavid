@@ -110,7 +110,7 @@ class Ventas {
     }
 
     /* ==============================================================
-       3. PROCESAMIENTO DE LA VENTA (REGLA DE CONSUMO TOTAL)
+       3. PROCESAMIENTO DE LA VENTA (CORREGIDO: ACTUALIZACIÓN DE FECHA_ULTIMA_VENTA)
        ============================================================== */
     public static function procesarVentaFinal($datosCabecera, $datosDetalle, $datosPagos) {
         $conexion = Conexion::conectar();
@@ -134,7 +134,6 @@ class Ventas {
         try {
             $conexion->beginTransaction();
 
-            // MODIFICADO: Se inserta el campo autorizador_id
             $stmt = $conexion->prepare("INSERT INTO ventas (usuario_id, cliente_id, autorizador_id, numero_factura, tasa_bcv, total_usdt, total_bs, ajuste_redondeo, estado, fecha_venta) VALUES (:usuario_id, :cliente_id, :autorizador_id, :numero_factura, :tasa_bcv, :total_usdt, :total_bs, :ajuste_redondeo, :estado, NOW())");
             
             $stmt->bindParam(":usuario_id", $datosCabecera["usuario_id"], PDO::PARAM_INT);
@@ -157,6 +156,7 @@ class Ventas {
             $venta_id = $conexion->lastInsertId();
 
             foreach ($datosDetalle as $item) {
+                // 1. Guardar en el detalle de la factura
                 $stmtDetalle = $conexion->prepare("INSERT INTO ventas_detalle (venta_id, producto_id, cantidad, precio_unitario_usdt, descuento_usdt) VALUES (:venta_id, :producto_id, :cantidad, :precio_unitario, :descuento)");
                 $stmtDetalle->bindParam(":venta_id", $venta_id, PDO::PARAM_INT);
                 $stmtDetalle->bindParam(":producto_id", $item->producto_id, PDO::PARAM_INT);
@@ -165,7 +165,8 @@ class Ventas {
                 $stmtDetalle->bindParam(":descuento", $item->descuento_aplicado, PDO::PARAM_STR);
                 $stmtDetalle->execute();
 
-                $stmtStock = $conexion->prepare("UPDATE productos SET stock = stock - :cantidad WHERE id = :producto_id");
+                // 2. Descontar Stock Y actualizar la última vez que se vendió (NOW)
+                $stmtStock = $conexion->prepare("UPDATE productos SET stock = stock - :cantidad, fecha_ultima_venta = NOW() WHERE id = :producto_id");
                 $stmtStock->bindParam(":cantidad", $item->cantidad, PDO::PARAM_INT);
                 $stmtStock->bindParam(":producto_id", $item->producto_id, PDO::PARAM_INT);
                 $stmtStock->execute();
@@ -212,7 +213,6 @@ class Ventas {
     }
 
     public static function leerVentaCabecera(int $id_venta) {
-        // MODIFICADO: Se inyecta el JOIN para traer el nombre del autorizador
         $stmt = Conexion::conectar()->prepare("SELECT v.*, c.documento as cliente_doc, c.nombre as cliente_nombre, c.direccion as cliente_direccion, u.usuario as cajero_nombre, sup.nombre_completo as autorizador_nombre FROM ventas v INNER JOIN clientes c ON v.cliente_id = c.id INNER JOIN usuarios u ON v.usuario_id = u.id LEFT JOIN usuarios sup ON v.autorizador_id = sup.id WHERE v.id = :id");
         $stmt->bindParam(":id", $id_venta, PDO::PARAM_INT);
         $stmt->execute();
@@ -239,7 +239,6 @@ class Ventas {
     public static function mdlMostrarHistorialVentas($rol_id, $usuario_id) {
         $conexion = Conexion::conectar();
         
-        // Se inyecta (SELECT COUNT(id) FROM notas_credito...) para saber si pintar el botón rojo o no
         if ($rol_id == 1) {
             $stmt = $conexion->prepare("
                 SELECT v.*, c.nombre as cliente_nombre, u.usuario as cajero_nombre,
@@ -276,7 +275,6 @@ class Ventas {
         foreach ($items as $item) {
             $cant_intentada = floatval($item->cantidad_devuelta);
             
-            // Validamos que el ID_DETALLE pertenezca realmente a esta FACTURA (Evita inyección de IDs ajenos)
             $stmtVal = $conexion->prepare("SELECT cantidad FROM ventas_detalle WHERE id = :id AND venta_id = :venta_id");
             $stmtVal->bindParam(":id", $item->id_detalle, PDO::PARAM_INT);
             $stmtVal->bindParam(":venta_id", $datosDevolucion["idVentaOriginal"], PDO::PARAM_INT);
@@ -284,7 +282,7 @@ class Ventas {
             $det = $stmtVal->fetch(PDO::FETCH_OBJ);
             
             if(!$det || $det->cantidad < $cant_intentada || $cant_intentada <= 0) {
-                return "error_cantidad"; // Bloquea devoluciones negativas, nulas o excedidas
+                return "error_cantidad"; 
             }
         }
         // --------------------------------
@@ -292,18 +290,15 @@ class Ventas {
         try {
             $conexion->beginTransaction();
 
-            // MODIFICADO: Agregamos "estado" a la consulta
             $stmtV = $conexion->prepare("SELECT cliente_id, tasa_bcv, estado FROM ventas WHERE id = :id");
             $stmtV->bindParam(":id", $datosDevolucion["idVentaOriginal"], PDO::PARAM_INT);
             $stmtV->execute();
             $ventaOriginal = $stmtV->fetch(PDO::FETCH_OBJ);
             
-            // ---> NUEVA REGLA DE NEGOCIO (CAPA 3: BACKEND PROFUNDO) <---
             if($ventaOriginal->estado === "Credito") {
                 $conexion->rollBack();
                 return "error_es_credito"; 
             }
-            // -----------------------------------------------------------
 
             $cliente_id = $ventaOriginal->cliente_id;
             $tasa_bcv_historica = $ventaOriginal->tasa_bcv;
