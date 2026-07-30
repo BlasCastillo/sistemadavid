@@ -1,4 +1,6 @@
 <?php
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
+
 class CierreZControlador {
 
     /* ==============================================================
@@ -33,6 +35,15 @@ class CierreZControlador {
                 // Si el PIN es correcto, ejecutamos el Z a nombre de este gerente
                 $autorizador_id = $gerente["id"];
                 $respuesta = CierreZ::mdlEjecutarCierreZ($autorizador_id);
+                
+                // ===================================================
+                // BITÁCORA: EJECUCIÓN DEL Z
+                // ===================================================
+                if ($respuesta == "ok") {
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Procesos/Cierre Z", "Ejecución Z", "El gerente (ID: $autorizador_id) ejecutó el Cierre Z maestro de fin de día.");
+                }
+                // ===================================================
+
                 return $respuesta;
             } else {
                 return "credenciales_invalidas";
@@ -48,6 +59,15 @@ class CierreZControlador {
         if(isset($_POST["idCajeroForzado"])) {
             $idCajero = $_POST["idCajeroForzado"];
             $respuesta = CierreZ::mdlForzarCierreX($idCajero);
+            
+            // ===================================================
+            // BITÁCORA: CIERRE FORZADO
+            // ===================================================
+            if ($respuesta == "ok") {
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Procesos/Cierre Z", "Cierre Forzado", "Forzó remotamente el cierre X del cajero ID: " . $idCajero);
+            }
+            // ===================================================
+
             return $respuesta;
         }
     }
@@ -60,3 +80,4 @@ class CierreZControlador {
     }
 
 }
+?>

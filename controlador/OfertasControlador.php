@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Ofertas.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class OfertasControlador {
 
@@ -29,6 +30,13 @@ class OfertasControlador {
                 $respuesta = $oferta->crear();
 
                 if ($respuesta == "ok") {
+                    
+                    // ===================================================
+                    // BITÁCORA: CREACIÓN DE OFERTA
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Ofertas", "Creación", "Programó una oferta para el producto ID: " . $_POST["idProductoOferta"] . " con " . $_POST["porcentajeOferta"] . "% de descuento.");
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "La oferta ha sido programada y calculada correctamente."]);
                 } else if ($respuesta == "duplicado") {
                     echo json_encode(["status" => "warning", "mensaje" => "Este producto ya tiene una oferta activa que interfiere con este rango de fechas."]);
@@ -55,6 +63,13 @@ class OfertasControlador {
                 $oferta->setId(intval($_POST["idOfertaEliminar"]));
                 
                 if ($oferta->eliminar()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: ELIMINACIÓN DE OFERTA
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Ofertas", "Eliminación", "Eliminó la oferta ID: " . $_POST["idOfertaEliminar"]);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "La oferta ha sido eliminada del sistema."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al intentar eliminar el registro."]);

@@ -1,6 +1,8 @@
 <?php
 // Requerimos el modelo para interactuar con la base de datos
 require_once "modelo/Usuarios.php";
+// INYECCIÓN GLOBAL DE LA BITÁCORA PARA TODO ESTE CONTROLADOR
+require_once "modelo/Bitacora.php"; 
 
 class UsuariosControlador {
 
@@ -9,23 +11,19 @@ class UsuariosControlador {
     =============================================*/
     public static function ctrIngresoUsuario() {
         
-        // Verificamos que vengan las credenciales desde el formulario (AJAX)
         if (isset($_POST["ingUsuario"]) && isset($_POST["ingClave"])) {
             
-            // Seguridad básica: evitar inyecciones en el input
             if (preg_match('/^[a-zA-Z0-9_]+$/', $_POST["ingUsuario"])) {
                 
-                // Llamamos al método estático del modelo
                 $usuarioValidado = Usuarios::iniciarSesion($_POST["ingUsuario"], $_POST["ingClave"]);
 
                 if ($usuarioValidado) {
-                    // Si el modelo retorna la instancia del usuario, iniciamos variables de sesión
-                    // (Nota: session_start() debe estar en tu index.php principal)
                     $_SESSION["iniciarSesion"] = "ok";
                     $_SESSION["id_usuario"] = $usuarioValidado->getId();
                     $_SESSION["rol_id"] = $usuarioValidado->getRolId();
                     $_SESSION["usuario"] = $usuarioValidado->getUsuario();
                     $_SESSION["nombre_completo"] = $usuarioValidado->getNombreCompleto();
+                    
                     require_once "modelo/Roles.php";
                     $rolDelUsuario = Roles::buscarPorId($usuarioValidado->getRolId());
                     if ($rolDelUsuario) {
@@ -36,15 +34,23 @@ class UsuariosControlador {
                         $_SESSION["permisos"] = [];
                     }
 
-                    // --- NUEVA LÓGICA DE REDIRECCIÓN ---
-                    $rutaDestino = "dashboard"; // Ruta por defecto para gerentes/administradores
+                    // ===================================================
+                    // BITÁCORA: REGISTRO DE INICIO DE SESIÓN
+                    // ===================================================
+                    Bitacora::registrarAccion(
+                        $_SESSION["id_usuario"], 
+                        "Seguridad", 
+                        "Inicio de Sesión", 
+                        "El usuario @" . $usuarioValidado->getUsuario() . " ingresó al sistema."
+                    );
+                    // ===================================================
+
+                    $rutaDestino = "dashboard"; 
                     
-                    // Si no es SuperAdmin (rol 1) y tampoco tiene permiso explícito para el dashboard, va al POS
                     if ($_SESSION["rol_id"] != 1 && !in_array("ver_dashboard", $_SESSION["permisos"])) {
                         $rutaDestino = "ventas-crear";
                     }
 
-                    // Enviamos la ruta calculada al frontend dentro del JSON
                     echo json_encode(["status" => "success", "mensaje" => "Acceso concedido.", "ruta" => $rutaDestino]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Usuario o contraseña incorrectos, o usuario inactivo."]);
@@ -74,11 +80,10 @@ class UsuariosControlador {
         
         if (isset($_POST["nuevoUsuario"])) {
             
-            // Validamos que los campos obligatorios cumplan con expresiones regulares para seguridad
             if (preg_match('/^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ ]+$/', $_POST["nuevoNombre"]) &&
                 preg_match('/^[a-zA-Z0-9_]+$/', $_POST["nuevoUsuario"]) &&
                 preg_match('/^[a-zA-Z0-9]+$/', $_POST["nuevaClave"])) {
-                // VALIDACIÓN DE QA: Evitar duplicados y congelamientos
+                
                 $existe = Usuarios::verificarUsuarioDuplicado($_POST["nuevoUsuario"]);
                 if ($existe) {
                     $estadoActual = ($existe->estado == 1) ? "activo" : "INACTIVO";
@@ -86,20 +91,29 @@ class UsuariosControlador {
                     exit();
                 }
                 
-                
-                
                 $usuario = new Usuarios();
                 $usuario->setRolId($_POST["nuevoRol"]);
                 $usuario->setUsuario($_POST["nuevoUsuario"]);
                 $usuario->setClave($_POST["nuevaClave"]);
                 $usuario->setNombreCompleto($_POST["nuevoNombre"]);
                 
-                // Si viene un PIN (Solo para Gerentes), lo asignamos, si no, null
                 if (!empty($_POST["nuevoPin"])) {
                     $usuario->setPinAutorizacion($_POST["nuevoPin"]);
                 }
 
                 if ($usuario->crear()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: CREACIÓN DE USUARIO
+                    // ===================================================
+                    Bitacora::registrarAccion(
+                        $_SESSION["id_usuario"], 
+                        "Usuarios", 
+                        "Creación", 
+                        "Creó al usuario: @" . $_POST["nuevoUsuario"] . " (" . $_POST["nuevoNombre"] . ")"
+                    );
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "El usuario ha sido guardado correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Ocurrió un error al guardar el usuario."]);
@@ -127,7 +141,6 @@ class UsuariosControlador {
                 $usuario->setUsuario($_POST["editarUsuario"]);
                 $usuario->setNombreCompleto($_POST["editarNombre"]);
                 
-                // Procesamos el PIN si el usuario escribió uno nuevo
                 if (!empty($_POST["editarPin"])) {
                     $pinHash = password_hash($_POST["editarPin"], PASSWORD_BCRYPT);
                     $usuario->setPinAutorizacion($pinHash);
@@ -136,6 +149,18 @@ class UsuariosControlador {
                 }
                 
                 if ($usuario->actualizar()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: EDICIÓN DE USUARIO
+                    // ===================================================
+                    Bitacora::registrarAccion(
+                        $_SESSION["id_usuario"], 
+                        "Usuarios", 
+                        "Actualización", 
+                        "Modificó los datos del usuario: @" . $_POST["editarUsuario"]
+                    );
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "El usuario ha sido actualizado."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al actualizar el usuario."]);
@@ -158,6 +183,18 @@ class UsuariosControlador {
             $usuario->setId($_POST["idUsuarioEliminar"]);
 
             if ($usuario->eliminar()) {
+                
+                // ===================================================
+                // BITÁCORA: DESACTIVACIÓN DE USUARIO
+                // ===================================================
+                Bitacora::registrarAccion(
+                    $_SESSION["id_usuario"], 
+                    "Usuarios", 
+                    "Desactivación", 
+                    "Desactivó al usuario con ID: " . $_POST["idUsuarioEliminar"]
+                );
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "El usuario ha sido desactivado del sistema."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al intentar desactivar el usuario."]);
@@ -171,17 +208,27 @@ class UsuariosControlador {
     public static function ctrActualizarClaveUsuario() {
         if (isset($_POST["editarClaveId"]) && isset($_POST["nuevaClaveSegura"])) {
             
-            // Validamos que no tenga inyecciones raras
             if (preg_match('/^[a-zA-Z0-9]+$/', $_POST["nuevaClaveSegura"])) {
                 
                 $usuario = new Usuarios();
                 $usuario->setId($_POST["editarClaveId"]);
                 
-                // Encriptamos la nueva contraseña antes de enviarla al modelo
                 $claveHash = password_hash($_POST["nuevaClaveSegura"], PASSWORD_BCRYPT);
                 $usuario->setClave($claveHash);
 
                 if ($usuario->actualizarClave()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: CAMBIO DE CONTRASEÑA
+                    // ===================================================
+                    Bitacora::registrarAccion(
+                        $_SESSION["id_usuario"], 
+                        "Usuarios", 
+                        "Cambio de Clave", 
+                        "Cambió la contraseña del usuario con ID: " . $_POST["editarClaveId"]
+                    );
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "La contraseña ha sido actualizada con éxito."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error interno al actualizar la credencial."]);
@@ -202,6 +249,18 @@ class UsuariosControlador {
             $usuario->setId($_POST["idUsuarioActivar"]);
 
             if ($usuario->activar()) {
+                
+                // ===================================================
+                // BITÁCORA: REACTIVACIÓN
+                // ===================================================
+                Bitacora::registrarAccion(
+                    $_SESSION["id_usuario"], 
+                    "Usuarios", 
+                    "Reactivación", 
+                    "Reactivó al usuario con ID: " . $_POST["idUsuarioActivar"]
+                );
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "El usuario ha sido reactivado correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al intentar reactivar el usuario."]);

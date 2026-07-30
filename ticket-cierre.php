@@ -153,7 +153,7 @@ $rutaCarpeta = Ventas::crearRutaFacturaPDF($cierre["nombre_cajero"]);
 $nombreArchivoPDF = "ReporteX_N" . $cierre["id"] . ".pdf";
 
 // 1. Guardar silenciosamente en el servidor
-$pdf->Output($_SERVER['DOCUMENT_ROOT'] . '/easypos/' . $rutaCarpeta . $nombreArchivoPDF, 'F');
+$pdf->Output(__DIR__ . '/' . $rutaCarpeta . $nombreArchivoPDF, 'F');
 
 // 2. Mostrar en el navegador para impresión
 $pdf->Output($nombreArchivoPDF, 'I');

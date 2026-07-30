@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Subcategorias.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class SubcategoriasControlador {
 
@@ -27,6 +28,13 @@ class SubcategoriasControlador {
                 $subcat->setNombre($_POST["nombreSubcategoria"]);
 
                 if ($subcat->crear()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: CREACIÓN DE SUBCATEGORÍA
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Subcategorías", "Creación", "Registró la subcategoría: " . $_POST["nombreSubcategoria"]);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Subcategoría guardada correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error interno al guardar en BD."]);
@@ -54,6 +62,13 @@ class SubcategoriasControlador {
                 $subcat->setNombre($_POST["nombreSubcategoriaEditar"]);
 
                 if ($subcat->actualizar()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: ACTUALIZACIÓN DE SUBCATEGORÍA
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Subcategorías", "Actualización", "Actualizó la subcategoría a: " . $_POST["nombreSubcategoriaEditar"]);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Subcategoría actualizada correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al actualizar."]);
@@ -71,6 +86,13 @@ class SubcategoriasControlador {
             $subcat->setId($_POST["idSubcategoriaEliminar"]);
 
             if ($subcat->desactivar()) {
+                
+                // ===================================================
+                // BITÁCORA: DESACTIVACIÓN DE SUBCATEGORÍA
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Subcategorías", "Desactivación", "Desactivó la subcategoría ID: " . $_POST["idSubcategoriaEliminar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Subcategoría desactivada correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al desactivar."]);
@@ -85,6 +107,13 @@ class SubcategoriasControlador {
             $subcat->setId($_POST["idSubcategoriaActivar"]);
 
             if ($subcat->activar()) {
+                
+                // ===================================================
+                // BITÁCORA: REACTIVACIÓN DE SUBCATEGORÍA
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Subcategorías", "Reactivación", "Reactivó la subcategoría ID: " . $_POST["idSubcategoriaActivar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Subcategoría reactivada correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al reactivar."]);
@@ -104,3 +133,4 @@ class SubcategoriasControlador {
         }
     }
 }
+?>

@@ -90,7 +90,6 @@ $modoDios = ($_SESSION["rol_id"] == 1) || in_array("all", $permisos);
                         <li class="nav-item"><a class="nav-link" href="index.php?ruta=gastos-crear"><i class="fas fa-plus"></i> Registrar Gasto</a></li>
                     <?php endif; ?>
 
-                    <!-- NUEVO BOTÓN: CONCILIACIONES BANCARIAS -->
                     <?php if ($modoDios || in_array("conciliar_pagos", $permisos)): ?>
                         <li class="nav-item mt-1 pt-1 border-top border-secondary">
                             <a class="nav-link text-info fw-bold" href="index.php?ruta=conciliaciones"><i class="fas fa-university"></i> Conciliaciones</a>
@@ -107,9 +106,8 @@ $modoDios = ($_SESSION["rol_id"] == 1) || in_array("all", $permisos);
                     <i class="fas fa-caret-down ms-auto"></i>
                 </a>
                 <ul class="collapse nav flex-column" id="submenuReportes">
-                    <!-- Ajustaremos estas rutas en el Nivel 3 -->
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=reporte-ventas"><i class="fas fa-file-alt"></i> Analítica de Ventas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.php?ruta=bitacora"><i class="fas fa-history"></i> Bitácora de Inventario</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php?ruta=bitacora"><i class="fas fa-history"></i> Bitácora del Sistema</a></li>
                 </ul>
             </li>
         <?php endif; ?>
@@ -125,7 +123,6 @@ $modoDios = ($_SESSION["rol_id"] == 1) || in_array("all", $permisos);
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=ventas"><i class="fas fa-list-ul"></i> Historial de Ventas</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=consulta-precios"><i class="fas fa-barcode"></i> Consulta de Precios</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.php?ruta=etiquetas"><i class="fas fa-print"></i> Etiquetas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.php?ruta=cierre-caja"><i class="fas fa-lock"></i> Cierre de Caja (X)</a></li>
                     
                     <?php if ($modoDios || in_array("auditar_cierres", $permisos)): ?>
                         <li class="nav-item mt-2 border-top border-secondary pt-2">

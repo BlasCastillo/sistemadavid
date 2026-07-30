@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Clientes.php";
+require_once "modelo/Bitacora.php"; // Inyección Global
 
 class ClientesControlador {
 
@@ -30,6 +31,9 @@ class ClientesControlador {
                 $cliente->setDireccion($_POST["nuevaDireccionCliente"] ?? null);
 
                 if ($cliente->crear()) {
+                    // BITÁCORA
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Directorio/Clientes", "Creación", "Registró al nuevo cliente: " . $_POST["nuevoNombreCliente"] . " (Doc: " . $_POST["nuevoDocCliente"] . ")");
+                    
                     echo json_encode(["status" => "success", "mensaje" => "Cliente registrado con éxito."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error interno en el servidor."]);
@@ -60,6 +64,9 @@ class ClientesControlador {
                 $cliente->setDireccion($_POST["editarDireccionCliente"] ?? null);
 
                 if ($cliente->actualizar()) {
+                    // BITÁCORA
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Directorio/Clientes", "Actualización", "Actualizó los datos del cliente Doc: " . $_POST["editarDocCliente"]);
+                    
                     echo json_encode(["status" => "success", "mensaje" => "Datos del cliente actualizados."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al actualizar."]);
@@ -77,6 +84,9 @@ class ClientesControlador {
             $cliente->setId($_POST["idClienteEliminar"]);
 
             if ($cliente->desactivar()) {
+                // BITÁCORA
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Directorio/Clientes", "Desactivación", "Desactivó al cliente ID: " . $_POST["idClienteEliminar"]);
+                
                 echo json_encode(["status" => "success", "mensaje" => "Cliente desactivado correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al desactivar."]);
@@ -91,6 +101,9 @@ class ClientesControlador {
             $cliente->setId($_POST["idClienteActivar"]);
 
             if ($cliente->activar()) {
+                // BITÁCORA
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Directorio/Clientes", "Reactivación", "Reactivó al cliente ID: " . $_POST["idClienteActivar"]);
+                
                 echo json_encode(["status" => "success", "mensaje" => "Cliente reactivado correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al reactivar."]);
@@ -99,3 +112,4 @@ class ClientesControlador {
         }
     }
 }
+?>

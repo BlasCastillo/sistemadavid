@@ -1,6 +1,7 @@
 <?php
 // Requerimos el modelo para poder instanciar la clase y acceder a la BD
 require_once "modelo/Roles.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class RolesControlador {
 
@@ -36,6 +37,13 @@ class RolesControlador {
                 $rol->setPermisos('[]'); 
 
                 if ($rol->crear()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: CREACIÓN DE ROL
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Configuración/Roles", "Creación", "Creó el nuevo rol de usuario: " . $_POST["nombreRol"]);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "El rol ha sido guardado correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Ocurrió un error al guardar en la base de datos."]);
@@ -67,6 +75,13 @@ class RolesControlador {
                 $rol->setNombre($_POST["nombreRolEditar"]);
 
                 if ($rol->actualizar()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: ACTUALIZACIÓN DE ROL
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Configuración/Roles", "Actualización", "Actualizó el nombre del rol ID: " . $_POST["idRolEditar"] . " a '" . $_POST["nombreRolEditar"] . "'");
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "El rol ha sido actualizado correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Ocurrió un error al actualizar el rol."]);
@@ -87,6 +102,13 @@ class RolesControlador {
             $rol->setId($_POST["idRolEliminar"]);
 
             if ($rol->eliminar()) {
+                
+                // ===================================================
+                // BITÁCORA: ELIMINACIÓN DE ROL
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Configuración/Roles", "Eliminación", "Eliminó definitivamente el rol ID: " . $_POST["idRolEliminar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "El rol ha sido borrado correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "No se puede borrar el rol porque tiene usuarios asignados."]);
@@ -103,6 +125,13 @@ class RolesControlador {
             
             // Regla de seguridad: Solo el Gerente General (Rol 1) puede alterar los permisos
             if ($_SESSION["rol_id"] != 1) {
+                
+                // ===================================================
+                // BITÁCORA: INTENTO NO AUTORIZADO DE PERMISOS
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Configuración/Roles", "Bloqueo de Seguridad", "Intentó modificar los permisos del rol ID: " . $_POST["rolIdPermisos"] . " sin ser Gerente General.");
+                // ===================================================
+
                 echo json_encode(["status" => "error", "mensaje" => "No tienes autorización para alterar los roles."]);
                 exit();
             }
@@ -118,6 +147,13 @@ class RolesControlador {
             $rolObj->setPermisos($permisosJson);
 
             if ($rolObj->actualizarPermisos()) {
+                
+                // ===================================================
+                // BITÁCORA: MODIFICACIÓN DE PERMISOS (ALTO IMPACTO)
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Configuración/Roles", "Modificación de Permisos", "Actualizó y consolidó los privilegios del rol ID: " . $idRol);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Permisos actualizados y consolidados con éxito."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error interno al guardar los cambios en la base de datos."]);

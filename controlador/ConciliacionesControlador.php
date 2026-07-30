@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Conciliaciones.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class ConciliacionesControlador {
 
@@ -53,6 +54,13 @@ class ConciliacionesControlador {
             $esAdmin = ($_SESSION["rol_id"] == 1);
             $permisos = $_SESSION["permisos"] ?? [];
             if (!$esAdmin && !in_array("all", $permisos) && !in_array("conciliar_pagos", $permisos)) {
+                
+                // ===================================================
+                // BITÁCORA: INTENTO DE ACCESO NO AUTORIZADO
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Tesorería/Conciliaciones", "Bloqueo de Seguridad", "Intentó aprobar una conciliación sin tener los permisos necesarios.");
+                // ===================================================
+                
                 echo json_encode(["status" => "error", "mensaje" => "Acceso Denegado: Su rol no tiene autorización para auditar tesorería."]);
                 exit();
             }
@@ -66,6 +74,13 @@ class ConciliacionesControlador {
             $respuesta = Conciliaciones::mdlRegistrarConciliacion($datos);
 
             if($respuesta){
+                
+                // ===================================================
+                // BITÁCORA: CONCILIACIÓN APROBADA
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Tesorería/Conciliaciones", "Aprobación", "Auditó y aprobó el pago bancario ID: " . $_POST["idPagoConciliar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Transacción validada correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error o transacción ya conciliada previamente."]);

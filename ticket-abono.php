@@ -92,5 +92,24 @@ $pdf->Ln(2);
 $pdf->SetFont('helvetica', 'B', 9);
 $pdf->MultiCell(70, 5, "Firma del Cliente:\n\n\n___________________________", 0, 'C', false);
 
-$pdf->Output('abono_'.$abono->id.'.pdf', 'I');
+// ==========================================================
+// CREACIÓN DE DIRECTORIOS Y GUARDADO BLINDADO
+// ==========================================================
+$fechaMes = date("Y-m");
+$rutaCarpeta = "Facturacion/Abonos/" . $fechaMes . "/";
+// __DIR__ detecta la ruta absoluta sin importar el servidor o nombre de carpeta
+$rutaAbsoluta = __DIR__ . '/' . $rutaCarpeta;
+
+// Si la carpeta del mes no existe, la creamos
+if (!file_exists($rutaAbsoluta)) { 
+    mkdir($rutaAbsoluta, 0777, true); 
+}
+
+$nombreArchivo = 'abono_' . $abono->id . '.pdf';
+
+// 1. Guardar copia inalterable en el servidor
+$pdf->Output($rutaAbsoluta . $nombreArchivo, 'F');
+
+// 2. Mostrar al usuario para impresión
+$pdf->Output($nombreArchivo, 'I');
 ?>

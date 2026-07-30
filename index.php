@@ -31,6 +31,8 @@ require_once "controlador/IngresosControlador.php";
 require_once "controlador/DashboardControlador.php";
 require_once "controlador/ConciliacionesControlador.php";
 require_once "controlador/ReportesControlador.php";
+require_once "controlador/BitacoraControlador.php";
+
 
 
 
@@ -45,7 +47,7 @@ require_once "modelo/CierreZ.php";
 require_once "modelo/Dashboard.php";
 require_once "modelo/Conciliaciones.php";
 require_once "modelo/Reportes.php";
-
+require_once "modelo/Bitacora.php";
 
 // ==========================================
 // INTERCEPTOR DE PETICIONES AJAX
@@ -309,7 +311,23 @@ if(isset($_POST["idPagoConciliar"])) {
 if(isset($_POST["fechaInicial"]) && isset($_POST["fechaFinal"])) {
     ReportesControlador::ctrResumenVentasAjax();
 }
-
+// ==========================================
+// INTERCEPTOR AJAX DE LA BITÁCORA DEL SISTEMA
+// ==========================================
+if(isset($_POST["cargarBitacoraAjax"])) {
+    
+    // Capturamos los 4 filtros (Si vienen vacíos, pasan como null gracias al operador ternario)
+    $fechaInicio = !empty($_POST["fechaInicio"]) ? $_POST["fechaInicio"] : null;
+    $fechaFin = !empty($_POST["fechaFin"]) ? $_POST["fechaFin"] : null;
+    $usuarioFiltro = !empty($_POST["usuarioFiltro"]) ? $_POST["usuarioFiltro"] : null;
+    $moduloFiltro = !empty($_POST["moduloFiltro"]) ? $_POST["moduloFiltro"] : null;
+    
+    // Si no tienes instanciado el controlador en la parte superior, recuerda poner require_once "controlador/BitacoraControlador.php";
+    $datos = BitacoraControlador::ctrMostrarBitacora($fechaInicio, $fechaFin, $usuarioFiltro, $moduloFiltro);
+    
+    echo json_encode($datos);
+    exit();
+}
 // ==========================================
 // 4. INSTANCIACIÓN DE LA PLANTILLA VISUAL
 // ==========================================

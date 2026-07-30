@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Compras.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class ComprasControlador {
 
@@ -131,6 +132,18 @@ class ComprasControlador {
             $respuesta = Compras::procesarCompraFinal($datosCabecera, $carrito);
 
             if($respuesta == "ok"){
+                
+                // ===================================================
+                // BITÁCORA: LIQUIDACIÓN DE COMPRA
+                // ===================================================
+                Bitacora::registrarAccion(
+                    $_SESSION["id_usuario"], 
+                    "Compras", 
+                    "Liquidación", 
+                    "Procesó la factura de compra Nro: " . $_POST["numeroFacturaCompra"] . " por $" . round($total_usdt_calculado, 2)
+                );
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Compra liquidada correctamente. Costos e inventario actualizados."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Fallo crítico estructural. Se ejecutó RollBack para proteger la base de datos."]);
@@ -166,3 +179,4 @@ class ComprasControlador {
         }
     }
 }
+?>

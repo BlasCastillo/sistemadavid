@@ -2,6 +2,7 @@
 require_once "modelo/Ventas.php";
 require_once "modelo/ConsultaPrecios.php"; 
 require_once "modelo/Tasas.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class VentasControlador {
 
@@ -342,6 +343,13 @@ class VentasControlador {
                     "debug" => ["motivo" => "Fraude Billetera BD"]
                 ]);
             } else if($venta_id){
+                
+                // ===================================================
+                // BITÁCORA: VENTA PROCESADA
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Procesos/Ventas", "Facturación", "Procesó la factura Nro: " . $numero_factura . " por $" . round($totalUsdtCalculado, 4));
+                // ===================================================
+
                 echo json_encode([
                     "status" => "success", 
                     "mensaje" => "Venta procesada con éxito. Inventario actualizado.", 
@@ -451,6 +459,13 @@ class VentasControlador {
                 } else if($respuesta == "error_cantidad") {
                     echo json_encode(["status" => "error", "mensaje" => "Se intentó devolver una cantidad de artículos mayor a la que fue comprada originalmente."]);
                 } else if($respuesta != "error") {
+                    
+                    // ===================================================
+                    // BITÁCORA: DEVOLUCIONES
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Procesos/Ventas", "Devolución", "Procesó devolución de la venta ID: " . $datosDevolucion["idVentaOriginal"] . " por $" . $datosDevolucion["totalReembolso"]);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Reembolso procesado.", "codigo_nota" => $respuesta]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al ejecutar la transacción en la base de datos."]);

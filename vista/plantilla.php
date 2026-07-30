@@ -117,5 +117,6 @@ if (session_status() == PHP_SESSION_NONE) {
     <script src="vista/js/chart.js"></script>
     <script src="vista/js/conciliaciones.js"></script>
     <script src="vista/js/reportes.js"></script>
+    <script src="vista/js/bitacora.js"></script>
     </body>
 </html>

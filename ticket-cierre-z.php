@@ -1,135 +1,134 @@
-
-
 <?php
-
-
 session_start();
-// Candado de Seguridad
 if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
-    echo "Acceso denegado. Debe iniciar sesión.";
-    exit;
+    exit("Acceso denegado. Debe iniciar sesión.");
 }
+
+// Limpieza de buffer
+while (ob_get_level()) { ob_end_clean(); }
+
+require_once "config/conexion.php";
 require_once "controlador/CierreZControlador.php";
 require_once "modelo/CierreZ.php";
+require_once('extensiones/TCPDF/tcpdf.php');
 
 if (!isset($_GET["idCierreZ"])) {
-    echo "Falta el ID del Cierre.";
-    exit;
+    exit("Falta el ID del Cierre.");
 }
 
 $idCierre = $_GET["idCierreZ"];
 $cierre = CierreZControlador::ctrMostrarCierresZ("id", $idCierre);
 
 if (!$cierre) {
-    echo "El Cierre Z no existe.";
-    exit;
+    exit("El Cierre Z no existe.");
 }
 
 // Extraer pagos electrónicos del JSON
 $pagosElectronicos = json_decode($cierre["pagos_electronicos"], true);
 $zelle = isset($pagosElectronicos["zelle_usd"]) ? floatval($pagosElectronicos["zelle_usd"]) : 0;
 $pm = isset($pagosElectronicos["pago_movil_bs"]) ? floatval($pagosElectronicos["pago_movil_bs"]) : 0;
+
+// Configuración de Empresa
+$stmtConfig = Conexion::conectar()->prepare("SELECT * FROM configuracion WHERE id = 1");
+$stmtConfig->execute();
+$empresa = $stmtConfig->fetch(PDO::FETCH_OBJ);
+
+// INICIALIZAMOS TCPDF (Ticket 80mm)
+$medidas = array(80, 250); 
+$pdf = new TCPDF('P', 'mm', $medidas, true, 'UTF-8', false);
+$pdf->setPrintHeader(false);
+$pdf->setPrintFooter(false);
+$pdf->SetMargins(5, 5, 5); 
+$pdf->SetAutoPageBreak(TRUE, 5);
+$pdf->AddPage();
+
+// CABECERA
+$pdf->SetFont('helvetica', 'B', 12);
+$pdf->MultiCell(70, 5, strtoupper($empresa->nombre_negocio), 0, 'C', false);
+$pdf->SetFont('helvetica', 'B', 10);
+$pdf->MultiCell(70, 5, "REPORTE Z (CIERRE DE TIENDA)", 0, 'C', false);
+$pdf->Cell(70, 0, '------------------------------------------------------------------', 0, 1, 'C');
+
+// DATOS DEL REPORTE
+$pdf->SetFont('helvetica', '', 9);
+$pdf->Cell(35, 4, 'Reporte Nro:', 0, 0, 'L');
+$pdf->SetFont('helvetica', 'B', 9);
+$pdf->Cell(35, 4, str_pad($cierre["id"], 6, "0", STR_PAD_LEFT), 0, 1, 'R');
+
+$pdf->SetFont('helvetica', '', 9);
+$pdf->Cell(35, 4, 'Fecha y Hora:', 0, 0, 'L');
+$pdf->Cell(35, 4, date("d/m/Y H:i", strtotime($cierre["fecha_cierre"])), 0, 1, 'R');
+
+$pdf->Cell(35, 4, 'Gerente:', 0, 0, 'L');
+$pdf->Cell(35, 4, '@' . strtoupper($cierre["nombre_gerente"]), 0, 1, 'R');
+
+// CONSOLIDADO FÍSICO
+$pdf->Ln(2);
+$pdf->Cell(70, 0, '------------------------------------------------------------------', 0, 1, 'C');
+$pdf->SetFont('helvetica', 'B', 10);
+$pdf->Cell(70, 5, 'CONSOLIDADO FÍSICO (CAJAS)', 0, 1, 'C');
+$pdf->Cell(70, 0, '------------------------------------------------------------------', 0, 1, 'C');
+
+$pdf->SetFont('helvetica', '', 9);
+$pdf->Cell(35, 4, 'Efectivo ($):', 0, 0, 'L');
+$pdf->Cell(35, 4, '$ ' . number_format($cierre["efectivo_caja_usd"], 2), 0, 1, 'R');
+$pdf->Cell(35, 4, 'Efectivo (Bs):', 0, 0, 'L');
+$pdf->Cell(35, 4, 'Bs ' . number_format($cierre["efectivo_caja_bs"], 2), 0, 1, 'R');
+$pdf->Cell(35, 4, 'Punto de Venta:', 0, 0, 'L');
+$pdf->Cell(35, 4, 'Bs ' . number_format($cierre["punto_venta_bs"], 2), 0, 1, 'R');
+
+// CONSOLIDADO ELECTRÓNICO
+$pdf->Ln(2);
+$pdf->Cell(70, 0, '------------------------------------------------------------------', 0, 1, 'C');
+$pdf->SetFont('helvetica', 'B', 10);
+$pdf->Cell(70, 5, 'CONSOLIDADO ELECTRÓNICO', 0, 1, 'C');
+$pdf->Cell(70, 0, '------------------------------------------------------------------', 0, 1, 'C');
+
+$pdf->SetFont('helvetica', '', 9);
+$pdf->Cell(35, 4, 'Zelle / Binance:', 0, 0, 'L');
+$pdf->Cell(35, 4, '$ ' . number_format($zelle, 2), 0, 1, 'R');
+$pdf->Cell(35, 4, 'Pago Móvil:', 0, 0, 'L');
+$pdf->Cell(35, 4, 'Bs ' . number_format($pm, 2), 0, 1, 'R');
+
+// MOVIMIENTOS EXTRAS
+$pdf->Ln(2);
+$pdf->Cell(70, 0, '------------------------------------------------------------------', 0, 1, 'C');
+$pdf->SetFont('helvetica', 'B', 10);
+$pdf->Cell(70, 5, 'MOVIMIENTOS DE CAJA PRINCIPAL', 0, 1, 'C');
+$pdf->Cell(70, 0, '------------------------------------------------------------------', 0, 1, 'C');
+
+$pdf->SetFont('helvetica', '', 9);
+$pdf->Cell(35, 4, 'Gastos del Día:', 0, 0, 'L');
+$pdf->Cell(35, 4, '- $ ' . number_format($cierre["gastos_totales"], 2), 0, 1, 'R');
+$pdf->Cell(35, 4, 'Ingresos Extras:', 0, 0, 'L');
+$pdf->Cell(35, 4, '+ $ ' . number_format($cierre["ingresos_extras"], 2), 0, 1, 'R');
+
+// FIRMAS Y PIE DE PÁGINA
+$pdf->Ln(15);
+$pdf->Cell(70, 0, '__________________________________', 0, 1, 'C');
+$pdf->SetFont('helvetica', '', 8);
+$pdf->Cell(70, 4, 'FIRMA GERENTE', 0, 1, 'C');
+$pdf->Ln(5);
+$pdf->MultiCell(70, 4, "Este reporte empaqueta todos los Cierres X de la jornada operativa.\nFIN DEL DÍA FINANCIERO", 0, 'C', false);
+
+// ==========================================================
+// CREACIÓN DE DIRECTORIOS Y GUARDADO BLINDADO
+// ==========================================================
+$fechaMes = date("Y-m");
+$rutaCarpeta = "Facturacion/Cierres_Z/" . $fechaMes . "/";
+// __DIR__ detecta la ruta absoluta sin importar el servidor o nombre de carpeta
+$rutaAbsoluta = __DIR__ . '/' . $rutaCarpeta;
+
+// Si la carpeta del mes no existe, la creamos
+if(!file_exists($rutaAbsoluta)){
+    mkdir($rutaAbsoluta, 0777, true);
+}
+
+$nombreArchivo = 'ReporteZ_' . $cierre["id"] . '.pdf';
+
+// 1. Guardar copia inalterable en el servidor
+$pdf->Output($rutaAbsoluta . $nombreArchivo, 'F');
+
+// 2. Mostrar al usuario para impresión
+$pdf->Output($nombreArchivo, 'I');
 ?>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Ticket Z - REDITUS</title>
-    <style>
-        body { font-family: 'Courier New', Courier, monospace; font-size: 14px; margin: 0; padding: 0; background-color: #f0f0f0; }
-        .ticket { width: 80mm; max-width: 80mm; background-color: white; padding: 15px; margin: 0 auto; box-sizing: border-box; }
-        .centrado { text-align: center; }
-        .negrita { font-weight: bold; }
-        .separador { border-bottom: 1px dashed #000; margin: 10px 0; }
-        .fila { display: flex; justify-content: space-between; margin-bottom: 3px; }
-        .titulo { font-size: 18px; margin-bottom: 5px; }
-        .pie { font-size: 12px; margin-top: 20px; text-align: center; }
-        @media print { body { background-color: white; } .ticket { margin: 0; padding: 0; } }
-    </style>
-</head>
-<body>
-
-<div class="ticket">
-    <div class="centrado">
-        <div class="negrita titulo">REDITUS - SISTEMA POS</div>
-        <div>REPORTE Z (CIERRE DE TIENDA)</div>
-        <div class="separador"></div>
-    </div>
-
-    <div class="fila">
-        <span>Reporte Nro:</span>
-        <span class="negrita"><?php echo str_pad($cierre["id"], 6, "0", STR_PAD_LEFT); ?></span>
-    </div>
-    <div class="fila">
-        <span>Fecha y Hora:</span>
-        <span><?php echo date("d/m/Y H:i", strtotime($cierre["fecha_cierre"])); ?></span>
-    </div>
-    <div class="fila">
-        <span>Gerente:</span>
-        <span>@<?php echo strtoupper($cierre["nombre_gerente"]); ?></span>
-    </div>
-
-    <div class="separador"></div>
-    <div class="centrado negrita">CONSOLIDADO FÍSICO (CAJAS)</div>
-    <div class="separador"></div>
-
-    <div class="fila">
-        <span>Efectivo ($):</span>
-        <span>$ <?php echo number_format($cierre["efectivo_caja_usd"], 2); ?></span>
-    </div>
-    <div class="fila">
-        <span>Efectivo (Bs):</span>
-        <span>Bs <?php echo number_format($cierre["efectivo_caja_bs"], 2); ?></span>
-    </div>
-    <div class="fila">
-        <span>Punto de Venta:</span>
-        <span>Bs <?php echo number_format($cierre["punto_venta_bs"], 2); ?></span>
-    </div>
-
-    <div class="separador"></div>
-    <div class="centrado negrita">CONSOLIDADO ELECTRÓNICO</div>
-    <div class="separador"></div>
-
-    <div class="fila">
-        <span>Zelle / Binance:</span>
-        <span>$ <?php echo number_format($zelle, 2); ?></span>
-    </div>
-    <div class="fila">
-        <span>Pago Móvil:</span>
-        <span>Bs <?php echo number_format($pm, 2); ?></span>
-    </div>
-
-    <div class="separador"></div>
-    <div class="centrado negrita">MOVIMIENTOS DE CAJA PRINCIPAL</div>
-    <div class="separador"></div>
-
-    <div class="fila">
-        <span>Gastos del Día:</span>
-        <span style="color:red;">- $ <?php echo number_format($cierre["gastos_totales"], 2); ?></span>
-    </div>
-    <div class="fila">
-        <span>Ingresos Extras:</span>
-        <span>+ $ <?php echo number_format($cierre["ingresos_extras"], 2); ?></span>
-    </div>
-
-    <div class="separador"></div>
-    <br><br><br>
-    <div class="centrado">
-        <div class="separador" style="width: 70%; margin: 0 auto; border-bottom: 1px solid #000;"></div>
-        <div>FIRMA GERENTE</div>
-    </div>
-    
-    <div class="pie">
-        <p>Este reporte empaqueta todos los Cierres X de la jornada operativa.</p>
-        <p>FIN DEL DÍA FINANCIERO</p>
-    </div>
-</div>
-
-<script>
-    // Imprimir automáticamente al abrir
-    window.onload = function() { window.print(); }
-</script>
-
-</body>
-</html>

@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Proveedores.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class ProveedoresControlador {
 
@@ -31,6 +32,13 @@ class ProveedoresControlador {
                 $proveedor->setDireccion($_POST["nuevaDireccionProveedor"] ?? null);
 
                 if ($proveedor->crear()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: CREACIÓN DE PROVEEDOR
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Compras/Proveedores", "Creación", "Registró al proveedor: " . $_POST["nuevaRazonSocial"] . " (Doc: " . $_POST["nuevoDocProveedor"] . ")");
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Proveedor registrado con éxito."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error interno en el servidor."]);
@@ -61,6 +69,13 @@ class ProveedoresControlador {
                 $proveedor->setDireccion($_POST["editarDireccionProveedor"] ?? null);
 
                 if ($proveedor->actualizar()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: ACTUALIZACIÓN DE PROVEEDOR
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Compras/Proveedores", "Actualización", "Actualizó los datos del proveedor Doc: " . $_POST["editarDocProveedor"]);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Datos del proveedor actualizados."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al actualizar."]);
@@ -78,6 +93,13 @@ class ProveedoresControlador {
             $proveedor->setId($_POST["idProveedorEliminar"]);
 
             if ($proveedor->desactivar()) {
+                
+                // ===================================================
+                // BITÁCORA: DESACTIVACIÓN DE PROVEEDOR
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Compras/Proveedores", "Desactivación", "Desactivó al proveedor ID: " . $_POST["idProveedorEliminar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Proveedor desactivado correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al desactivar."]);
@@ -92,6 +114,13 @@ class ProveedoresControlador {
             $proveedor->setId($_POST["idProveedorActivar"]);
 
             if ($proveedor->activar()) {
+                
+                // ===================================================
+                // BITÁCORA: REACTIVACIÓN DE PROVEEDOR
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Compras/Proveedores", "Reactivación", "Reactivó al proveedor ID: " . $_POST["idProveedorActivar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Proveedor reactivado correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al reactivar."]);
@@ -100,3 +129,4 @@ class ProveedoresControlador {
         }
     }
 }
+?>

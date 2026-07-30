@@ -1,4 +1,6 @@
 <?php
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
+
 class IngresosControlador {
 
     /* ==============================================================
@@ -29,6 +31,13 @@ class IngresosControlador {
                 $respuesta = Ingresos::mdlCrearIngreso($datos);
 
                 if($respuesta == "ok") {
+                    
+                    // ===================================================
+                    // BITÁCORA: INGRESO EXTRA
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Finanzas/Ingresos", "Registro", "Registró un ingreso extra por " . $_POST["nuevoMontoIngreso"] . " " . $_POST["nuevaMonedaIngreso"] . " (" . $_POST["nuevoConceptoIngreso"] . ")");
+                    // ===================================================
+
                     echo '<script>
                         Swal.fire({
                             icon: "success",
@@ -71,6 +80,13 @@ class IngresosControlador {
             $respuesta = Ingresos::mdlAnularIngreso($id);
 
             if($respuesta == "ok") {
+                
+                // ===================================================
+                // BITÁCORA: ANULACIÓN DE INGRESO
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Finanzas/Ingresos", "Anulación", "Anuló el registro de ingreso extra ID: " . $id);
+                // ===================================================
+
                 echo '<script>
                     Swal.fire({
                         icon: "success",
@@ -87,3 +103,4 @@ class IngresosControlador {
         }
     }
 }
+?>

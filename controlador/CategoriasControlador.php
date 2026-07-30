@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Categorias.php";
+require_once "modelo/Bitacora.php"; // Inyección Global
 
 class CategoriasControlador {
 
@@ -27,6 +28,9 @@ class CategoriasControlador {
                 $categoria->setNombre($_POST["nombreCategoria"]);
 
                 if ($categoria->crear()) {
+                    // BITÁCORA
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Categorías", "Creación", "Registró la nueva categoría: " . $_POST["nombreCategoria"]);
+                    
                     echo json_encode(["status" => "success", "mensaje" => "Categoría guardada correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error interno de base de datos."]);
@@ -54,6 +58,9 @@ class CategoriasControlador {
                 $categoria->setNombre($_POST["nombreCategoriaEditar"]);
 
                 if ($categoria->actualizar()) {
+                    // BITÁCORA
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Categorías", "Actualización", "Actualizó la categoría: " . $_POST["nombreCategoriaEditar"]);
+                    
                     echo json_encode(["status" => "success", "mensaje" => "Categoría actualizada correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al actualizar."]);
@@ -71,6 +78,9 @@ class CategoriasControlador {
             $categoria->setId($_POST["idCategoriaEliminar"]);
 
             if ($categoria->desactivar()) {
+                // BITÁCORA
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Categorías", "Desactivación", "Desactivó la categoría ID: " . $_POST["idCategoriaEliminar"]);
+                
                 echo json_encode(["status" => "success", "mensaje" => "Categoría desactivada correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al desactivar."]);
@@ -85,6 +95,9 @@ class CategoriasControlador {
                 $categoria->setId($_POST["idCategoriaActivar"]);
 
                 if ($categoria->activar()) {
+                    // BITÁCORA
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Categorías", "Reactivación", "Reactivó la categoría ID: " . $_POST["idCategoriaActivar"]);
+                    
                     echo json_encode(["status" => "success", "mensaje" => "Categoría reactivada correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al reactivar."]);
@@ -105,3 +118,4 @@ class CategoriasControlador {
                 }
         }
 }
+?>

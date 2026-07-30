@@ -68,7 +68,7 @@ $antiguedad = ReportesControlador::ctrAntiguedadInventario($diasAntiguedad);
         </div>
         <div class="card-body pt-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle w-100" id="tablaReporteVentas">
+                <table class="table table-hover align-middle" id="tablaReporteVentas">
                     <thead class="table-light text-muted text-uppercase fs-7">
                         <tr>
                             <th>Fecha</th>

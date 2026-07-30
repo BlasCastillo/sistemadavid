@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Tasas.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 date_default_timezone_set('America/Caracas');
 
@@ -194,6 +195,13 @@ class TasasControlador {
                 $tasa->setBrechaPorcentaje(round($brecha, 2));
 
                 if ($tasa->crear()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: FORZADO MANUAL DE TASAS
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Configuración/Tasas", "Actualización Manual", "Forzó manualmente la tasa BCV a: Bs " . $bcv . " y Binance a: Bs " . $binance);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Tasa forzada y actualizada correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al guardar la nueva tasa en la base de datos."]);
@@ -231,6 +239,14 @@ class TasasControlador {
             $resultado = self::ctrSincronizarTasas();
 
             if ($resultado) {
+                
+                // ===================================================
+                // BITÁCORA: SINCRONIZACIÓN AUTOMÁTICA
+                // ===================================================
+                $idLog = $_SESSION["id_usuario"] ?? 0; // Usamos 0 si fue disparado en background
+                Bitacora::registrarAccion($idLog, "Configuración/Tasas", "Sincronización Automática", "El sistema sincronizó y detectó un cambio en las tasas oficiales.");
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Tasas sincronizadas y actualizadas con éxito."]);
             } else {
                 echo json_encode(["status" => "info", "mensaje" => "Las tasas se mantienen iguales a la última revisión, o hubo un fallo de conexión."]);

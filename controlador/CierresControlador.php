@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Cierres.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class CierresControlador {
 
@@ -59,6 +60,13 @@ class CierresControlador {
         $difPunto = abs(floatval($declarados["punto_venta_bs"]) - floatval($esperados["punto_venta_bs"]));
 
         if (($difUsd > 0.05 || $difBs > 0.05 || $difPunto > 0.05) && $autorizador_id == null) {
+            
+            // ===================================================
+            // BITÁCORA: INTENTO DE EVASIÓN
+            // ===================================================
+            Bitacora::registrarAccion($_SESSION["id_usuario"], "Seguridad/Cierres", "Intento de Evasión", "El cajero intentó forzar un cierre X con descuadre sin autorización gerencial.");
+            // ===================================================
+
             echo json_encode([
                 "status" => "error", 
                 "mensaje" => "ALERTA DE SEGURIDAD: Operación bloqueada por el servidor. No puede guardar un descuadre sin autorización gerencial."
@@ -78,6 +86,19 @@ class CierresControlador {
 
         // 3. Ejecutar el guardado
         $respuesta = Cierres::mdlGuardarCierre($datos);
+        
+        // ===================================================
+        // BITÁCORA: CIERRE X EXITOSO
+        // ===================================================
+        if ($respuesta == "ok") {
+            $detallesLog = "Procesó el Cierre X del cajero ID: " . $cajero_id;
+            if ($autorizador_id != null) {
+                $detallesLog .= " (Autorizado por el Gerente ID: $autorizador_id debido a un descuadre)";
+            }
+            Bitacora::registrarAccion($_SESSION["id_usuario"], "Procesos/Cierres X", "Corte de Caja", $detallesLog);
+        }
+        // ===================================================
+
         echo json_encode($respuesta);
         exit();
     }
@@ -121,6 +142,15 @@ class CierresControlador {
                     "referencia" => isset($_POST["referencia"]) ? $_POST["referencia"] : null
                 ];
                 $respuesta = Cierres::mdlRegistrarMovimientoAuditoria($datos);
+                
+                // ===================================================
+                // BITÁCORA: AJUSTE DE AUDITORÍA
+                // ===================================================
+                if ($respuesta == "ok") {
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Auditoría", "Ajuste de Caja", "Realizó ajuste de " . $_POST["tipo"] . " por " . $_POST["monto"] . " " . $_POST["moneda"] . " (" . $_POST["concepto"] . ")");
+                }
+                // ===================================================
+
                 echo json_encode(["status" => $respuesta]);
                 exit();
             }
@@ -128,6 +158,15 @@ class CierresControlador {
             // Si es el cierre definitivo de la auditoría
             if($_POST["accionAuditoria"] == "finalizar") {
                 $respuesta = Cierres::mdlFinalizarAuditoriaCaja($_POST["idCierre"]);
+                
+                // ===================================================
+                // BITÁCORA: FIN DE AUDITORÍA
+                // ===================================================
+                if ($respuesta == "ok") {
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Auditoría", "Cierre de Auditoría", "Finalizó e imprimió la auditoría del Cierre X ID: " . $_POST["idCierre"]);
+                }
+                // ===================================================
+
                 echo json_encode(["status" => $respuesta]);
                 exit();
             }

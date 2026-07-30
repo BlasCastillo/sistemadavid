@@ -226,7 +226,7 @@ $rutaCarpeta = Reportes::crearRutaReportePDF();
 $nombreArchivo = 'Analitica_Logistica_' . date('Ymd_His') . '.pdf';
 
 // Guardar en servidor
-$pdf->Output($_SERVER['DOCUMENT_ROOT'] . '/easypos/' . $rutaCarpeta . $nombreArchivo, 'F');
+$pdf->Output(__DIR__ . '/' . $rutaCarpeta . $nombreArchivo, 'F');
 
 // Mostrar en pantalla
 $pdf->Output($nombreArchivo, 'I');

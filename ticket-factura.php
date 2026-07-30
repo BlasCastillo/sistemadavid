@@ -181,7 +181,7 @@ $pdf->MultiCell(70, 5, "¡GRACIAS POR SU COMPRA!", 0, 'C', false);
 // Crear carpeta y guardar en el servidor
 $rutaCarpeta = Ventas::crearRutaFacturaPDF($venta->cajero_nombre);
 $nombreArchivo = $venta->numero_factura . '.pdf';
-$pdf->Output($_SERVER['DOCUMENT_ROOT'] . '/easypos/' . $rutaCarpeta . $nombreArchivo, 'F');
+$pdf->Output(__DIR__ . '/' . $rutaCarpeta . $nombreArchivo, 'F');
 
 // Lanzar al navegador
 $pdf->Output($nombreArchivo, 'I');

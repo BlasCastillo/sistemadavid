@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Productos.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class ProductosControlador {
 
@@ -102,6 +103,13 @@ class ProductosControlador {
                 $producto = new Productos(null, $idLinea, $idCat, $idSub, $codigoBarras, $_POST["nombreProducto"], $rutaImagen, $costoInicial, $margen);
 
                 if ($producto->crear()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: CREACIÓN DE PRODUCTO
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Productos", "Creación", "Registró el nuevo producto: " . $_POST["nombreProducto"] . " (EAN: " . $codigoBarras . ")");
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Producto registrado. Código EAN-13 generado: " . $codigoBarras]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al guardar en la base de datos."]);
@@ -146,6 +154,13 @@ class ProductosControlador {
                 $producto->setMargenGanancia(floatval($_POST["margenProductoEditar"]));
 
                 if ($producto->actualizar()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: ACTUALIZACIÓN DE PRODUCTO
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Productos", "Actualización", "Actualizó el producto: " . $_POST["nombreProductoEditar"]);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Catálogo de producto actualizado."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al actualizar en la base de datos."]);
@@ -163,6 +178,13 @@ class ProductosControlador {
             $producto->setId($_POST["idProductoEliminar"]);
 
             if ($producto->desactivar()) {
+                
+                // ===================================================
+                // BITÁCORA: DESACTIVACIÓN DE PRODUCTO
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Productos", "Desactivación", "Desactivó el producto ID: " . $_POST["idProductoEliminar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Producto retirado del catálogo activo."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al desactivar."]);
@@ -177,6 +199,13 @@ class ProductosControlador {
             $producto->setId($_POST["idProductoActivar"]);
 
             if ($producto->activar()) {
+                
+                // ===================================================
+                // BITÁCORA: REACTIVACIÓN DE PRODUCTO
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Productos", "Reactivación", "Reactivó el producto ID: " . $_POST["idProductoActivar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Producto reactivado correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al reactivar."]);
@@ -205,3 +234,4 @@ class ProductosControlador {
         }
     }
 }
+?>

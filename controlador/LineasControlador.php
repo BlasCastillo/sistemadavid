@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Lineas.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class LineasControlador {
 
@@ -26,6 +27,13 @@ class LineasControlador {
                 $linea->setNombre($_POST["nombreLinea"]);
 
                 if ($linea->crear()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: CREACIÓN DE LÍNEA
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Líneas", "Creación", "Creó la línea de productos: " . $_POST["nombreLinea"]);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Línea guardada correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error interno de base de datos."]);
@@ -52,6 +60,13 @@ class LineasControlador {
                 $linea->setNombre($_POST["nombreLineaEditar"]);
 
                 if ($linea->actualizar()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: ACTUALIZACIÓN DE LÍNEA
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Líneas", "Actualización", "Actualizó el nombre de la línea a: " . $_POST["nombreLineaEditar"]);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Línea actualizada correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al actualizar."]);
@@ -69,6 +84,13 @@ class LineasControlador {
             $linea->setId($_POST["idLineaEliminar"]);
 
             if ($linea->desactivar()) {
+                
+                // ===================================================
+                // BITÁCORA: DESACTIVACIÓN DE LÍNEA
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Líneas", "Desactivación", "Desactivó la línea ID: " . $_POST["idLineaEliminar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Línea desactivada correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al desactivar."]);
@@ -83,6 +105,13 @@ class LineasControlador {
             $linea->setId($_POST["idLineaActivar"]);
 
             if ($linea->activar()) {
+                
+                // ===================================================
+                // BITÁCORA: REACTIVACIÓN DE LÍNEA
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Archivo/Líneas", "Reactivación", "Reactivó la línea ID: " . $_POST["idLineaActivar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "Línea reactivada correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al reactivar."]);
@@ -91,3 +120,4 @@ class LineasControlador {
         }
     }
 }
+?>

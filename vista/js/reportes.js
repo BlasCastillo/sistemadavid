@@ -53,7 +53,7 @@ $(document).ready(function() {
                 },
                 { 
                     "data": "total_bs",
-                    "width": "32%", // Más espacio para montos altos
+                    "width": "15%", // Más espacio para montos altos
                     "className": "text-end align-middle",
                     "render": function(data) {
                         let monto = parseFloat(data).toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -62,7 +62,7 @@ $(document).ready(function() {
                 },
                 { 
                     "data": "total_usdt",
-                    "width": "33%", // Más espacio para montos altos
+                    "width": "15%", // Más espacio para montos altos
                     "className": "text-end align-middle",
                     "render": function(data) {
                         let monto = parseFloat(data).toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2});

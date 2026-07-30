@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Gastos.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class GastosControlador {
 
@@ -22,6 +23,13 @@ class GastosControlador {
                 $gasto->setFecha($_POST["fechaGasto"]);
 
                 if ($gasto->crear()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: REGISTRO DE GASTO
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Finanzas/Gastos", "Creación", "Registró un gasto operativo por $" . $_POST["montoGasto"] . " (" . $_POST["conceptoGasto"] . ")");
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Gasto operativo registrado con éxito."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error interno en la base de datos."]);
@@ -45,6 +53,13 @@ class GastosControlador {
                 $gasto->setFecha($_POST["fechaGastoEditar"]);
 
                 if ($gasto->actualizar()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: ACTUALIZACIÓN DE GASTO
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Finanzas/Gastos", "Actualización", "Actualizó los detalles del gasto ID: " . $_POST["idGastoEditar"]);
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Registro de gasto actualizado."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error al actualizar el registro."]);
@@ -62,6 +77,13 @@ class GastosControlador {
             $gasto->setId($_POST["idGastoAnular"]);
 
             if ($gasto->anular()) {
+                
+                // ===================================================
+                // BITÁCORA: ANULACIÓN DE GASTO
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Finanzas/Gastos", "Anulación", "Anuló el registro de gasto ID: " . $_POST["idGastoAnular"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "El gasto ha sido anulado correctamente."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al procesar la anulación."]);
@@ -76,6 +98,13 @@ class GastosControlador {
             $gasto->setId($_POST["idGastoReactivar"]);
 
             if ($gasto->reactivar()) {
+                
+                // ===================================================
+                // BITÁCORA: REACTIVACIÓN DE GASTO
+                // ===================================================
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Finanzas/Gastos", "Reactivación", "Restauró el registro de gasto ID: " . $_POST["idGastoReactivar"]);
+                // ===================================================
+
                 echo json_encode(["status" => "success", "mensaje" => "El gasto ha sido restaurado."]);
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error al restaurar."]);
@@ -84,3 +113,4 @@ class GastosControlador {
         }
     }
 }
+?>

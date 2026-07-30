@@ -1,6 +1,7 @@
 <?php
 // Requerimos el modelo para interactuar con la base de datos
 require_once "modelo/Configuracion.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class ConfiguracionControlador {
 
@@ -36,6 +37,13 @@ class ConfiguracionControlador {
 
                 // Ejecutamos la actualización de instancia
                 if ($config->actualizar()) {
+                    
+                    // ===================================================
+                    // BITÁCORA: CAMBIO DE IDENTIDAD CORPORATIVA
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Configuración", "Actualización", "Modificó los datos de identidad corporativa y facturación del negocio.");
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Identidad corporativa actualizada correctamente."]);
                 } else {
                     echo json_encode(["status" => "error", "mensaje" => "Error interno al actualizar la base de datos."]);
@@ -65,9 +73,23 @@ class ConfiguracionControlador {
                     
                     // Creamos la bandera de sesión para desbloquear la vista
                     $_SESSION["superadmin_desbloqueado"] = true;
+                    
+                    // ===================================================
+                    // BITÁCORA: ACCESO AL NÚCLEO
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Seguridad", "Desbloqueo de Núcleo", "Ingresó el PIN maestro para acceder a configuraciones críticas del sistema.");
+                    // ===================================================
+
                     echo json_encode(["status" => "success", "mensaje" => "Acceso concedido al núcleo."]);
                     
                 } else {
+                    
+                    // ===================================================
+                    // BITÁCORA: ALERTA DE INTENTO FALLIDO AL NÚCLEO
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Seguridad", "Intento Fallido", "Ingresó un PIN maestro incorrecto al intentar desbloquear el núcleo.");
+                    // ===================================================
+
                     echo json_encode(["status" => "error", "mensaje" => "El PIN maestro ingresado es incorrecto."]);
                 }
 

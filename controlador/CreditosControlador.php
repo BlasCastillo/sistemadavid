@@ -1,5 +1,6 @@
 <?php
 require_once "modelo/Creditos.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class CreditosControlador {
 
@@ -22,10 +23,24 @@ class CreditosControlador {
             $respuesta = Creditos::mdlRegistrarAbono($datos);
 
             // Modificado para capturar el ID del pago en el JSON
-            if($respuesta["estado"] == "Saldada") {
-                echo json_encode(["status" => "success", "mensaje" => "Abono registrado. La factura ha sido saldada.", "id_pago" => $respuesta["id_pago"]]);
-            } else if($respuesta["estado"] == "Abonada") {
-                echo json_encode(["status" => "success", "mensaje" => "Abono sumado a la deuda pendiente.", "id_pago" => $respuesta["id_pago"]]);
+            if($respuesta["estado"] == "Saldada" || $respuesta["estado"] == "Abonada") {
+                
+                // ===================================================
+                // BITÁCORA: ABONO A CRÉDITO CxC
+                // ===================================================
+                $mensajeAuditoria = "Registró abono de " . $datos["monto_pagado"] . " " . $datos["moneda"] . " a la factura Nro: " . $_POST["idVentaAbono"];
+                if ($respuesta["estado"] == "Saldada") {
+                    $mensajeAuditoria .= " (Factura Saldada por completo)";
+                }
+                Bitacora::registrarAccion($_SESSION["id_usuario"], "Clientes/CxC", "Abono Recibido", $mensajeAuditoria);
+                // ===================================================
+                
+                if($respuesta["estado"] == "Saldada") {
+                    echo json_encode(["status" => "success", "mensaje" => "Abono registrado. La factura ha sido saldada.", "id_pago" => $respuesta["id_pago"]]);
+                } else {
+                    echo json_encode(["status" => "success", "mensaje" => "Abono sumado a la deuda pendiente.", "id_pago" => $respuesta["id_pago"]]);
+                }
+
             } else {
                 echo json_encode(["status" => "error", "mensaje" => "Error de base de datos al guardar el abono."]);
             }

@@ -1,6 +1,7 @@
 <?php
 // Requerimos el modelo para interactuar con la base de datos
 require_once "modelo/CuentasPorPagar.php";
+require_once "modelo/Bitacora.php"; // INYECCIÓN GLOBAL
 
 class CuentasPorPagarControlador {
 
@@ -70,6 +71,13 @@ class CuentasPorPagarControlador {
                 $respuesta = CuentasPorPagar::registrarAbono($cxp_id, $usuario_id, $abono_usdt, $abono_bs, $tasaBcvSegura, $metodo, $referencia);
 
                 if ($respuesta == "ok") {
+                    
+                    // ===================================================
+                    // BITÁCORA: PAGO A PROVEEDOR CxP
+                    // ===================================================
+                    Bitacora::registrarAccion($_SESSION["id_usuario"], "Compras/CxP", "Pago a Proveedor", "Registró un abono de " . $monto_ingresado . " " . $moneda . " a la cuenta CxP ID: " . $cxp_id);
+                    // ===================================================
+
                     echo json_encode([
                         "status" => "success", 
                         "mensaje" => "El abono se procesó correctamente y el saldo ha sido actualizado."
