@@ -8,7 +8,13 @@
         <a href="index.php?ruta=dashboard"><span class="fs-5 fw-bold text-primary me-2">REDITUS</span></a>
     </div>
 
-    <div class="d-flex align-items-center">
+    <div class="d-flex align-items-center gap-3">
+      
+      <!-- Theme Switcher -->
+      <button class="btn btn-outline-secondary rounded-circle" id="btnThemeToggle" title="Cambiar Tema" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-color: var(--border-color);">
+          <i class="fas fa-sun" id="themeIcon"></i>
+      </button>
+
       <div class="dropdown">
         <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
           <i class="fas fa-user-circle fa-md text-secondary"></i> 

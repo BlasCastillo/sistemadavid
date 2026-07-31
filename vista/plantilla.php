@@ -10,6 +10,9 @@ if (session_status() == PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REDITUS - Sistema de Gestión</title>
+    
+    <!-- Script de Tema (Cargado primero para evitar FOUC) -->
+    <script src="vista/js/tema.js"></script>
 
     <link href="vista/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="vista/css/select2.min.css" rel="stylesheet" />

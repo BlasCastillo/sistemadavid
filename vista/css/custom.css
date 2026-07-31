@@ -3,31 +3,103 @@
    ========================================================================== */
 
 :root {
-    /* Paleta Fintech Premium (Única y Elegante) */
-    --primary-color: #0B1121;
-    /* Azul noche/Ónice para la estructura del Sidebar */
-    --primary-hover: #1E293B;
-    /* Hover en el menú */
-    --secondary-color: #10B981;
-    /* Verde Esmeralda (Para dinero, cajas, éxitos) */
-    --accent-color: #6366F1;
-    /* Indigo Tecnológico (Para acciones principales de Crear/Agregar) */
-    --danger-color: #EF4444;
-    /* Rojo alerta estándar */
-    --bg-dashboard: #F8FAFC;
-    /* Fondo gris azulado ultra limpio */
-    --border-color: #E2E8F0;
-    /* Bordes estándar */
-    --text-main: #0F172A;
-    /* Texto principal */
-    --text-muted: #64748B;
-    /* Texto secundario */
+    /* Paleta Fintech Premium (Light Mode - "Mesa Limpia") */
+    --primary-color: #0F172A; /* Azul Marino (Estructuras principales/Sidebar) */
+    --primary-hover: #1E293B; /* Hover en el menú */
+    
+    --bg-dashboard: #F1F5F9; /* Gris Claro / Concrete para espacio de trabajo */
+    --bg-card: #FFFFFF; /* Fondos de tarjetas y paneles */
+    
+    --text-main: #0F172A; /* Texto principal oscuro */
+    --text-muted: #64748B; /* Texto secundario (Bombay) */
+    --border-color: #E2E8F0; /* Bordes suaves */
+    
+    --accent-color: #1E90FF; /* Dodger Blue (Elementos Activos y CTAs) */
+    --secondary-color: #10B981; /* Verde Esmeralda (Éxitos, Dinero) */
+    --danger-color: #EF4444; /* Rojo alerta */
 
     /* Fuentes y Efectos */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --transition-global: all 0.2s ease;
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] {
+    /* Paleta Fintech Premium (Dark Mode) */
+    --bg-dashboard: #161C24; /* Mirage (Fondo principal que cuida la vista) */
+    --bg-card: #030311; /* Black Pearl (Tarjetas y contrastes) */
+    
+    --text-main: #F8FAFC; /* Texto principal claro */
+    --text-muted: #94A3B8; /* Texto secundario */
+    --border-color: #2D3748; /* Bordes oscuros */
+}
+
+/* Transiciones Globales Suaves para Cambio de Tema */
+body, .main-content, .card-dashboard, .card, .bg-white, .bg-light, header, .list-group-item, .card-header, .card-footer, table, th, td, .dropdown-menu {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* =========================================================
+   MODO OSCURO - OVERRIDES DE BOOTSTRAP
+   ========================================================= */
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-light {
+    background-color: var(--bg-card) !important;
+}
+
+[data-theme="dark"] .text-dark {
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .border-light,
+[data-theme="dark"] .border,
+[data-theme="dark"] .border-bottom,
+[data-theme="dark"] .border-top {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .table-light th,
+[data-theme="dark"] .table thead th {
+    background-color: #1A222C !important;
+    color: var(--text-muted) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .table tbody td,
+[data-theme="dark"] .list-group-item {
+    background-color: var(--bg-card) !important;
+    color: var(--text-main);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) td {
+    background-color: #121820 !important;
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover td {
+    background-color: #1E293B !important;
+}
+
+[data-theme="dark"] .card-dashboard {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important;
+}
+
+[data-theme="dark"] .dropdown-menu {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+}
+[data-theme="dark"] .dropdown-item {
+    color: var(--text-main);
+}
+[data-theme="dark"] .dropdown-item:hover {
+    background-color: #1E293B;
+    color: var(--accent-color);
+}
+[data-theme="dark"] .dropdown-divider {
+    border-top-color: var(--border-color);
 }
 
 /* =========================================================
@@ -334,4 +406,134 @@ body.sidebar-collapsed #sidebarMenu {
 .badge-info {
     background-color: #E0F2FE !important;
     color: #075985 !important;
+}
+
+/* =========================================================
+   UX/UI FIX: MENÚ LATERAL ESTANDARIZADO
+   ========================================================= */
+
+/* 1. Neutralizar el "arcoíris": Forzar color unificado en iconos */
+#sidebarMenu a i,
+#sidebarMenu .nav-link i,
+#sidebarMenu a svg,
+#sidebarMenu .nav-link svg {
+    color: #64748B !important;
+    /* Gris pizarra profesional por defecto */
+    transition: all 0.2s ease;
+}
+
+/* 2. Iluminar icono y texto solo en hover o estado activo */
+#sidebarMenu a:hover i,
+#sidebarMenu .nav-link:hover i,
+#sidebarMenu a.active i {
+    color: #FFFFFF !important;
+    /* O el color de acento que definamos luego */
+}
+
+/* 3. Alinear flechas del submenú perfectamente a la derecha */
+#sidebarMenu .nav-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#sidebarMenu .nav-link i.fa-angle-left,
+#sidebarMenu .nav-link i.fa-caret-down {
+    margin-left: auto !important;
+    /* Empuja la flecha al extremo derecho */
+    margin-right: 0 !important;
+}
+
+/* =========================================================
+   UX/UI FIX: TARJETAS DASHBOARD PREMIUM (SOFT UI)
+   ========================================================= */
+
+.card-dashboard {
+    background-color: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 1rem !important;
+    /* Bordes suaves */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-dashboard:hover {
+    transform: translateY(-3px);
+    /* Pequeño salto al pasar el mouse */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Contenedor del Icono dentro de la tarjeta */
+.icon-shape {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* Colores suaves para los fondos de los iconos (Soft Colors) */
+.bg-soft-success {
+    background-color: #D1FAE5 !important;
+    color: #10B981 !important;
+}
+
+.bg-soft-info {
+    background-color: #E0F2FE !important;
+    color: #0EA5E9 !important;
+}
+
+.bg-soft-warning {
+    background-color: #FEF3C7 !important;
+    color: #F59E0B !important;
+}
+
+.bg-soft-primary {
+    background-color: #E0E7FF !important;
+    color: #6366F1 !important;
+}
+
+/* =========================================================
+   UX/UI FIX: JERARQUÍA Y ESPACIADO DEL MENÚ (SUBMENÚS)
+   ========================================================= */
+
+/* 1. Dar "respiración" vertical a los elementos principales */
+#sidebarMenu .nav-item {
+    margin-bottom: 4px;
+    /* Separa cada bloque ligeramente para que no sea un muro de texto */
+}
+
+/* 2. Jerarquía: Sangría (indentación) para los submenús */
+/* Apuntamos a los enlaces que están dentro de un submenú (generalmente dentro de un .collapse o ul ul) */
+#sidebarMenu ul ul .nav-link,
+#sidebarMenu .collapse .nav-link {
+    padding-left: 3.5rem !important;
+    /* Empuja el texto e icono hacia la derecha */
+    font-size: 0.92rem;
+    /* Texto un pelín más pequeño para diferenciar del padre */
+    background-color: transparent !important;
+    color: var(--text-muted) !important;
+    /* Un tono un poco más apagado */
+}
+
+/* 3. Ajuste sutil al icono de los submenús para que no compita con el padre */
+#sidebarMenu ul ul .nav-link i,
+#sidebarMenu ul ul .nav-link svg,
+#sidebarMenu .collapse .nav-link i,
+#sidebarMenu .collapse .nav-link svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    font-size: 0.9rem !important;
+    opacity: 0.6;
+    /* Lo hace más tenue */
+}
+
+/* 4. Efecto hover específico para los hijos */
+#sidebarMenu ul ul .nav-link:hover,
+#sidebarMenu .collapse .nav-link:hover {
+    color: #FFFFFF !important;
+    opacity: 1;
 }
