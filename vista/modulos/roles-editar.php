@@ -22,7 +22,7 @@ $permisos = json_decode($rolActual->getPermisos() ?? '[]', true);
 if (!is_array($permisos)) { $permisos = []; }
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800"><i class="fas fa-cogs text-warning me-2"></i> Configurar Rol</h1>
@@ -33,7 +33,7 @@ if (!is_array($permisos)) { $permisos = []; }
 
     <div class="row">
         <div class="col-md-4 mb-4">
-            <div class="card shadow border-0 border-top border-warning border-3 h-100">
+            <div class="card-reditus p-4 shadow border-0 border-top border-warning border-3 h-100">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 fw-bold text-dark">Nombre del Rol</h6>
                 </div>
@@ -56,7 +56,7 @@ if (!is_array($permisos)) { $permisos = []; }
         </div>
 
         <div class="col-md-8 mb-4">
-            <div class="card shadow border-0 border-top border-info border-3 h-100">
+            <div class="card-reditus p-4 shadow border-0 border-top border-info border-3 h-100">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 fw-bold text-info">Permisos Dinámicos del Sistema</h6>
                     <span class="badge bg-secondary">Módulo JSON</span>

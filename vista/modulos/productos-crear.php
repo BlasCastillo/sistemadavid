@@ -3,7 +3,7 @@
 $lineasActivas = LineasControlador::ctrMostrarLineas(null, 1);
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800"><i class="fas fa-box-open text-primary me-2"></i> Registrar Nuevo Producto</h1>
         <a href="index.php?ruta=productos" class="btn btn-secondary shadow-sm"><i class="fas fa-arrow-left me-1"></i> Volver al Catálogo</a>
@@ -11,7 +11,7 @@ $lineasActivas = LineasControlador::ctrMostrarLineas(null, 1);
 
     <div class="row">
         <div class="col-xl-9 col-lg-10">
-            <div class="card shadow border-0 border-top border-primary border-3">
+            <div class="card-reditus p-4 shadow border-0 border-top border-primary border-3">
                 <div class="card-body p-4">
                     <form id="formAgregarProducto" enctype="multipart/form-data" autocomplete="off">
                         
@@ -21,7 +21,7 @@ $lineasActivas = LineasControlador::ctrMostrarLineas(null, 1);
                             <div class="col-md-4 mb-3">
                                 <label class="form-label fw-semibold small">Línea <span class="text-danger">*</span></label>
                                 <select class="form-select select2-dinamico" name="idLineaProducto" id="idLineaProducto" required style="width: 100%;">
-                                    <option value="" disabled selected>Seleccione Línea...</option>
+                                    <option value="">Seleccione Línea...</option>
                                     <?php foreach($lineasActivas as $linea): ?>
                                         <option value="<?php echo $linea->getId(); ?>"><?php echo $linea->getNombre(); ?></option>
                                     <?php endforeach; ?>
@@ -82,7 +82,7 @@ $lineasActivas = LineasControlador::ctrMostrarLineas(null, 1);
                         
                         <div class="d-flex justify-content-end">
                             <a href="index.php?ruta=productos" class="btn btn-outline-secondary me-2">Cancelar</a>
-                            <button type="submit" class="btn btn-primary fw-bold px-4"><i class="fas fa-save me-2"></i> Guardar Producto</button>
+                            <button type="submit" class="btn btn-dodger fw-bold px-4"><i class="fas fa-save me-2"></i> Guardar Producto</button>
                         </div>
                     </form>
                 </div>

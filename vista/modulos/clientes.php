@@ -4,7 +4,7 @@ $estadoFiltro = isset($_GET["estado"]) ? intval($_GET["estado"]) : 1;
 $clientes = ClientesControlador::ctrMostrarClientes(null, $estadoFiltro);
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-users me-2 text-primary"></i> <?php echo $estadoFiltro == 1 ? "Directorio de Clientes" : "Clientes Inactivos"; ?></h4>
@@ -20,13 +20,13 @@ $clientes = ClientesControlador::ctrMostrarClientes(null, $estadoFiltro);
                     <i class="fas fa-eye me-1"></i> Ver Activos
                 </a>
             <?php endif; ?>
-            <a href="index.php?ruta=clientes-crear" class="btn btn-primary">
+            <a href="index.php?ruta=clientes-crear" class="btn btn-dodger">
                 <i class="fas fa-user-plus me-1"></i> Nuevo Cliente
             </a>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-reditus p-4 border-0 shadow-sm rounded-3">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover table-striped align-middle mb-0">

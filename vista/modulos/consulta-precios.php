@@ -6,7 +6,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
 }
 ?>
 
-<div class="container-fluid py-4 h-100 d-flex flex-column" style="min-height: 80vh;">
+<div class="container-fluid px-0" style="min-height: 80vh;">
     
     <!-- CABECERA DEL MÓDULO -->
     <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
@@ -18,7 +18,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
         </div>
         <div class="d-flex flex-wrap gap-2">
             <!-- Botón para pantallas pequeñas (Tablets/Móviles) -->
-            <button class="btn btn-primary btn-lg rounded-pill shadow-sm d-md-none fw-bold" data-bs-toggle="modal" data-bs-target="#modalScannerCamara">
+            <button class="btn btn-dodger btn-lg rounded-pill shadow-sm d-md-none fw-bold" data-bs-toggle="modal" data-bs-target="#modalScannerCamara">
                 <i class="fas fa-camera me-2"></i> Escanear con Cámara
             </button>
             <!-- Botón para pantallas grandes (PC/Laptops) -->
@@ -33,7 +33,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
     <input type="text" id="inputLectorFisico" class="form-control" style="position: absolute; left: -9999px;" autofocus autocomplete="off">
 
     <!-- CONTENEDOR PRINCIPAL DE RESULTADOS -->
-    <div class="card shadow border-0 flex-grow-1 align-items-center justify-content-center bg-white p-4 text-center rounded-3" id="contenedorPrincipalLector">
+    <div class="card-reditus p-4 shadow border-0 flex-grow-1 align-items-center justify-content-center bg-white p-4 text-center rounded-3" id="contenedorPrincipalLector">
         
         <!-- ==============================================================
              ESTADO 1: PANTALLA DE ESPERA (CARRUSEL DE OFERTAS ACTIVAS)

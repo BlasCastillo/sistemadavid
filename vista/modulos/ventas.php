@@ -9,7 +9,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
 $historialVentas = VentasControlador::ctrMostrarHistorialVentas();
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800 fw-bold"><i class="fas fa-list-ul text-primary me-2"></i> Historial de Ventas</h1>
@@ -25,7 +25,7 @@ $historialVentas = VentasControlador::ctrMostrarHistorialVentas();
         </div>
     </div>
 
-    <div class="card shadow border-0 border-top border-primary border-3">
+    <div class="card-reditus p-4 shadow border-0 border-top border-primary border-3">
         <div class="card-body p-4">
             
             <div class="table-responsive">

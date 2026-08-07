@@ -19,7 +19,7 @@ $stockMuerto = ReportesControlador::ctrStockMuerto($diasStock);
 $antiguedad = ReportesControlador::ctrAntiguedadInventario($diasAntiguedad);
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     
     <!-- ENCABEZADO Y EXPORTACIÓN DINÁMICA -->
     <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
@@ -41,7 +41,7 @@ $antiguedad = ReportesControlador::ctrAntiguedadInventario($diasAntiguedad);
     </div>
 
     <!-- FILTRO POR RANGO DE FECHAS (VENTAS) -->
-    <div class="card border-0 shadow-sm mb-4">
+    <div class="card-reditus p-4 border-0 shadow-sm mb-4">
         <div class="card-body bg-white rounded-3 border border-light">
             <div class="row align-items-end g-3">
                 <div class="col-md-4">
@@ -53,7 +53,7 @@ $antiguedad = ReportesControlador::ctrAntiguedadInventario($diasAntiguedad);
                     <input type="date" class="form-control" id="filtroFechaFin" value="<?php echo date('Y-m-t'); ?>">
                 </div>
                 <div class="col-md-4">
-                    <button class="btn btn-primary w-100 fw-bold shadow-sm" id="btnFiltrarReporte">
+                    <button class="btn btn-dodger w-100 fw-bold shadow-sm" id="btnFiltrarReporte">
                         <i class="fas fa-search me-1"></i> Filtrar Ingresos
                     </button>
                 </div>
@@ -62,7 +62,7 @@ $antiguedad = ReportesControlador::ctrAntiguedadInventario($diasAntiguedad);
     </div>
 
     <!-- TABLA DE FLUJO DE VENTAS -->
-    <div class="card border-0 shadow-sm mb-4">
+    <div class="card-reditus p-4 border-0 shadow-sm mb-4">
         <div class="card-header bg-white py-3 border-0">
             <h6 class="m-0 fw-bold text-dark"><i class="fas fa-cash-register me-2 text-primary"></i> Flujo de Ingresos en el Periodo</h6>
         </div>
@@ -90,7 +90,7 @@ $antiguedad = ReportesControlador::ctrAntiguedadInventario($diasAntiguedad);
         
         <!-- Stock Muerto / No Venta -->
         <div class="col-xl-6">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card-reditus p-4 border-0 shadow-sm h-100">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-0">
                     <h6 class="m-0 fw-bold text-dark"><i class="fas fa-boxes text-secondary me-2"></i> Stock Estancado (Sin Venta)</h6>
                     <select class="form-select form-select-sm w-auto fw-bold text-dark bg-light" id="selectDiasStock" onchange="cambiarFiltroLogistico()">
@@ -146,7 +146,7 @@ $antiguedad = ReportesControlador::ctrAntiguedadInventario($diasAntiguedad);
 
         <!-- Antigüedad de Inventario -->
         <div class="col-xl-6">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card-reditus p-4 border-0 shadow-sm h-100">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-0">
                     <h6 class="m-0 fw-bold text-dark"><i class="fas fa-warehouse text-secondary me-2"></i> Antigüedad en Almacén (Compra)</h6>
                     <select class="form-select form-select-sm w-auto fw-bold text-dark bg-light" id="selectDiasAntiguedad" onchange="cambiarFiltroLogistico()">
@@ -199,7 +199,7 @@ $antiguedad = ReportesControlador::ctrAntiguedadInventario($diasAntiguedad);
     </div>
 
     <!-- SECCIÓN DE EXPORTACIÓN MAESTRA DE CATÁLOGOS Y GESTIÓN DE CRÉDITO -->
-    <div class="card border-0 shadow-sm mt-2 mb-4">
+    <div class="card-reditus p-4 border-0 shadow-sm mt-2 mb-4">
         <div class="card-header bg-white py-3 border-0 border-bottom border-light">
             <h6 class="m-0 fw-bold text-dark"><i class="fas fa-database me-2 text-success"></i> Exportación Maestra y Gestión Financiera</h6>
             <small class="text-muted">Descarga de catálogos y control de créditos activos en formato Excel para auditorías.</small>

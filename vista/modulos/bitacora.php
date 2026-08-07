@@ -12,7 +12,7 @@ $listaUsuarios = UsuariosControlador::ctrMostrarUsuarios(null, 1);
 ?>
 
 <div class="content-header mb-3">
-    <div class="container-fluid">
+    <div class="container-fluid px-0">
         <div class="row mb-2">
             <div class="col-sm-6">
                 <h3 class="m-0 text-dark"><i class="fas fa-history text-secondary me-2"></i> Bitácora del Sistema</h3>
@@ -22,10 +22,10 @@ $listaUsuarios = UsuariosControlador::ctrMostrarUsuarios(null, 1);
 </div>
 
 <section class="content">
-    <div class="container-fluid">
+    <div class="container-fluid px-0">
         
         <!-- Tarjeta de Filtros Avanzados -->
-        <div class="card shadow-sm mb-4 border-0">
+        <div class="card-reditus p-4 shadow-sm mb-4 border-0">
             <div class="card-body bg-light rounded">
                 <div class="row align-items-end">
                     
@@ -74,7 +74,7 @@ $listaUsuarios = UsuariosControlador::ctrMostrarUsuarios(null, 1);
                     </div>
 
                     <div class="col-md-2 mt-3 mt-md-0 d-flex gap-2">
-                        <button class="btn btn-primary w-100" id="btnFiltrarBitacora" title="Buscar">
+                        <button class="btn btn-dodger w-100" id="btnFiltrarBitacora" title="Buscar">
                             <i class="fas fa-search"></i>
                         </button>
                         <button class="btn btn-outline-secondary w-100" id="btnLimpiarFiltros" title="Limpiar Filtros">
@@ -87,7 +87,7 @@ $listaUsuarios = UsuariosControlador::ctrMostrarUsuarios(null, 1);
         </div>
 
         <!-- Tarjeta de la Tabla -->
-        <div class="card shadow-sm border-0">
+        <div class="card-reditus p-4 shadow-sm border-0">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover table-striped mb-0 align-middle">

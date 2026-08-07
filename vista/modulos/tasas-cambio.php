@@ -7,12 +7,12 @@ if ($_SESSION["rol_id"] != 1) {
 $tasaActual = Tasas::obtenerTasaActiva();
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-exchange-alt text-danger me-2"></i> Configuración de Tasas</h1>
 
     <div class="row">
         <div class="col-lg-6">
-            <div class="card shadow mb-4">
+            <div class="card-reditus p-4 shadow mb-4">
                 <div class="card-header py-3 bg-white">
                     <h6 class="m-0 fw-bold text-primary">Ajuste Manual de Emergencia</h6>
                 </div>
@@ -36,7 +36,7 @@ $tasaActual = Tasas::obtenerTasaActiva();
                             <small class="text-muted d-block mt-1">Si lo deja vacío, el sistema calculará: ((USDT - BCV) / BCV) * 100</small>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 fw-bold" id="btnGuardarTasa">
+                        <button type="submit" class="btn btn-dodger w-100 fw-bold" id="btnGuardarTasa">
                             <i class="fas fa-save me-2"></i> Forzar Tasas en Sistema
                         </button>
                     </form>
@@ -45,7 +45,7 @@ $tasaActual = Tasas::obtenerTasaActiva();
         </div>
 
         <div class="col-lg-6">
-            <div class="card shadow mb-4">
+            <div class="card-reditus p-4 shadow mb-4">
                 <div class="card-header py-3 bg-white">
                     <h6 class="m-0 fw-bold text-success">Última Actualización</h6>
                 </div>

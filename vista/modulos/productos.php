@@ -2,7 +2,7 @@
 $estadoFiltro = isset($_GET["estado"]) ? intval($_GET["estado"]) : 1;
 $productos = ProductosControlador::ctrMostrarProductos(null, $estadoFiltro);
 ?>
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div class="module-title">
             <h4 class="fw-bold mb-0 text-dark">
@@ -20,13 +20,13 @@ $productos = ProductosControlador::ctrMostrarProductos(null, $estadoFiltro);
                     <i class="fas fa-eye me-1"></i> Ver Activos
                 </a>
             <?php endif; ?>
-            <a href="index.php?ruta=productos-crear" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> Nuevo Producto
+            <a href="index.php?ruta=productos-crear" class="btn btn-dodger">
+                <i class="fas fa-plus"></i> Nuevo Producto
             </a>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-3">
+    <div class="card card-reditus border-0 shadow-sm rounded-3">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover table-striped align-middle mb-0">
@@ -56,8 +56,8 @@ $productos = ProductosControlador::ctrMostrarProductos(null, $estadoFiltro);
                                 </td>
                                 <td>
                                     <div class="small"><strong>L:</strong> <?php echo $p->linea_nombre; ?></div>
-                                    <div class="small text-muted"><strong>C:</strong> <?php echo $p->categoria_nombre; ?></div>
-                                    <div class="small text-muted"><strong>S:</strong> <?php echo $p->subcategoria_nombre; ?></div>
+                                    <div class="small"><strong>C:</strong> <?php echo $p->categoria_nombre; ?></div>
+                                    <div class="small"><strong>S:</strong> <?php echo $p->subcategoria_nombre; ?></div>
                                 </td>
                                 <td class="text-end fw-semibold text-danger">$ <?php echo number_format($p->getCostoUsdt(), 2); ?></td>
                                 <td class="text-end">

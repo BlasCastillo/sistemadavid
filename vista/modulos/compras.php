@@ -3,7 +3,7 @@
 $historialCompras = ComprasControlador::ctrMostrarHistorial();
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-shopping-cart me-2 text-success"></i> Historial de Compras</h4>
@@ -14,7 +14,7 @@ $historialCompras = ComprasControlador::ctrMostrarHistorial();
         </a>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-reditus p-4 border-0 shadow-sm rounded-3">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover table-striped align-middle mb-0">

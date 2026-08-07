@@ -5,7 +5,7 @@ if (isset($_GET["idProveedor"])) {
 } else { echo '<script>window.location = "index.php?ruta=proveedores";</script>'; exit; }
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800"><i class="fas fa-edit text-warning me-2"></i> Editar Proveedor</h1>
         <a href="index.php?ruta=proveedores" class="btn btn-secondary shadow-sm"><i class="fas fa-arrow-left me-1"></i> Volver al directorio</a>
@@ -13,7 +13,7 @@ if (isset($_GET["idProveedor"])) {
 
     <div class="row">
         <div class="col-md-8">
-            <div class="card shadow border-0 border-top border-warning border-3">
+            <div class="card-reditus p-4 shadow border-0 border-top border-warning border-3">
                 <div class="card-body p-4">
                     <form id="formEditarProveedor" autocomplete="off">
                         

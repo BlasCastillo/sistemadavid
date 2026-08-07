@@ -16,7 +16,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
 
 <div class="content-wrapper">
     <section class="content-header mb-3">
-        <div class="container-fluid">
+        <div class="container-fluid px-0">
             <div class="row mb-2 align-items-center">
                 <div class="col-sm-6">
                     <h1 class="m-0 fw-bold"><i class="fas fa-hand-holding-usd text-success me-2"></i> Ingresos Extras</h1>
@@ -32,7 +32,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
     </section>
 
     <section class="content">
-        <div class="card shadow-sm border-top border-success border-3">
+        <div class="card-reditus p-4 shadow-sm border-top border-success border-3">
             <div class="card-header">
                 <button class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#modalAgregarIngreso">
                     <i class="fas fa-plus mb-1"></i> Registrar Ingreso

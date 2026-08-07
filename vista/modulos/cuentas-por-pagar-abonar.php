@@ -30,7 +30,7 @@ if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
 }
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 text-gray-800 fw-bold"><i class="fas fa-money-check-alt text-primary me-2"></i> Procesar Pago a Proveedor</h1>
@@ -44,7 +44,7 @@ if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
     <div class="row">
         <!-- PANEL IZQUIERDO -->
         <div class="col-lg-4 mb-4">
-            <div class="card shadow border-0 border-top border-info border-3 h-100">
+            <div class="card-reditus p-4 shadow border-0 border-top border-info border-3 h-100">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 fw-bold text-info"><i class="fas fa-file-invoice me-2"></i>Detalles de la Factura</h6>
                 </div>
@@ -80,7 +80,7 @@ if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
 
         <!-- PANEL DERECHO -->
         <div class="col-lg-8 mb-4">
-            <div class="card shadow border-0 border-top border-primary border-3 h-100">
+            <div class="card-reditus p-4 shadow border-0 border-top border-primary border-3 h-100">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 fw-bold text-primary"><i class="fas fa-cash-register me-2"></i>Registro del Abono</h6>
                 </div>
@@ -142,7 +142,7 @@ if (!$cuenta || $cuenta->saldo_restante_usdt <= 0) {
                         
                         <div class="d-flex justify-content-end">
                             <a href="index.php?ruta=cuentas-por-pagar" class="btn btn-outline-secondary me-2 px-4">Cancelar</a>
-                            <button type="submit" class="btn btn-primary fw-bold px-4 shadow-sm">
+                            <button type="submit" class="btn btn-dodger fw-bold px-4 shadow-sm">
                                 <i class="fas fa-check-circle me-2"></i> Procesar Pago a Proveedor
                             </button>
                         </div>

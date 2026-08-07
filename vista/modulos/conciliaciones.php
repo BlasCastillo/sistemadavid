@@ -17,13 +17,13 @@ if (!$esAdmin && !in_array("all", $permisos) && !in_array("conciliar_pagos", $pe
 $totales = ConciliacionesControlador::ctrTotalesConsolidados();
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800 fw-bold">
             <i class="fas fa-university text-primary me-2"></i> Conciliaciones Bancarias
         </h1>
-        <button class="btn btn-primary shadow-sm fw-bold" onclick="window.location.reload();">
+        <button class="btn btn-dodger shadow-sm fw-bold" onclick="window.location.reload();">
             <i class="fas fa-sync-alt me-1"></i> Actualizar Tablero
         </button>
     </div>
@@ -31,7 +31,7 @@ $totales = ConciliacionesControlador::ctrTotalesConsolidados();
     <!-- TARJETAS DE CONSOLIDACIÓN (Dinero Verificado) -->
     <div class="row mb-4 g-4">
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm bg-success bg-opacity-10 h-100 border-start border-success border-4">
+            <div class="card-reditus p-4 border-0 shadow-sm bg-success bg-opacity-10 h-100 border-start border-success border-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -44,7 +44,7 @@ $totales = ConciliacionesControlador::ctrTotalesConsolidados();
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm bg-primary bg-opacity-10 h-100 border-start border-primary border-4">
+            <div class="card-reditus p-4 border-0 shadow-sm bg-primary bg-opacity-10 h-100 border-start border-primary border-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -59,7 +59,7 @@ $totales = ConciliacionesControlador::ctrTotalesConsolidados();
     </div>
 
     <!-- TABLA DE AUDITORÍA -->
-    <div class="card shadow border-0 border-top border-dark border-3">
+    <div class="card-reditus p-4 shadow border-0 border-top border-dark border-3">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 fw-bold text-dark"><i class="fas fa-list-check me-1"></i> Auditoría de Pagos Electrónicos</h6>
             

@@ -3,41 +3,104 @@
    ========================================================================== */
 
 :root {
-    /* Paleta Fintech Premium (Light Mode - "Mesa Limpia") */
-    --primary-color: #0F172A; /* Azul Marino (Estructuras principales/Sidebar) */
-    --primary-hover: #1E293B; /* Hover en el menú */
-    
-    --bg-dashboard: #F1F5F9; /* Gris Claro / Concrete para espacio de trabajo */
-    --bg-card: #FFFFFF; /* Fondos de tarjetas y paneles */
-    
-    --text-main: #0F172A; /* Texto principal oscuro */
-    --text-muted: #64748B; /* Texto secundario (Bombay) */
-    --border-color: #E2E8F0; /* Bordes suaves */
-    
-    --accent-color: #1E90FF; /* Dodger Blue (Elementos Activos y CTAs) */
-    --secondary-color: #10B981; /* Verde Esmeralda (Éxitos, Dinero) */
-    --danger-color: #EF4444; /* Rojo alerta */
+    /* Paleta REDITUS (Light Mode - "Mesa Limpia") */
+    --primary-color: #0B1121;
+    /* Azul Marino (Estructuras principales/Sidebar) */
+    --primary-hover: #1E293B;
+    /* Hover en el menú */
+
+    --bg-dashboard: #F8FAFC;
+    /* Gris Claro / Plateado */
+    --bg-card: #FFFFFF;
+    /* Fondos de tarjetas y paneles */
+
+    --text-main: #0B1121;
+    /* Texto principal oscuro */
+    --text-muted: #64748B;
+    /* Texto secundario */
+    --border-color: #E2E8F0;
+    /* Bordes suaves */
+
+    --accent-color: #3B82F6;
+    /* Dodger Blue (Acciones principales, enlaces activos) */
+    --secondary-color: #10B981;
+    /* Verde Esmeralda (Éxitos, Dinero) */
+    --danger-color: #EF4444;
+    /* Rojo Crimson (Alertas, Borrados) */
+    --warning-color: #F59E0B;
+    /* Ámbar (Pausas, Espera) */
 
     /* Fuentes y Efectos */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --transition-global: all 0.2s ease;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --transition-global: all 0.3s ease;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
 }
 
 [data-theme="dark"] {
-    /* Paleta Fintech Premium (Dark Mode) */
-    --bg-dashboard: #161C24; /* Mirage (Fondo principal que cuida la vista) */
-    --bg-card: #030311; /* Black Pearl (Tarjetas y contrastes) */
-    
-    --text-main: #F8FAFC; /* Texto principal claro */
-    --text-muted: #94A3B8; /* Texto secundario */
-    --border-color: #2D3748; /* Bordes oscuros */
+    /* Paleta REDITUS (Dark Mode) */
+    --bg-dashboard: #111827;
+    /* Mirage */
+    --bg-card: #030311;
+    /* Black Pearl */
+
+    --text-main: #F8FAFC;
+    --text-muted: #94A3B8;
+    --border-color: #374151;
 }
 
-/* Transiciones Globales Suaves para Cambio de Tema */
-body, .main-content, .card-dashboard, .card, .bg-white, .bg-light, header, .list-group-item, .card-header, .card-footer, table, th, td, .dropdown-menu {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+/* =========================================================
+   CORRECCIÓN DE BUGS: TABLAS Y DATATABLES EN MODO OSCURO
+   ========================================================= */
+[data-theme="dark"] .table td,
+[data-theme="dark"] .table th,
+[data-theme="dark"] .dataTables_info,
+[data-theme="dark"] .dataTables_wrapper,
+[data-theme="dark"] .dataTables_length,
+[data-theme="dark"] .dataTables_filter label,
+[data-theme="dark"] .page-link {
+    color: #F9FAFB !important;
+}
+
+[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd),
+[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) td {
+    background-color: #1F2937 !important;
+    color: #F9FAFB !important;
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover td {
+    background-color: #374151 !important;
+}
+
+/* Transiciones Globales Suaves para Cambio de Tema y Animaciones */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+body,
+.main-content,
+.card-reditus,
+.card-dashboard,
+.card,
+.bg-white,
+.bg-light,
+header,
+.list-group-item,
+.card-header,
+.card-footer,
+table,
+th,
+td,
+.dropdown-menu {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease !important;
 }
 
 /* =========================================================
@@ -84,20 +147,23 @@ body, .main-content, .card-dashboard, .card, .bg-white, .bg-light, header, .list
 [data-theme="dark"] .card-dashboard {
     background-color: var(--bg-card) !important;
     border-color: var(--border-color) !important;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
 }
 
 [data-theme="dark"] .dropdown-menu {
     background-color: var(--bg-card);
     border-color: var(--border-color);
 }
+
 [data-theme="dark"] .dropdown-item {
     color: var(--text-main);
 }
+
 [data-theme="dark"] .dropdown-item:hover {
     background-color: #1E293B;
     color: var(--accent-color);
 }
+
 [data-theme="dark"] .dropdown-divider {
     border-top-color: var(--border-color);
 }
@@ -249,10 +315,11 @@ body.sidebar-collapsed #sidebarMenu {
 }
 
 /* =========================================================
-   BOTONES ELEGANTES Y COHESIVOS (No más confusión de negro/verde)
+   BOTONES ELEGANTES Y COHESIVOS (Soft UI y Dinamismo)
    ========================================================= */
 .btn {
-    border-radius: 6px;
+    border-radius: 8px;
+    /* Un poco más redondo */
     font-weight: 500;
     padding: 0.5rem 1.2rem;
     transition: var(--transition-global);
@@ -262,16 +329,20 @@ body.sidebar-collapsed #sidebarMenu {
     gap: 0.4rem;
 }
 
-/* Botón Principal / Crear / Agregar (Ahora es Indigo Tech, súper profesional) */
+/* Nuevo Botón Principal: Dodger Blue */
+.btn-dodger,
 .btn-primary {
     background-color: var(--accent-color) !important;
     color: #FFFFFF !important;
     box-shadow: var(--shadow-sm);
 }
 
+.btn-dodger:hover,
 .btn-primary:hover {
-    background-color: #4F46E5 !important;
-    transform: translateY(-1px);
+    background-color: #2563EB !important;
+    /* Azul más intenso */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 /* Botón de Dinero / Éxito (Verde Esmeralda para Registros de Compra/Venta) */
@@ -283,7 +354,8 @@ body.sidebar-collapsed #sidebarMenu {
 
 .btn-success:hover {
     background-color: #059669 !important;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 /* Botones de Información / Ver Detalles (El ojito de la tabla) */
@@ -298,16 +370,28 @@ body.sidebar-collapsed #sidebarMenu {
 }
 
 /* =========================================================
-   ESTANDARIZACIÓN DE TABLAS
+/* =========================================================
+   ESTANDARIZACIÓN DE TABLAS Y CARDS (SOFT UI)
    ========================================================= */
+.card-reditus {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 16px !important;
+    /* 12px a 16px */
+    padding: 1.5rem !important;
+    box-shadow: var(--shadow-md) !important;
+    animation: fadeInSlideUp 0.4s ease-out forwards;
+}
+
+[data-theme="dark"] .card-reditus:hover {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
 .table-responsive {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    border-radius: 0.5rem;
-    box-shadow: var(--shadow-sm);
-    background-color: #ffffff;
-    border: 1px solid var(--border-color);
+    border-radius: 12px;
 }
 
 .table {
@@ -324,24 +408,43 @@ body.sidebar-collapsed #sidebarMenu {
     letter-spacing: 0.05em;
     font-weight: 600;
     padding: 12px 16px;
+    border: none !important;
+    /* Sin bordes verticales ni gruesos */
     border-bottom: 1px solid var(--border-color) !important;
-    border-top: none !important;
+}
+
+[data-theme="dark"] .table thead th {
+    background-color: #111827 !important;
 }
 
 .table tbody td {
-    padding: 14px 16px;
+    padding: 14px 18px;
+    /* Padding amplio */
     border-bottom: 1px solid var(--border-color);
     font-size: 0.875rem;
     color: var(--text-main);
     vertical-align: middle;
+    transition: var(--transition-global);
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #F8FAFC;
+    background-color: rgba(0, 0, 0, 0.01);
 }
 
-.table-hover tbody tr:hover {
+[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.01);
+}
+
+.table-hover tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.table-hover tbody tr:hover td {
     background-color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover td {
+    background-color: #1E293B !important;
 }
 
 /* =========================================================
@@ -355,16 +458,28 @@ body.sidebar-collapsed #sidebarMenu {
     align-items: center;
     justify-content: center;
     padding: 0 !important;
-    border: 1px solid transparent;
+    border: none;
     background-color: transparent;
     color: var(--text-muted);
     transition: var(--transition-global);
 }
 
 .btn-action:hover {
-    background-color: #F1F5F9;
-    color: var(--accent-color);
-    border-color: var(--border-color);
+    transform: translateY(-2px);
+    background-color: transparent;
+    /* Fondo transparente, solo colorean el icono */
+}
+
+.btn-action.text-danger:hover {
+    color: var(--danger-color) !important;
+}
+
+.btn-action.text-success:hover {
+    color: var(--secondary-color) !important;
+}
+
+.btn-action.text-warning:hover {
+    color: var(--warning-color) !important;
 }
 
 .btn svg,
@@ -378,14 +493,17 @@ body.sidebar-collapsed #sidebarMenu {
 }
 
 /* =========================================================
-   BADGES (INSIGNIAS)
+   BADGES (INSIGNIAS REDITUS)
    ========================================================= */
-.badge {
+.badge,
+.badge-reditus {
     padding: 6px 12px !important;
     font-size: 0.75rem !important;
     font-weight: 600 !important;
     border-radius: 9999px !important;
     text-transform: capitalize;
+    border: 1px solid transparent;
+    opacity: 0.9;
 }
 
 .badge-success {
@@ -536,4 +654,93 @@ body.sidebar-collapsed #sidebarMenu {
 #sidebarMenu .collapse .nav-link:hover {
     color: #FFFFFF !important;
     opacity: 1;
+}
+
+/* =========================================================
+   ESTANDARIZACIÓN VISUAL DE SELECT2 (CON VARIABLES REALES REDITUS)
+   ========================================================= */
+
+/* Corrección Crítica: Evitar colapso a 0px en contenedores Flexbox/Grid */
+.select2-container {
+    box-sizing: border-box;
+    display: block !important;
+    width: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* El cuadro principal del Select */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+    background-color: var(--bg-card) !important;
+    /* Variable corregida */
+    border: 1px solid var(--border-color) !important;
+    /* Variable corregida */
+    border-radius: 8px !important;
+    /* Valor estático seguro */
+    height: 38px !important;
+    /* Altura estándar Bootstrap */
+    padding: 0.375rem 0.75rem;
+    display: flex;
+    align-items: center;
+    transition: var(--transition-global);
+    /* Variable corregida */
+}
+
+/* El texto dentro del Select */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--text-main) !important;
+    /* Variable corregida */
+    line-height: normal !important;
+    padding-left: 0 !important;
+}
+
+/* La flecha de la derecha */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    right: 10px !important;
+}
+
+/* =========================================================
+   ESTILOS DEL MENÚ DESPLEGABLE (DROPDOWN) DE SELECT2
+   ========================================================= */
+
+/* El contenedor de la lista que se abre */
+.select2-dropdown {
+    background-color: var(--bg-card) !important;
+    /* Variable corregida */
+    border: 1px solid var(--accent-color) !important;
+    /* Borde azul al abrir */
+    border-radius: 8px !important;
+    box-shadow: var(--shadow-md) !important;
+    /* Variable corregida */
+    z-index: 1056 !important;
+    /* Por encima de los modales */
+}
+
+/* La caja de búsqueda interna (cuando hay muchos items) */
+.select2-search--dropdown .select2-search__field {
+    background-color: var(--bg-dashboard) !important;
+    /* Variable corregida */
+    color: var(--text-main) !important;
+    /* Variable corregida */
+    border: 1px solid var(--border-color) !important;
+    /* Variable corregida */
+    border-radius: 4px;
+    padding: 6px 10px;
+}
+
+/* Las opciones de la lista */
+.select2-results__option {
+    color: var(--text-main) !important;
+    /* Variable corregida */
+    padding: 8px 12px;
+}
+
+/* La opción seleccionada o sobre la que pasa el mouse */
+.select2-results__option--highlighted[aria-selected],
+.select2-results__option--highlighted {
+    background-color: var(--accent-color) !important;
+    /* Variable corregida */
+    color: #FFFFFF !important;
 }

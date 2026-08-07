@@ -2,8 +2,8 @@
    MÓDULO DE ETIQUETAS - DEBUGGING SELECT2
 ==================================================================== */
 
-$(document).ready(function() {
-    
+$(document).ready(function () {
+
     console.log("🚩 [0] Archivo etiquetas.js (Modo Debug) cargado.");
 
     // Inicializar Select2 general
@@ -14,10 +14,10 @@ $(document).ready(function() {
 
     let inputFisico = $("#inputLectorEtiquetas");
     let html5QrcodeScanner = null;
-    let tablaVaciaHtml = $("#filaVaciaEtiquetas").prop('outerHTML'); 
+    let tablaVaciaHtml = $("#filaVaciaEtiquetas").prop('outerHTML');
 
     // MANTENER FOCO
-    $(document).on("click", function(e) {
+    $(document).on("click", function (e) {
         if (!$(e.target).closest('.modal').length && !$(e.target).closest('.select2-container').length && e.target.id !== 'formatoImpresion') {
             inputFisico.focus();
         }
@@ -26,7 +26,7 @@ $(document).ready(function() {
     /* ==============================================================
        2. BUSCADOR DE PRODUCTOS MANUAL (CON BANDERAS)
        ============================================================== */
-    
+
     // Destruimos por si el inicializador global lo afectó
     if ($('#buscadorManualEtiquetas').hasClass("select2-hidden-accessible")) {
         console.log("🚩 [2] Destruyendo inicialización previa del buscador manual...");
@@ -43,16 +43,16 @@ $(document).ready(function() {
             type: 'POST',
             dataType: 'json',
             delay: 250,
-            data: function (params) { 
+            data: function (params) {
                 console.log("🚩 [AJAX ENVIANDO] Buscando término:", params.term);
-                return { buscarProductoSelect: params.term }; 
+                return { buscarProductoSelect: params.term };
             },
             processResults: function (data) {
                 console.log("🚩 [AJAX RESPUESTA] Datos recibidos de PHP:", data);
                 return {
                     results: $.map(data, function (item) {
                         return {
-                            id: item.codigo_barras, 
+                            id: item.codigo_barras,
                             text: item.codigo_barras + ' - ' + item.nombre
                         }
                     })
@@ -60,7 +60,7 @@ $(document).ready(function() {
             },
             cache: true,
             // NUEVO: Captura de errores internos de Select2
-            error: function(jqXHR, status, error) {
+            error: function (jqXHR, status, error) {
                 console.error("🚨 [ERROR SELECT2 AJAX] Falló la petición.");
                 console.error("Status:", status);
                 console.error("Error:", error);
@@ -73,20 +73,20 @@ $(document).ready(function() {
         let codigoSeleccionado = e.params.data.id;
         console.log("🚩 [SELECCIÓN] Código clickeado:", codigoSeleccionado);
         procesarCodigoBarras(codigoSeleccionado);
-        $(this).val(null).trigger('change'); 
+        $(this).val(null).trigger('change');
     });
 
     /* ==============================================================
        RESTO DEL CÓDIGO (Escáner, Procesar, Eliminar y PDF)
        Mantenemos exactamente el tuyo para no alterar nada más.
        ============================================================== */
-    
-    inputFisico.on("keypress", function(e) {
-        if (e.which === 13) { 
+
+    inputFisico.on("keypress", function (e) {
+        if (e.which === 13) {
             e.preventDefault();
             let codigoLeido = $(this).val().trim();
             if (codigoLeido !== "") { procesarCodigoBarras(codigoLeido); }
-            $(this).val(""); 
+            $(this).val("");
         }
     });
 
@@ -124,7 +124,7 @@ $(document).ready(function() {
 
         $.ajax({
             url: "index.php", method: "POST", data: { codigoBarrasConsulta: codigo }, dataType: "json",
-            success: function(res) {
+            success: function (res) {
                 Swal.close();
                 if (res.status === "success") {
                     let p = res.data;
@@ -153,7 +153,7 @@ $(document).ready(function() {
                 }
                 inputFisico.focus();
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 Swal.close();
                 Swal.fire('Error', 'Fallo al consultar el servidor.', 'error');
                 inputFisico.focus();
@@ -161,12 +161,12 @@ $(document).ready(function() {
         });
     }
 
-    $("#tablaEtiquetas").on("change", ".input-cantidad-etiqueta", function() {
-        if($(this).val() < 1) $(this).val(1);
+    $("#tablaEtiquetas").on("change", ".input-cantidad-etiqueta", function () {
+        if ($(this).val() < 1) $(this).val(1);
         actualizarContadorTotal();
     });
 
-    $("#tablaEtiquetas").on("click", ".btnQuitarEtiqueta", function() {
+    $("#tablaEtiquetas").on("click", ".btnQuitarEtiqueta", function () {
         $(this).closest("tr").remove();
         if ($("#listaEtiquetasTemporal tr").length === 0) { $("#listaEtiquetasTemporal").html(tablaVaciaHtml); }
         actualizarContadorTotal();
@@ -174,13 +174,13 @@ $(document).ready(function() {
 
     function actualizarContadorTotal() {
         let total = 0;
-        $(".input-cantidad-etiqueta").each(function() { total += parseInt($(this).val()); });
+        $(".input-cantidad-etiqueta").each(function () { total += parseInt($(this).val()); });
         $("#contadorEtiquetasTotales").text(`${total} Etiquetas`);
     }
 
-    $("#btnGenerarPDFEtiquetas").on("click", function() {
+    $("#btnGenerarPDFEtiquetas").on("click", function () {
         let arrayEtiquetas = [];
-        $(".input-cantidad-etiqueta").each(function() {
+        $(".input-cantidad-etiqueta").each(function () {
             arrayEtiquetas.push({ codigo: $(this).attr("data-codigo"), cantidad: parseInt($(this).val()) });
         });
 
@@ -193,7 +193,7 @@ $(document).ready(function() {
         let datosJsonString = JSON.stringify(arrayEtiquetas);
         let urlGenerador = `etiquetas-pdf.php?formato=${formato}&datos=${encodeURIComponent(datosJsonString)}`;
         window.open(urlGenerador, '_blank');
-        
+
         Swal.fire({
             title: '¡PDF Generado!', text: "¿Desea limpiar la lista actual para escanear nuevos pasillos?", icon: 'success', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#6c757d', confirmButtonText: 'Sí, limpiar lista', cancelButtonText: 'No, mantener lista'
         }).then((result) => {

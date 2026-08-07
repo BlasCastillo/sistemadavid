@@ -6,7 +6,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
 ?>
 <div class="content-wrapper">
     <section class="content-header mb-3">
-        <div class="container-fluid">
+        <div class="container-fluid px-0">
             <div class="row mb-2 align-items-center">
                 <div class="col-sm-6">
                     <h1 class="m-0 fw-bold"><i class="fas fa-history text-secondary me-2"></i> Historial de Cierres Z</h1>
@@ -22,7 +22,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
     </section>
 
     <section class="content">
-        <div class="card shadow-sm border-top border-secondary border-3">
+        <div class="card-reditus p-4 shadow-sm border-top border-secondary border-3">
             <div class="card-body">
                 <table class="table table-bordered table-striped dt-responsive tablaHistorialZ" width="100%">
                     <thead class="table-dark">

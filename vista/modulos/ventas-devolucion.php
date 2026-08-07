@@ -37,7 +37,7 @@ $detalles = $datosVenta["detalles"];
 $pagos = $datosVenta["pagos"];
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800 fw-bold">
             <i class="fas fa-exchange-alt text-danger me-2"></i> Gestión de Devolución
@@ -50,7 +50,7 @@ $pagos = $datosVenta["pagos"];
     <div class="row">
         <!-- COLUMNA IZQUIERDA: RESUMEN DE LA FACTURA ORIGINAL -->
         <div class="col-lg-4 mb-4">
-            <div class="card shadow border-0 border-top border-dark border-3 h-100">
+            <div class="card-reditus p-4 shadow border-0 border-top border-dark border-3 h-100">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 fw-bold text-dark"><i class="fas fa-file-invoice me-1"></i> Factura Original: F-<?php echo $cabecera->numero_factura; ?></h6>
                 </div>
@@ -92,7 +92,7 @@ $pagos = $datosVenta["pagos"];
 
         <!-- COLUMNA DERECHA: SELECCIÓN DE PRODUCTOS A DEVOLVER -->
         <div class="col-lg-8 mb-4">
-            <div class="card shadow border-0 border-top border-danger border-3">
+            <div class="card-reditus p-4 shadow border-0 border-top border-danger border-3">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 fw-bold text-danger"><i class="fas fa-box-open me-1"></i> Selección de Productos a Reversar</h6>
                     <button class="btn btn-sm btn-outline-primary" id="btnSeleccionarTodo">Seleccionar Todo</button>

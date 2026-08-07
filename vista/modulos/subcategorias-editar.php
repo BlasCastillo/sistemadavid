@@ -7,7 +7,7 @@ if (isset($_GET["idSubcategoria"])) {
 $categoriasActivas = CategoriasControlador::ctrMostrarCategorias(null, 1);
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800"><i class="fas fa-edit text-warning me-2"></i> Editar Subcategoría</h1>
         <a href="index.php?ruta=subcategorias" class="btn btn-secondary shadow-sm"><i class="fas fa-arrow-left me-1"></i> Volver</a>
@@ -15,7 +15,7 @@ $categoriasActivas = CategoriasControlador::ctrMostrarCategorias(null, 1);
 
     <div class="row">
         <div class="col-md-6">
-            <div class="card shadow border-0 border-top border-warning border-3">
+            <div class="card-reditus p-4 shadow border-0 border-top border-warning border-3">
                 <div class="card-body p-4">
                     <form id="formEditarSubcategoria" autocomplete="off">
                         

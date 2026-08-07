@@ -1,4 +1,12 @@
-$(document).ready(function() {
+$(document).ready(function () {
+
+    // 🛡️ ESCUDO DE URL: Si no estamos en la bitácora, el script se apaga.
+    const parametrosUrl = new URLSearchParams(window.location.search);
+    const rutaActual = parametrosUrl.get('ruta');
+
+    if (rutaActual !== 'bitacora') {
+        return;
+    }
 
     // Inicializamos Select2 si lo estás usando (opcional, para que los selectores se vean geniales)
     if ($('.select2').length > 0) {
@@ -8,15 +16,15 @@ $(document).ready(function() {
     // Variables globales para la paginación nativa
     let bitacoraData = [];
     let currentPage = 1;
-    const rowsPerPage = 15; 
+    const rowsPerPage = 15;
 
     // 1. Carga inicial automática (Sin filtros)
-    if($("#cuerpoBitacora").length > 0) {
+    if ($("#cuerpoBitacora").length > 0) {
         cargarBitacora(null, null, null, null);
     }
 
     // 2. Evento del botón Filtrar
-    $("#btnFiltrarBitacora").on("click", function() {
+    $("#btnFiltrarBitacora").on("click", function () {
         let inicio = $("#filtroFechaInicio").val();
         let fin = $("#filtroFechaFin").val();
         let usuario = $("#filtroUsuario").val();
@@ -31,12 +39,12 @@ $(document).ready(function() {
     });
 
     // 3. Evento del botón Limpiar
-    $("#btnLimpiarFiltros").on("click", function() {
+    $("#btnLimpiarFiltros").on("click", function () {
         $("#filtroFechaInicio").val("");
         $("#filtroFechaFin").val("");
         $("#filtroUsuario").val("").trigger('change'); // trigger change resetea el visual de Select2
         $("#filtroModulo").val("").trigger('change');
-        
+
         cargarBitacora(null, null, null, null);
     });
 
@@ -44,7 +52,7 @@ $(document).ready(function() {
     // FUNCIÓN PRINCIPAL: TRAER DATOS POR AJAX
     // ==========================================
     function cargarBitacora(fechaInicio, fechaFin, usuarioFiltro, moduloFiltro) {
-        
+
         $("#cuerpoBitacora").html('<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div> Analizando registros...</td></tr>');
 
         $.ajax({
@@ -58,11 +66,11 @@ $(document).ready(function() {
                 moduloFiltro: moduloFiltro
             },
             dataType: "json",
-            success: function(respuesta) {
+            success: function (respuesta) {
                 bitacoraData = respuesta;
                 currentPage = 1; // Reseteamos a la página 1
-                
-                if(bitacoraData.length === 0) {
+
+                if (bitacoraData.length === 0) {
                     $("#cuerpoBitacora").html('<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-search me-2"></i> No se encontraron movimientos con los filtros seleccionados.</td></tr>');
                     $("#infoPaginacion").text("Mostrando 0 registros");
                     $("#paginacionBitacora").empty();
@@ -71,7 +79,7 @@ $(document).ready(function() {
                     renderizarPaginacion();
                 }
             },
-            error: function() {
+            error: function () {
                 $("#cuerpoBitacora").html('<tr><td colspan="6" class="text-center py-4 text-danger">Error de comunicación con el servidor de auditoría.</td></tr>');
             }
         });
@@ -86,14 +94,14 @@ $(document).ready(function() {
         let fin = inicio + rowsPerPage;
         let datosPagina = bitacoraData.slice(inicio, fin);
 
-        datosPagina.forEach(function(item) {
-            
+        datosPagina.forEach(function (item) {
+
             // Colores semánticos
             let colorModulo = "text-dark";
-            if(item.modulo.includes("Seguridad")) colorModulo = "text-danger fw-bold";
-            if(item.modulo.includes("Ventas")) colorModulo = "text-success fw-bold";
-            if(item.modulo.includes("Compras")) colorModulo = "text-primary fw-bold";
-            if(item.modulo.includes("Tesorería")) colorModulo = "text-warning fw-bold";
+            if (item.modulo.includes("Seguridad")) colorModulo = "text-danger fw-bold";
+            if (item.modulo.includes("Ventas")) colorModulo = "text-success fw-bold";
+            if (item.modulo.includes("Compras")) colorModulo = "text-primary fw-bold";
+            if (item.modulo.includes("Tesorería")) colorModulo = "text-warning fw-bold";
 
             html += `<tr>
                         <td class="small">${item.fecha}</td>
@@ -134,7 +142,7 @@ $(document).ready(function() {
     }
 
     // Delegación de eventos para la paginación dinámica
-    $(document).on("click", "#paginacionBitacora .page-link", function() {
+    $(document).on("click", "#paginacionBitacora .page-link", function () {
         let parent = $(this).parent();
         if (parent.hasClass("disabled") || $(this).hasClass("active")) {
             return;

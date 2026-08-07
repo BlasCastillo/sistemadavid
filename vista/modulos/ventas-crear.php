@@ -11,7 +11,7 @@ $clientes = ClientesControlador::ctrMostrarClientes(null, 1);
 if(!is_array($clientes)) { $clientes = []; }
 ?>
 
-<div class="container-fluid py-4 h-100">
+<div class="container-fluid px-0">
     
     <!-- CABECERA DEL MÓDULO POS -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -30,7 +30,7 @@ if(!is_array($clientes)) { $clientes = []; }
     <div class="row">
         <!-- COLUMNA IZQUIERDA -->
         <div class="col-lg-4 mb-4">
-            <div class="card shadow border-0 border-top border-success border-3 mb-4">
+            <div class="card-reditus p-4 shadow border-0 border-top border-success border-3 mb-4">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 fw-bold text-success"><i class="fas fa-barcode me-2"></i>Captura de Productos</h6>
                 </div>
@@ -55,7 +55,7 @@ if(!is_array($clientes)) { $clientes = []; }
             </div>
 
             <!-- PANEL DE FACTURAS SUSPENDIDAS -->
-            <div class="card shadow border-0">
+            <div class="card-reditus p-4 shadow border-0">
                 <div class="card-header bg-dark text-white py-3">
                     <h6 class="m-0 fw-bold"><i class="fas fa-pause-circle me-2 text-warning"></i> Facturas en Espera</h6>
                 </div>
@@ -68,13 +68,13 @@ if(!is_array($clientes)) { $clientes = []; }
 
         <!-- COLUMNA DERECHA -->
         <div class="col-lg-8 mb-4">
-            <div class="card shadow border-0 h-100 flex-column d-flex">
+            <div class="card-reditus p-4 shadow border-0 h-100 flex-column d-flex">
                 <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <h6 class="m-0 fw-bold text-dark"><i class="fas fa-shopping-basket me-2 text-primary"></i> Carrito Actual</h6>
                     
                     <!-- SELECT 2 HÍBRIDO (CLIENTES) -->
                     <div style="width: 300px;">
-                        <select class="form-select" id="identificadorClientePOS">
+                        <select class="form-select select2-dinamico" id="identificadorClientePOS">
                             <option value="" selected disabled>Buscar o ingresar C.I...</option>
                             <?php foreach($clientes as $cli): ?>
                                 <option value="<?php echo $cli->getDocumento(); ?>">

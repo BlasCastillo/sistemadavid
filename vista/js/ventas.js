@@ -2,13 +2,13 @@
    MÓDULO DE VENTAS (CAJA POS) - DEBUGGING Y CARRITO
 ==================================================================== */
 
-$(document).ready(function() {
+$(document).ready(function () {
 
-        if ($("#listaVentasTemporal").length === 0) return; 
+    if ($("#listaVentasTemporal").length === 0) return;
 
     console.log("🚩 [0] Archivo ventas.js cargado correctamente.");
-    
-    
+
+
 
     // Configuración HÍBRIDA para Clientes (Permite seleccionar o escribir uno nuevo)
     $('#identificadorClientePOS').select2({
@@ -26,9 +26,9 @@ $(document).ready(function() {
     let html5QrcodeScanner = null; // Para la cámara móvil
 
     // Mantener el foco en el escáner láser por defecto (con excepciones)
-    $(document).on("click", function(e) {
-        if (!$(e.target).closest('.modal').length && 
-            !$(e.target).closest('.select2-container').length && 
+    $(document).on("click", function (e) {
+        if (!$(e.target).closest('.modal').length &&
+            !$(e.target).closest('.select2-container').length &&
             !$(e.target).closest('.swal2-container').length && // NUEVO: Excepción para SweetAlert (PIN de descuento)
             e.target.id !== 'identificadorClientePOS' &&
             e.target.id !== 'buscadorSuspendidas' &&          // Excepción para el buscador
@@ -43,7 +43,7 @@ $(document).ready(function() {
     /* ==============================================================
        1. BÚSQUEDA Y CAPTURA DE PRODUCTOS
        ============================================================== */
-    
+
     // 1.A - Búsqueda Manual
     $('#buscadorManualVentas').select2({
         placeholder: 'Escanee o escriba el nombre...',
@@ -68,17 +68,17 @@ $(document).ready(function() {
         let codigo = e.params.data.id;
         console.log("🚩 [MANUAL] Código seleccionado:", codigo);
         agregarProductoCarrito(codigo, 1);
-        $(this).val(null).trigger('change'); 
+        $(this).val(null).trigger('change');
     });
 
     // 1.B - Escáner Físico
-    inputFisico.on("keypress", function(e) {
-        if (e.which === 13) { 
+    inputFisico.on("keypress", function (e) {
+        if (e.which === 13) {
             e.preventDefault();
             let codigo = $(this).val().trim();
             console.log("🚩 [PISTOLA] Enter detectado. Código:", codigo);
             if (codigo !== "") { agregarProductoCarrito(codigo, 1); }
-            $(this).val(""); 
+            $(this).val("");
         }
     });
 
@@ -106,24 +106,24 @@ $(document).ready(function() {
     /* ==============================================================
        2. GESTIÓN DEL CARRITO (CON BANDERAS DE DEBUG)
        ============================================================== */
-    
+
     function agregarProductoCarrito(codigo, cantidad) {
         console.log(`🚩 [AJAX 1] Enviando a PHP -> Codigo: ${codigo}, Cantidad: ${cantidad}`);
-        
+
         $.ajax({
             url: "index.php",
             method: "POST",
             data: { codigoProductoVenta: codigo, cantidadVenta: cantidad },
             dataType: "json",
-            success: function(res) {
+            success: function (res) {
                 console.log("🚩 [RESPUESTA PHP 1] Agregar Producto:", res);
-                if(res.status === "success") {
+                if (res.status === "success") {
                     cargarCarritoVentas();
                 } else {
                     Swal.fire({ icon: 'warning', title: 'Atención', text: res.mensaje, timer: 3000 });
                 }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error("🚨 [ERROR FATAL AJAX 1] agregarProductoCarrito");
                 console.error("Status:", status);
                 console.error("Respuesta Cruda PHP:", xhr.responseText);
@@ -134,23 +134,23 @@ $(document).ready(function() {
 
     function cargarCarritoVentas() {
         console.log("🚩 [AJAX 2] Solicitando carrito activo...");
-        
+
         $.ajax({
             url: "index.php",
             method: "POST",
             data: { cargarTemporalesVenta: "ok" },
             dataType: "json",
-            success: function(respuesta) {
+            success: function (respuesta) {
                 console.log("🚩 [RESPUESTA PHP 2] Carrito Actual:", respuesta);
-                
+
                 let filas = "";
                 let totalUsdt = 0;
 
                 if (respuesta.length === 0) {
                     filas = `<tr><td colspan="5" class="text-center py-4 text-muted"><i class="fas fa-shopping-basket fa-2x mb-2 d-block"></i> El carrito está vacío</td></tr>`;
                 } else {
-                    respuesta.forEach(function(item) {
-                        
+                    respuesta.forEach(function (item) {
+
                         // MODIFICADO PARA DESCUENTOS PARCIALES
                         let subtotalBruto = parseFloat(item.cantidad) * parseFloat(item.precio_venta_usdt);
                         let descVisual = parseFloat(item.descuento_aplicado || 0);
@@ -180,8 +180,8 @@ $(document).ready(function() {
 
                 $("#listaVentasTemporal").html(filas);
                 $("#totalVentaUsdtVisual").text("$" + totalUsdt.toFixed(2));
-                
-                if(totalUsdt > 0) {
+
+                if (totalUsdt > 0) {
                     $("#btnProcederPago").prop("disabled", false);
                     $("#btnSuspenderFactura").prop("disabled", false);
                 } else {
@@ -189,7 +189,7 @@ $(document).ready(function() {
                     $("#btnSuspenderFactura").prop("disabled", true);
                 }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error("🚨 [ERROR FATAL AJAX 2] cargarCarritoVentas");
                 console.error("Respuesta Cruda PHP:", xhr.responseText);
             }
@@ -201,40 +201,40 @@ $(document).ready(function() {
     // =========================================================================
 
     // 2.A Quitar producto del carrito (Botón Rojo)
-    $("#tablaVentasCrear").on("click", ".btnQuitarItemVenta", function() {
+    $("#tablaVentasCrear").on("click", ".btnQuitarItemVenta", function () {
         let idItem = $(this).attr("idItem");
         console.log("🚩 [ACCIÓN] Eliminando item ID:", idItem);
         $.ajax({
             url: "index.php", method: "POST", data: { idTemporalVentaEliminar: idItem }, dataType: "json",
-            success: function(res) {
-                if(res.status === "success") { cargarCarritoVentas(); }
+            success: function (res) {
+                if (res.status === "success") { cargarCarritoVentas(); }
             }
         });
     });
 
     // 2.B Actualizar cantidad desde el input numérico
-    $("#tablaVentasCrear").on("change", ".input-cantidad-venta", function() {
+    $("#tablaVentasCrear").on("change", ".input-cantidad-venta", function () {
         let idItem = $(this).attr("idItem");
         let nuevaCant = $(this).val();
-        
+
         console.log(`🚩 [ACCIÓN] Modificando cantidad. Item ID: ${idItem}, Nueva Cant: ${nuevaCant}`);
 
-        if(nuevaCant < 1) { 
-            nuevaCant = 1; 
-            $(this).val(1); 
+        if (nuevaCant < 1) {
+            nuevaCant = 1;
+            $(this).val(1);
         }
 
         $.ajax({
             url: "index.php", method: "POST", data: { idItemActualizar: idItem, nuevaCantidad: nuevaCant }, dataType: "json",
-            success: function(res) {
-                if(res.status === "success") { 
+            success: function (res) {
+                if (res.status === "success") {
                     cargarCarritoVentas(); // Recarga para actualizar los totales
                 } else {
                     Swal.fire("Atención", res.mensaje, "warning");
                     cargarCarritoVentas(); // Devuelve el input a su valor original por falta de stock
                 }
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 console.error("🚨 [ERROR FATAL] Actualizando Cantidad:", xhr.responseText);
             }
         });
@@ -243,7 +243,7 @@ $(document).ready(function() {
     // =========================================================================
     // 2.C LÓGICA DE DESCUENTO PARCIAL POR PRODUCTO (NUEVO)
     // =========================================================================
-    $("#tablaVentasCrear").on("click", ".btnDescuentoItem", async function() {
+    $("#tablaVentasCrear").on("click", ".btnDescuentoItem", async function () {
         let idItem = $(this).attr("idItem");
         let cant = parseFloat($(this).attr("cant"));
         let precioBase = parseFloat($(this).attr("precioBase"));
@@ -270,9 +270,9 @@ $(document).ready(function() {
             $.ajax({
                 url: "index.php", method: "POST", dataType: "json",
                 data: { supUsuario: formValues.usuario, supPin: formValues.pin },
-                success: async function(resAuth) {
+                success: async function (resAuth) {
                     if (resAuth.status === "success") {
-                        
+
                         // 2. Si el PIN es correcto, pedir el Monto del Descuento
                         const { value: montoDescuento } = await Swal.fire({
                             title: `Descuento Aprobado por ${resAuth.nombre_supervisor}`,
@@ -284,15 +284,15 @@ $(document).ready(function() {
                         });
 
                         if (montoDescuento) {
-                            if(parseFloat(montoDescuento) > maxDescuento) {
+                            if (parseFloat(montoDescuento) > maxDescuento) {
                                 Swal.fire("Error", "El descuento no puede ser mayor al valor total del producto.", "error"); return;
                             }
                             // 3. Aplicar en la Base de Datos Temporal
                             $.ajax({
                                 url: "index.php", method: "POST", dataType: "json",
                                 data: { idItemDescuento: idItem, montoDescuento: montoDescuento },
-                                success: function(resDesc) {
-                                    if(resDesc.status === "success") {
+                                success: function (resDesc) {
+                                    if (resDesc.status === "success") {
                                         Swal.fire({ icon: 'success', title: 'Descuento Aplicado', timer: 1500, showConfirmButton: false });
                                         cargarCarritoVentas();
                                     }
@@ -310,13 +310,13 @@ $(document).ready(function() {
     /* ==============================================================
        3. SUSPENSIÓN Y RECUPERACIÓN DE FACTURAS
        ============================================================== */
-       
+
     // Suspender
-    $("#btnSuspenderFactura").on("click", function() {
+    $("#btnSuspenderFactura").on("click", function () {
         let cedula = $("#identificadorClientePOS").val();
-        
+
         // Verificamos si es null (cuando escriben pero no le dan a la opción de crear la etiqueta) o vacío
-        if(!cedula || cedula.trim() === "") {
+        if (!cedula || cedula.trim() === "") {
             Swal.fire("Cédula Requerida", "Debe ingresar o seleccionar el DNI/Cédula del cliente para poder suspender su factura.", "warning");
             $("#identificadorClientePOS").select2('open'); // Abrimos el select para que lo vea
             return;
@@ -326,7 +326,7 @@ $(document).ready(function() {
 
         $.ajax({
             url: "index.php", method: "POST", data: { cedulaSuspender: cedula }, dataType: "json",
-            success: function(res) {
+            success: function (res) {
                 if (res.status === "success") {
                     Swal.fire({ icon: 'info', title: 'Factura Suspendida', text: res.mensaje, timer: 2000, showConfirmButton: false });
                     $("#identificadorClientePOS").val(null).trigger('change');
@@ -344,13 +344,13 @@ $(document).ready(function() {
         console.log("🚩 [AJAX 3] Buscando facturas suspendidas...");
         $.ajax({
             url: "index.php", method: "POST", data: { listarSuspendidas: "ok" }, dataType: "json",
-            success: function(respuesta) {
+            success: function (respuesta) {
                 console.log("🚩 [RESPUESTA PHP 3] Suspendidas:", respuesta);
                 let html = "";
-                if(respuesta.length === 0) {
+                if (respuesta.length === 0) {
                     html = `<div class="alert alert-light text-center border text-muted small py-3"><i class="fas fa-check-circle d-block mb-1 fs-5"></i> Sin facturas en espera</div>`;
                 } else {
-                    respuesta.forEach(function(fac) {
+                    respuesta.forEach(function (fac) {
                         html += `
                             <div class="card border-warning mb-2 shadow-sm item-suspendida" data-cedula="${fac.identificador_cliente.toLowerCase()}">
                                 <div class="card-body p-2 d-flex justify-content-between align-items-center">
@@ -366,14 +366,14 @@ $(document).ready(function() {
                 }
                 $("#panelFacturasSuspendidas").html(html);
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 console.error("🚨 [ERROR FATAL AJAX 3] Suspendidas:", xhr.responseText);
             }
         });
     }
 
     // Recuperar
-    $("#panelFacturasSuspendidas").on("click", ".btnRecuperarFactura", function() {
+    $("#panelFacturasSuspendidas").on("click", ".btnRecuperarFactura", function () {
         let cedula = $(this).attr("cedulaFactura");
         console.log("🚩 [ACCIÓN] Recuperando factura de:", cedula);
 
@@ -388,12 +388,12 @@ $(document).ready(function() {
             if (result.isConfirmed) {
                 $.ajax({
                     url: "index.php", method: "POST", data: { cedulaRecuperar: cedula }, dataType: "json",
-                    success: function(res) {
+                    success: function (res) {
                         if (res.status === "success") {
                             // Aquí inyectamos el nuevo valor en el Select2 y forzamos el cambio
                             let newOption = new Option(cedula, cedula, true, true);
                             $('#identificadorClientePOS').append(newOption).trigger('change');
-                            
+
                             cargarCarritoVentas();
                             cargarFacturasSuspendidas();
                             Swal.fire({ icon: 'success', title: 'Recuperada', timer: 1500, showConfirmButton: false });
@@ -407,10 +407,10 @@ $(document).ready(function() {
     /* ==============================================================
        4. PROCEDER AL PAGO (Redirección a vista 2)
        ============================================================== */
-    $("#btnProcederPago").on("click", function() {
+    $("#btnProcederPago").on("click", function () {
         let cedula = $("#identificadorClientePOS").val();
-        
-        if(!cedula || cedula.trim() === "") {
+
+        if (!cedula || cedula.trim() === "") {
             Swal.fire("Cédula Requerida", "Debe ingresar o seleccionar el DNI/Cédula del cliente para poder facturar.", "warning");
             $("#identificadorClientePOS").select2('open');
             return;
@@ -423,10 +423,10 @@ $(document).ready(function() {
     /* ==============================================================
        5. BUSCADOR EN TIEMPO REAL DE FACTURAS SUSPENDIDAS
        ============================================================== */
-    $("#buscadorSuspendidas").on("keyup", function() {
+    $("#buscadorSuspendidas").on("keyup", function () {
         let valorFiltro = $(this).val().toLowerCase();
-        
-        $("#panelFacturasSuspendidas .item-suspendida").filter(function() {
+
+        $("#panelFacturasSuspendidas .item-suspendida").filter(function () {
             // Oculta las tarjetas que no coincidan con lo que se escribe
             $(this).toggle($(this).attr("data-cedula").indexOf(valorFiltro) > -1);
         });

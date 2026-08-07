@@ -9,7 +9,7 @@ if ($_SESSION["rol_id"] != 1) {
 $roles = RolesControlador::ctrMostrarRoles();
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800"><i class="fas fa-user-plus text-primary me-2"></i> Registrar Nuevo Usuario</h1>
@@ -18,7 +18,7 @@ $roles = RolesControlador::ctrMostrarRoles();
         </a>
     </div>
 
-    <div class="card shadow mb-4 border-0">
+    <div class="card-reditus p-4 shadow mb-4 border-0">
         <div class="card-header bg-white py-3">
             <h6 class="m-0 fw-bold text-primary">Complete los datos del personal</h6>
         </div>
@@ -82,7 +82,7 @@ $roles = RolesControlador::ctrMostrarRoles();
 
                 <div class="d-flex justify-content-end">
                     <a href="index.php?ruta=usuarios" class="btn btn-outline-secondary me-2">Cancelar</a>
-                    <button type="submit" class="btn btn-primary fw-bold px-4"><i class="fas fa-save me-2"></i> Guardar Usuario</button>
+                    <button type="submit" class="btn btn-dodger fw-bold px-4"><i class="fas fa-save me-2"></i> Guardar Usuario</button>
                 </div>
 
             </form>

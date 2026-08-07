@@ -35,7 +35,7 @@ $esperados = $datosTurno["esperados"];
             
             <!-- COLUMNA IZQUIERDA: ARQUEO FÍSICO (Lo que el cajero debe digitar) -->
             <div class="col-md-6 mb-4">
-                <div class="card shadow border-0 border-top border-warning border-3 h-100">
+                <div class="card-reditus p-4 shadow border-0 border-top border-warning border-3 h-100">
                     <div class="card-header bg-white py-3">
                         <h6 class="m-0 fw-bold text-warning"><i class="fas fa-hand-holding-usd me-2"></i> 1. Dinero Físico (En Gaveta)</h6>
                         <small class="text-muted">Cuente y digite exactamente lo que tiene.</small>
@@ -73,7 +73,7 @@ $esperados = $datosTurno["esperados"];
 
             <!-- COLUMNA DERECHA: DIGITAL (Lo que el sistema auto-rellena) -->
             <div class="col-md-6 mb-4">
-                <div class="card shadow border-0 border-top border-info border-3 h-100">
+                <div class="card-reditus p-4 shadow border-0 border-top border-info border-3 h-100">
                     <div class="card-header bg-white py-3">
                         <h6 class="m-0 fw-bold text-info"><i class="fas fa-laptop-code me-2"></i> 2. Pagos Electrónicos</h6>
                         <small class="text-muted">Calculados automáticamente por el sistema.</small>
@@ -107,7 +107,7 @@ $esperados = $datosTurno["esperados"];
         </div>
 
         <!-- ACCIÓN FINAL -->
-        <div class="card shadow border-0 mt-2">
+        <div class="card-reditus p-4 shadow border-0 mt-2">
             <div class="card-body p-4 text-center bg-light">
                 <h5 class="fw-bold mb-3">¿Está seguro de enviar su Arqueo de Caja?</h5>
                 <button type="submit" class="btn btn-warning btn-lg fw-bold px-5 shadow" id="btnProcesarArqueo">

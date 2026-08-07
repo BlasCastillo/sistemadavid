@@ -6,7 +6,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
 }
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <!-- CABECERA -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -19,7 +19,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
     </div>
 
     <!-- TABLA DE DATOS -->
-    <div class="card shadow border-0">
+    <div class="card-reditus p-4 shadow border-0">
         <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-hover table-striped tablaOfertas align-middle text-start w-100">

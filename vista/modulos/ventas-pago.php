@@ -53,7 +53,7 @@ foreach($carrito as $item) {
 $totalBs = $totalUsdt * $tasaBcvHoy;
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800 fw-bold"><i class="fas fa-wallet text-success me-2"></i> Liquidación y Pagos</h1>
@@ -67,7 +67,7 @@ $totalBs = $totalUsdt * $tasaBcvHoy;
              COLUMNA IZQUIERDA: DATOS DEL CLIENTE
              ============================================================== -->
         <div class="col-lg-4 mb-4">
-            <div class="card shadow border-0 border-top border-primary border-3 mb-4 h-100">
+            <div class="card-reditus p-4 shadow border-0 border-top border-primary border-3 mb-4 h-100">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 fw-bold text-primary"><i class="fas fa-user-tag me-2"></i>Datos de Facturación</h6>
                     <?php if($esClienteNuevo): ?>
@@ -110,7 +110,7 @@ $totalBs = $totalUsdt * $tasaBcvHoy;
              COLUMNA DERECHA: MULTIPAGO Y DESCUENTOS
              ============================================================== -->
         <div class="col-lg-8 mb-4">
-            <div class="card shadow border-0 h-100">
+            <div class="card-reditus p-4 shadow border-0 h-100">
                 
                 <!-- ZONA DE TOTALES -->
                 <div class="card-body bg-dark text-white rounded-top p-4 d-flex justify-content-between align-items-center">
@@ -151,7 +151,7 @@ $totalBs = $totalUsdt * $tasaBcvHoy;
                             <input type="number" step="0.01" min="0.01" class="form-control border-primary" id="montoMultipago" placeholder="0.00">
                         </div>
                         <div class="col-md-2 d-grid">
-                            <button type="button" class="btn btn-primary fw-bold" id="btnAgregarPago"><i class="fas fa-plus"></i></button>
+                            <button type="button" class="btn btn-dodger fw-bold" id="btnAgregarPago"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
 

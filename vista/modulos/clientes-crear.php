@@ -1,4 +1,4 @@
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800"><i class="fas fa-user-plus text-primary me-2"></i> Registrar Cliente</h1>
         <a href="index.php?ruta=clientes" class="btn btn-secondary shadow-sm"><i class="fas fa-arrow-left me-1"></i> Volver al directorio</a>
@@ -6,7 +6,7 @@
 
     <div class="row">
         <div class="col-md-8">
-            <div class="card shadow border-0 border-top border-primary border-3">
+            <div class="card-reditus p-4 shadow border-0 border-top border-primary border-3">
                 <div class="card-body p-4">
                     <form id="formAgregarCliente" autocomplete="off">
                         
@@ -56,7 +56,7 @@
                         
                         <div class="d-flex justify-content-end">
                             <a href="index.php?ruta=clientes" class="btn btn-outline-secondary me-2">Cancelar</a>
-                            <button type="submit" class="btn btn-primary fw-bold px-4"><i class="fas fa-save me-2"></i> Guardar Cliente</button>
+                            <button type="submit" class="btn btn-dodger fw-bold px-4"><i class="fas fa-save me-2"></i> Guardar Cliente</button>
                         </div>
                     </form>
                 </div>

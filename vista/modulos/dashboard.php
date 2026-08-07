@@ -18,7 +18,7 @@ $global = DashboardControlador::ctrResumenGlobal();
 $analitica = DashboardControlador::ctrTopProductos();
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     
     <!-- ENCABEZADO Y SINCRONIZACIÓN -->
     <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
@@ -36,8 +36,8 @@ $analitica = DashboardControlador::ctrTopProductos();
                     <?php echo $tasaActual ? date('d/m/Y - h:i A', strtotime($tasaActual->creado_en)) : "Sin datos"; ?>
                 </strong>
             </span>
-            <button class="btn btn-sm btn-outline-primary" id="btnForzarSincronizacion">
-                <i class="fas fa-sync-alt me-1"></i> Sincronizar
+            <button class="btn btn-sm btn-dodger" id="btnForzarSincronizacion">
+                <i class="fas fa-sync-alt"></i> Sincronizar
             </button>
         </div>
     </div>
@@ -45,7 +45,7 @@ $analitica = DashboardControlador::ctrTopProductos();
     <!-- BLOQUE A: TASAS DE CAMBIO (Estandarizado a Soft UI) -->
     <div class="row g-4 mb-4">
         <div class="col-xl-4 col-md-6">
-            <div class="card card-dashboard p-3 h-100 border-bottom border-primary border-3">
+            <div class="card card-reditus p-3 h-100 border-bottom border-primary border-3">
                 <div class="d-flex align-items-center">
                     <div class="icon-shape bg-soft-primary">
                         <i class="fas fa-university"></i>
@@ -58,7 +58,7 @@ $analitica = DashboardControlador::ctrTopProductos();
             </div>
         </div>
         <div class="col-xl-4 col-md-6">
-            <div class="card card-dashboard p-3 h-100 border-bottom border-warning border-3">
+            <div class="card card-reditus p-3 h-100 border-bottom border-warning border-3">
                 <div class="d-flex align-items-center">
                     <div class="icon-shape bg-soft-warning">
                         <i class="fab fa-bitcoin"></i>
@@ -71,7 +71,7 @@ $analitica = DashboardControlador::ctrTopProductos();
             </div>
         </div>
         <div class="col-xl-4 col-md-6">
-            <div class="card card-dashboard p-3 h-100 border-bottom border-danger border-3">
+            <div class="card card-reditus p-3 h-100 border-bottom border-danger border-3">
                 <div class="d-flex align-items-center">
                     <div class="icon-shape" style="background-color: #FEE2E2; color: #EF4444;">
                         <i class="fas fa-percentage"></i>
@@ -90,7 +90,7 @@ $analitica = DashboardControlador::ctrTopProductos();
     <div class="row g-4 mb-4">
         <!-- Ingresos Hoy -->
         <div class="col-xl-3 col-md-6">
-            <div class="card card-dashboard p-3 h-100">
+            <div class="card card-reditus p-3 h-100">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
                         <div class="text-muted small fw-bold text-uppercase mb-1">Ingresos de Hoy</div>
@@ -105,7 +105,7 @@ $analitica = DashboardControlador::ctrTopProductos();
         </div>
         <!-- Ticket Promedio -->
         <div class="col-xl-3 col-md-6">
-            <div class="card card-dashboard p-3 h-100">
+            <div class="card card-reditus p-3 h-100">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
                         <div class="text-muted small fw-bold text-uppercase mb-1">Ticket Promedio</div>
@@ -120,7 +120,7 @@ $analitica = DashboardControlador::ctrTopProductos();
         </div>
         <!-- Cuentas Por Cobrar -->
         <div class="col-xl-3 col-md-6">
-            <div class="card card-dashboard p-3 h-100">
+            <div class="card card-reditus p-3 h-100">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
                         <div class="text-muted small fw-bold text-uppercase mb-1">Por Cobrar</div>
@@ -135,7 +135,7 @@ $analitica = DashboardControlador::ctrTopProductos();
         </div>
         <!-- Valor Inventario -->
         <div class="col-xl-3 col-md-6">
-            <div class="card card-dashboard p-3 h-100">
+            <div class="card card-reditus p-3 h-100">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
                         <div class="text-muted small fw-bold text-uppercase mb-1">Inventario</div>
@@ -160,25 +160,25 @@ $analitica = DashboardControlador::ctrTopProductos();
         <div class="col-lg-8">
             <div class="row g-3 mb-4">
                 <div class="col-sm-3 col-6">
-                    <div class="card card-dashboard p-3 text-center h-100">
+                    <div class="card card-reditus p-3 text-center h-100">
                         <div class="text-muted small fw-bold text-uppercase mb-1">Clientes Hoy</div>
                         <h4 class="fw-bolder text-dark m-0"><?php echo $diario["facturas_hoy"]; ?></h4>
                     </div>
                 </div>
                 <div class="col-sm-3 col-6">
-                    <div class="card card-dashboard p-3 text-center h-100">
+                    <div class="card card-reditus p-3 text-center h-100">
                         <div class="text-muted small fw-bold text-uppercase mb-1">Cajeros Act.</div>
                         <h4 class="fw-bolder text-dark m-0"><?php echo $diario["cajeros_activos"]; ?></h4>
                     </div>
                 </div>
                 <div class="col-sm-3 col-6">
-                    <div class="card card-dashboard p-3 text-center h-100">
+                    <div class="card card-reditus p-3 text-center h-100">
                         <div class="text-muted small fw-bold text-uppercase mb-1">Compras Mes</div>
                         <h4 class="fw-bolder text-dark m-0"><?php echo $global["compras_mes"]; ?></h4>
                     </div>
                 </div>
                 <div class="col-sm-3 col-6">
-                    <div class="card card-dashboard p-3 text-center h-100 <?php echo $global["alerta_stock"] > 0 ? 'border-danger border-2' : ''; ?>">
+                    <div class="card card-reditus p-3 text-center h-100 <?php echo $global["alerta_stock"] > 0 ? 'border-danger border-2' : ''; ?>">
                         <div class="text-muted small fw-bold text-uppercase mb-1 <?php echo $global["alerta_stock"] > 0 ? 'text-danger' : ''; ?>">Alerta Stock</div>
                         <h4 class="fw-bolder m-0 <?php echo $global["alerta_stock"] > 0 ? 'text-danger' : 'text-dark'; ?>"><?php echo $global["alerta_stock"]; ?> <small class="fs-6 text-muted fw-normal">Prod.</small></h4>
                     </div>
@@ -186,7 +186,7 @@ $analitica = DashboardControlador::ctrTopProductos();
             </div>
 
             <!-- Gráfico de Ventas -->
-            <div class="card card-dashboard h-100">
+            <div class="card card-reditus h-100">
                 <div class="card-header bg-transparent py-3 border-0 border-bottom">
                     <h6 class="m-0 fw-bold text-dark"><i class="fas fa-chart-bar me-2 text-primary"></i> Flujo de Ingresos (Últimos 7 días)</h6>
                 </div>
@@ -200,7 +200,7 @@ $analitica = DashboardControlador::ctrTopProductos();
 
         <!-- Columna Derecha: Ranking de Productos (Estandarizado) -->
         <div class="col-lg-4">
-            <div class="card card-dashboard h-100">
+            <div class="card card-reditus h-100">
                 <div class="card-header bg-transparent py-3 border-0 border-bottom">
                     <h6 class="m-0 fw-bold text-dark"><i class="fas fa-trophy text-warning me-2"></i> Top 5: Más Vendidos (Mes)</h6>
                 </div>
@@ -232,7 +232,7 @@ $analitica = DashboardControlador::ctrTopProductos();
                     <div class="text-muted small fw-bold text-uppercase mb-1"><i class="fas fa-truck-loading me-1"></i> Más comprado (Mes):</div>
                     <h6 class="fw-bold text-primary mb-0 d-flex justify-content-between align-items-center">
                         <span class="text-truncate me-2"><?php echo $analitica["mas_comprado"]["nombre"]; ?></span>
-                        <span class="badge bg-soft-primary"><?php echo $analitica["mas_comprado"]["total_comprado"]; ?> Und</span>
+                        <span class="badge-reditus"><?php echo $analitica["mas_comprado"]["total_comprado"]; ?> Und</span>
                     </h6>
                 </div>
             </div>

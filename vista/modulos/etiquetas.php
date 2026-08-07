@@ -6,7 +6,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
 }
 ?>
 
-<div class="container-fluid py-4 h-100">
+<div class="container-fluid px-0">
     
     <!-- CABECERA DEL MÓDULO -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -15,7 +15,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
             <small class="text-muted d-block mt-1">Escanee productos en el piso de ventas para actualizar sus habladores de precio.</small>
         </div>
         <!-- Botones de Cámara Omnicanal -->
-        <button class="btn btn-primary btn-lg rounded-pill shadow-sm d-md-none fw-bold" data-bs-toggle="modal" data-bs-target="#modalScannerCamara">
+        <button class="btn btn-dodger btn-lg rounded-pill shadow-sm d-md-none fw-bold" data-bs-toggle="modal" data-bs-target="#modalScannerCamara">
             <i class="fas fa-camera me-2"></i> Escanear con Cámara
         </button>
         <button class="btn btn-outline-primary shadow-sm d-none d-md-inline-block fw-bold" data-bs-toggle="modal" data-bs-target="#modalScannerCamara">
@@ -28,7 +28,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
              COLUMNA IZQUIERDA: CONFIGURACIÓN E INPUTS
              ============================================================== -->
         <div class="col-lg-4 mb-4">
-            <div class="card shadow border-0 border-top border-primary border-3 h-100">
+            <div class="card-reditus p-4 shadow border-0 border-top border-primary border-3 h-100">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 fw-bold text-primary"><i class="fas fa-cogs me-2"></i>Captura y Formato</h6>
                 </div>
@@ -80,7 +80,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
              COLUMNA DERECHA: LA LISTA DE IMPRESIÓN (CARRITO DOM)
              ============================================================== -->
         <div class="col-lg-8 mb-4">
-            <div class="card shadow border-0 h-100">
+            <div class="card-reditus p-4 shadow border-0 h-100">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 fw-bold text-dark"><i class="fas fa-list-ol me-2"></i>Lista de Habladores a Imprimir</h6>
                     <span class="badge bg-primary rounded-pill" id="contadorEtiquetasTotales">0 Etiquetas</span>

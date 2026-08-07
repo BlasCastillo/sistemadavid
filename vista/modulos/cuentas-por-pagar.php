@@ -3,18 +3,18 @@
 $cuentas = CuentasPorPagarControlador::ctrMostrarCuentas();
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="module-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-hand-holding-usd me-2 text-danger"></i> Cuentas por Pagar (CxP)</h4>
             <small class="text-muted d-block mt-1">Gestión de deudas a proveedores y control de pagos.</small>
         </div>
-        <a href="index.php?ruta=compras-crear" class="btn btn-primary shadow-sm">
+        <a href="index.php?ruta=compras-crear" class="btn btn-dodger shadow-sm">
             <i class="fas fa-truck-loading me-1"></i> Nueva Compra
         </a>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-reditus p-4 border-0 shadow-sm rounded-3">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover table-striped align-middle mb-0 tablaCuentasPorPagar">
@@ -85,7 +85,7 @@ $cuentas = CuentasPorPagarControlador::ctrMostrarCuentas();
                                         </button>
                                         
                                         <?php if($cuenta->saldo_restante_usdt > 0): ?>
-                                            <button class="btn btn-primary btn-sm btnAbonarCxP" idCuenta="<?php echo $cuenta->id; ?>" title="Registrar Abono">
+                                            <button class="btn btn-dodger btn-sm btnAbonarCxP" idCuenta="<?php echo $cuenta->id; ?>" title="Registrar Abono">
                                                 <i class="fas fa-money-bill-wave"></i> Pagar
                                             </button>
                                         <?php else: ?>

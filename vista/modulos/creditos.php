@@ -4,7 +4,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
     exit;
 }
 ?>
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 text-gray-800 fw-bold"><i class="fas fa-hand-holding-usd text-primary me-2"></i> Gestión de Créditos</h1>
@@ -12,7 +12,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
         </div>
     </div>
     
-    <div class="card shadow border-0 border-top border-primary border-3 mb-4">
+    <div class="card-reditus p-4 shadow border-0 border-top border-primary border-3 mb-4">
         <div class="card-header bg-white py-3">
             <h6 class="m-0 fw-bold text-primary"><i class="fas fa-list me-2"></i> Cuentas Pendientes</h6>
         </div>
@@ -61,7 +61,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
                                         <i class="fas fa-list"></i> Pagos
                                     </button>
                                     
-                                    <button class="btn btn-sm btn-primary fw-bold btnAbonarCredito" 
+                                    <button class="btn btn-sm btn-dodger fw-bold btnAbonarCredito" 
                                             idVenta="<?php echo $value->id; ?>"
                                             factura="<?php echo $value->numero_factura; ?>"
                                             cliente="<?php echo $value->cliente_nombre; ?>"
@@ -147,7 +147,7 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm" id="btnGuardarAbono">
+                        <button type="submit" class="btn btn-dodger btn-lg fw-bold shadow-sm" id="btnGuardarAbono">
                             <i class="fas fa-check-circle me-2"></i> Procesar Cuota
                         </button>
                     </div>

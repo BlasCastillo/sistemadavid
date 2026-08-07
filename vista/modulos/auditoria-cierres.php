@@ -32,7 +32,7 @@ $cierres = CierresControlador::ctrMostrarCierres(null, null);
 
 <div class="content-wrapper">
     <section class="content-header mb-3">
-        <div class="container-fluid">
+        <div class="container-fluid px-0">
             <div class="row mb-2 align-items-center">
                 <div class="col-sm-6">
                     <h1 class="m-0 fw-bold"><i class="fas fa-balance-scale text-warning me-2"></i> Auditoría de Cierres (Reportes X)</h1>
@@ -48,7 +48,7 @@ $cierres = CierresControlador::ctrMostrarCierres(null, null);
     </section>
 
     <section class="content">
-        <div class="card shadow-sm border-top border-warning border-3">
+        <div class="card-reditus p-4 shadow-sm border-top border-warning border-3">
             <div class="card-body">
                 
                 <table class="table table-bordered table-striped dt-responsive tabla-auditoria w-100">
@@ -137,4 +137,5 @@ $cierres = CierresControlador::ctrMostrarCierres(null, null);
         </div>
     </div>
 </div>
+
 

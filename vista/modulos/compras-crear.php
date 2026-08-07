@@ -12,7 +12,7 @@ $tasaBcvHoy = $tasaActual ? $tasaActual->tasa_bcv : 1;
 $brechaHoy = $tasaActual ? $tasaActual->brecha_porcentaje : 0;
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800"><i class="fas fa-cart-plus text-success me-2"></i> Registrar Compra</h1>
         <a href="index.php?ruta=compras" class="btn btn-secondary shadow-sm"><i class="fas fa-arrow-left me-1"></i> Volver al Historial</a>
@@ -22,7 +22,7 @@ $brechaHoy = $tasaActual ? $tasaActual->brecha_porcentaje : 0;
         <div class="row">
             
             <div class="col-lg-4 mb-4">
-                <div class="card shadow border-0 border-top border-success border-3 h-100">
+                <div class="card-reditus p-4 shadow border-0 border-top border-success border-3 h-100">
                     <div class="card-header bg-white py-3">
                         <h6 class="m-0 fw-bold text-success"><i class="fas fa-file-invoice-dollar me-2"></i>Datos de la Factura</h6>
                     </div>
@@ -109,7 +109,7 @@ $brechaHoy = $tasaActual ? $tasaActual->brecha_porcentaje : 0;
             </div>
 
             <div class="col-lg-8 mb-4">
-                <div class="card shadow border-0 h-100">
+                <div class="card-reditus p-4 shadow border-0 h-100">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 fw-bold text-dark"><i class="fas fa-boxes me-2"></i>Detalle de Productos</h6>
                     </div>
@@ -131,7 +131,7 @@ $brechaHoy = $tasaActual ? $tasaActual->brecha_porcentaje : 0;
                                 <input type="number" step="0.01" min="0" class="form-control" id="costoNominalItemCompra" placeholder="0.00">
                             </div>
                             <div class="col-md-2 d-grid">
-                                <button type="button" class="btn btn-primary fw-bold" id="btnAgregarItemCompra"><i class="fas fa-plus"></i></button>
+                                <button type="button" class="btn btn-dodger fw-bold" id="btnAgregarItemCompra"><i class="fas fa-plus"></i></button>
                             </div>
                         </div>
 

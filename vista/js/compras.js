@@ -2,7 +2,7 @@
    MÓDULO DE COMPRAS - LÓGICA Y MATEMÁTICAS
    ============================================================== */
 
-$(document).ready(function() {
+$(document).ready(function () {
     if ($('.select2-dinamico').length > 0) {
         $('.select2-dinamico').select2({ placeholder: "Seleccione una opción", allowClear: true });
     }
@@ -34,7 +34,7 @@ $('#buscadorProductosCompra').select2({
         cache: true
     },
     language: {
-        noResults: function() {
+        noResults: function () {
             return `<div class="text-center p-2">
                         <span class="d-block mb-2 text-muted"><i class="fas fa-search-minus me-1"></i> Producto no encontrado</span>
                         <a href="index.php?ruta=productos-crear" class="btn btn-sm btn-primary w-100 shadow-sm" target="_blank">
@@ -42,15 +42,15 @@ $('#buscadorProductosCompra').select2({
                         </a>
                     </div>`;
         },
-        searching: function() { return "Buscando en catálogo..."; },
-        inputTooShort: function(args) { return "Escriba al menos 1 letra o escanee el código..."; }
+        searching: function () { return "Buscando en catálogo..."; },
+        inputTooShort: function (args) { return "Escriba al menos 1 letra o escanee el código..."; }
     },
     escapeMarkup: function (markup) { return markup; }
 });
 
 $('#buscadorProductosCompra').on('select2:select', function (e) {
     let data = e.params.data;
-    if(data.costo_usdt > 0) {
+    if (data.costo_usdt > 0) {
         Swal.fire({
             toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
             icon: 'info', title: `Último costo real: $${parseFloat(data.costo_usdt).toFixed(4)} USDT`
@@ -61,17 +61,17 @@ $('#buscadorProductosCompra').on('select2:select', function (e) {
 /* ==============================================================
    2. AGREGAR AL CARRITO TEMPORAL (FRONTEND SEGURO)
    ============================================================== */
-$("#btnAgregarItemCompra").on("click", function() {
-    
+$("#btnAgregarItemCompra").on("click", function () {
+
     console.log("🟢 1. Se detectó el clic en el botón."); // Auditoría
 
     let idProducto = $("#buscadorProductosCompra").val();
     let cantidad = $("#cantidadItemCompra").val();
     let costoNominal = $("#costoNominalItemCompra").val();
-    let moneda = $("#monedaCompra").val(); 
+    let moneda = $("#monedaCompra").val();
 
     // Validaciones básicas visuales
-    if(!idProducto || cantidad <= 0 || costoNominal <= 0) {
+    if (!idProducto || cantidad <= 0 || costoNominal <= 0) {
         Swal.fire("Atención", "Debe seleccionar un producto, ingresar cantidad y costo válido.", "warning");
         return;
     }
@@ -82,26 +82,26 @@ $("#btnAgregarItemCompra").on("click", function() {
         url: "index.php",
         method: "POST",
         data: {
-            idProductoCompraSegura: idProducto, 
+            idProductoCompraSegura: idProducto,
             cantidadCompra: cantidad,
             costoNominalCompra: costoNominal,
             monedaCompra: moneda
         },
         dataType: "json",
-        success: function(respuesta) {
+        success: function (respuesta) {
             console.log("✅ 3. Respuesta de PHP recibida:", respuesta);
-            
-            if(respuesta.status === "success") {
+
+            if (respuesta.status === "success") {
                 $("#buscadorProductosCompra").val(null).trigger('change');
                 $("#cantidadItemCompra").val("");
                 $("#costoNominalItemCompra").val("");
-                
+
                 cargarCarritoTemporal();
             } else {
                 Swal.fire("Error", respuesta.mensaje, "error");
             }
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             console.error("❌ ERROR FATAL EN PHP:", xhr.responseText);
             Swal.fire("Fallo del Servidor", "Revisa la consola (F12) para ver el error exacto.", "error");
         }
@@ -117,15 +117,15 @@ function cargarCarritoTemporal() {
         method: "POST",
         data: { cargarTemporalesCompra: "ok" },
         dataType: "json",
-        success: function(respuesta) {
+        success: function (respuesta) {
             let filas = "";
             let granTotalNominal = 0;
             let granTotalUsdt = 0;
 
-            respuesta.forEach(function(item) {
+            respuesta.forEach(function (item) {
                 let subtotalNominal = parseFloat(item.cantidad) * parseFloat(item.costo_nominal);
                 let subtotalUsdt = parseFloat(item.cantidad) * parseFloat(item.costo_real_usdt);
-                
+
                 granTotalNominal += subtotalNominal;
                 granTotalUsdt += subtotalUsdt;
 
@@ -146,7 +146,7 @@ function cargarCarritoTemporal() {
             $("#listaItemsTemporal").html(filas);
             $("#granTotalNominalTexto").text(granTotalNominal.toFixed(2));
             $("#granTotalUsdtTexto").text(granTotalUsdt.toFixed(4));
-            
+
             $("#totalNominalCompraForm").val(granTotalNominal);
             $("#totalUsdtCompraForm").val(granTotalUsdt);
         }
@@ -158,18 +158,18 @@ cargarCarritoTemporal();
 /* ==============================================================
    4. ELIMINAR ÍTEM Y PROCESAR COMPRA (CIERRE DE FACTURA)
    ============================================================== */
-$(".tablaComprasTemporales").on("click", ".btnEliminarItemTemporal", function() {
+$(".tablaComprasTemporales").on("click", ".btnEliminarItemTemporal", function () {
     let idTemporal = $(this).attr("idItem");
     $.ajax({
         url: "index.php", method: "POST", data: { idTemporalEliminar: idTemporal }, dataType: "json",
-        success: function(respuesta) {
-            if(respuesta.status === "success") { cargarCarritoTemporal(); } 
+        success: function (respuesta) {
+            if (respuesta.status === "success") { cargarCarritoTemporal(); }
             else { Swal.fire("Error", respuesta.mensaje, "error"); }
         }
     });
 });
 
-$("#formProcesarCompra").on("submit", function(e) {
+$("#formProcesarCompra").on("submit", function (e) {
     e.preventDefault();
     Swal.fire({
         title: '¿Procesar Factura de Compra?', text: "Esta acción sumará el stock, actualizará los costos y no se puede deshacer.",
@@ -181,10 +181,10 @@ $("#formProcesarCompra").on("submit", function(e) {
 
             $.ajax({
                 url: "index.php", method: "POST", data: formData, cache: false, contentType: false, processData: false, dataType: "json",
-                success: function(respuesta) {
+                success: function (respuesta) {
                     if (respuesta.status === "success") {
                         Swal.fire({ icon: 'success', title: '¡Compra Procesada!', text: respuesta.mensaje, showConfirmButton: false, timer: 2000 })
-                        .then(function() { window.location = "index.php?ruta=compras"; });
+                            .then(function () { window.location = "index.php?ruta=compras"; });
                     } else { Swal.fire('Error', respuesta.mensaje, 'error'); }
                 }
             });
@@ -195,23 +195,23 @@ $("#formProcesarCompra").on("submit", function(e) {
 /* ==============================================================
    5. VER DETALLE DE COMPRA (OJO)
    ============================================================== */
-$(".btnImprimirCompra").on("click", function() {
+$(".btnImprimirCompra").on("click", function () {
     let idCompra = $(this).attr("idCompra");
-    let fechaCompra = $(this).attr("fechaCompra"); 
+    let fechaCompra = $(this).attr("fechaCompra");
 
     $.ajax({
         url: "index.php", method: "POST", data: { idCompraDetalle: idCompra }, dataType: "json",
-        success: function(respuesta) {
+        success: function (respuesta) {
             let tabla = `<table class="table table-sm table-bordered table-striped text-start mt-3"><thead class="table-dark"><tr><th>Producto</th><th class="text-center">Cant.</th><th class="text-end">Costo U. (USDT)</th><th class="text-end">Subtotal</th></tr></thead><tbody>`;
             let totalUsdt = 0;
-            respuesta.forEach(function(item) {
+            respuesta.forEach(function (item) {
                 let subtotal = parseFloat(item.cantidad) * parseFloat(item.costo_real_usdt);
                 totalUsdt += subtotal;
                 tabla += `<tr><td><small class="d-block text-muted">${item.codigo_barras}</small> ${item.producto_nombre}</td><td class="text-center fw-bold">${item.cantidad}</td><td class="text-end">$${parseFloat(item.costo_real_usdt).toFixed(4)}</td><td class="text-end fw-bold text-success">$${subtotal.toFixed(4)}</td></tr>`;
             });
             tabla += `</tbody><tfoot><tr><td colspan="3" class="text-end fw-bold text-dark">TOTAL FACTURA (USDT):</td><td class="text-end fw-bold text-success fs-5">$${totalUsdt.toFixed(4)}</td></tr></tfoot></table>`;
-            
-            Swal.fire({ title: '<div class="d-flex justify-content-between align-items-center"><span class="text-dark"><i class="fas fa-file-invoice-dollar text-success me-2"></i> Compra #'+idCompra+'</span> <span class="fs-6 text-muted"><i class="far fa-calendar-alt me-1"></i> '+fechaCompra+'</span></div>', html: tabla, width: 750, showCloseButton: true, showConfirmButton: false });
+
+            Swal.fire({ title: '<div class="d-flex justify-content-between align-items-center"><span class="text-dark"><i class="fas fa-file-invoice-dollar text-success me-2"></i> Compra #' + idCompra + '</span> <span class="fs-6 text-muted"><i class="far fa-calendar-alt me-1"></i> ' + fechaCompra + '</span></div>', html: tabla, width: 750, showCloseButton: true, showConfirmButton: false });
         }
     });
 });
@@ -219,7 +219,7 @@ $(".btnImprimirCompra").on("click", function() {
 /* ==============================================================
    6. CONTROL DE CONDICIÓN DE PAGO (CONTADO / CRÉDITO)
    ============================================================== */
-$("#condicionPagoCompra").on("change", function() {
+$("#condicionPagoCompra").on("change", function () {
     let condicion = $(this).val();
     let inputDias = $("#diasCreditoCompra");
 

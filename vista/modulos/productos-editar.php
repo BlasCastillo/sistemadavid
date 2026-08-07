@@ -23,7 +23,7 @@ foreach(SubcategoriasControlador::ctrMostrarSubcategorias(null, 1) as $sub) {
 }
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800"><i class="fas fa-edit text-warning me-2"></i> Editar Producto</h1>
         <a href="index.php?ruta=productos" class="btn btn-secondary shadow-sm"><i class="fas fa-arrow-left me-1"></i> Volver al Catálogo</a>
@@ -31,7 +31,7 @@ foreach(SubcategoriasControlador::ctrMostrarSubcategorias(null, 1) as $sub) {
 
     <div class="row">
         <div class="col-xl-9 col-lg-10">
-            <div class="card shadow border-0 border-top border-warning border-3">
+            <div class="card-reditus p-4 shadow border-0 border-top border-warning border-3">
                 <div class="card-body p-4">
                     <form id="formEditarProducto" enctype="multipart/form-data" autocomplete="off">
                         

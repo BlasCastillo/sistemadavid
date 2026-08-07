@@ -4,12 +4,12 @@ if (isset($_GET["idLinea"])) {
     if (!$LineaActual) { echo '<script>window.location = "index.php?ruta=Lineas";</script>'; exit; }
 } else { echo '<script>window.location = "index.php?ruta=Lineas";</script>'; exit; }
 ?>
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800"><i class="fas fa-edit text-warning me-2"></i> Editar Categoría</h1>
         <a href="index.php?ruta=Lineas" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Volver</a>
     </div>
-    <div class="row"><div class="col-md-6"><div class="card shadow border-0 border-top border-warning border-3"><div class="card-body p-4">
+    <div class="row"><div class="col-md-6"><div class="card-reditus p-4 shadow border-0 border-top border-warning border-3"><div class="card-body p-4">
         <form id="formEditarLinea" autocomplete="off">
             <input type="hidden" name="idLineaEditar" value="<?php echo $LineaActual->getId(); ?>">
             <div class="mb-4">

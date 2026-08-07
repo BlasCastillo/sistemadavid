@@ -3,13 +3,13 @@
 $config = ConfiguracionControlador::ctrMostrarConfiguracion();
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
 
     <?php if (!isset($_SESSION["superadmin_desbloqueado"]) || $_SESSION["superadmin_desbloqueado"] !== true): ?>
         
         <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
             <div class="col-md-5 col-sm-8">
-                <div class="card shadow border-0 border-top border-danger border-3 text-center p-4">
+                <div class="card-reditus p-4 shadow border-0 border-top border-danger border-3 text-center p-4">
                     <div class="card-body">
                         <div class="text-danger mb-3">
                             <i class="fas fa-user-shield fa-3x"></i>
@@ -21,7 +21,7 @@ $config = ConfiguracionControlador::ctrMostrarConfiguracion();
                             <div class="mb-4">
                                 <input type="password" class="form-control text-center fs-4 fw-bold" name="pinSuperAdmin" placeholder="••••••" maxlength="10" style="letter-spacing: 0.5rem;" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 justify-content-center fw-bold shadow-sm">
+                            <button type="submit" class="btn btn-dodger w-100 justify-content-center fw-bold shadow-sm">
                                 <i class="fas fa-key me-2"></i> Autorizar Acceso
                             </button>
                         </form>
@@ -39,7 +39,7 @@ $config = ConfiguracionControlador::ctrMostrarConfiguracion();
 
         <div class="row">
             <div class="col-xl-9 col-lg-10">
-                <div class="card shadow border-0 border-top border-primary border-3">
+                <div class="card-reditus p-4 shadow border-0 border-top border-primary border-3">
                     <div class="card-body p-4">
                         <form id="formActualizarConfiguracion" autocomplete="off">
                             <input type="hidden" name="actualizarConfiguracion" value="true">
@@ -118,4 +118,5 @@ $config = ConfiguracionControlador::ctrMostrarConfiguracion();
 
     <?php endif; ?>
 </div>
+
 

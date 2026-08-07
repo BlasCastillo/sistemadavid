@@ -19,7 +19,7 @@ if (isset($_GET["idUsuario"])) {
 $roles = RolesControlador::ctrMostrarRoles();
 ?>
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-gray-800"><i class="fas fa-user-edit text-warning me-2"></i> Editar Usuario</h1>
@@ -28,7 +28,7 @@ $roles = RolesControlador::ctrMostrarRoles();
         </a>
     </div>
 
-    <div class="card shadow mb-4 border-0 border-top border-warning border-3">
+    <div class="card-reditus p-4 shadow mb-4 border-0 border-top border-warning border-3">
         <div class="card-header bg-white py-3">
             <h6 class="m-0 fw-bold text-dark">Modificando datos de: <span class="text-primary">@<?php echo $usuarioActual->getUsuario(); ?></span></h6>
         </div>
